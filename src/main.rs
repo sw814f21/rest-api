@@ -1,24 +1,28 @@
-use async_std::println;
-use tide::Request;
-use tide::prelude::*;
+use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 
-#[derive(Debug, Deserialize)]
-struct Animal {
-    name: String,
-    legs: u8,
+#[get("/")]
+async fn hello() -> impl Responder {
+    HttpResponse::Ok().body("Hello world!")
 }
 
-#[async_std::main]
-async fn main() -> tide::Result<()> {
-    println!("Starting up web API").await;
-    let mut app = tide::new();
-    app.at("/orders/shoes").post(order_shoes);
-    println!("Listening for requests...").await;
-    app.listen("127.0.0.1:8080").await?;
-    Ok(())
+#[post("/echo")]
+async fn echo(req_body: String) -> impl Responder {
+    HttpResponse::Ok().body(req_body)
 }
 
-async fn order_shoes(mut req: Request<()>) -> tide::Result {
-    let Animal { name, legs } = req.body_json().await?;
-    Ok(format!("Hello, {}! I've put in an order for {} shoes", name, legs).into())
+async fn manual_hello() -> impl Responder {
+    HttpResponse::Ok().body("Hey there!")
+}
+
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    HttpServer::new(|| {
+        App::new()
+            .service(hello)
+            .service(echo)
+            .route("/hey", web::get().to(manual_hello))
+    })
+    .bind("127.0.0.1:8080")?
+    .run()
+    .await
 }
