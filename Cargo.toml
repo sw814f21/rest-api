@@ -9,4 +9,4 @@ edition = "2018"
 [dependencies]
 actix-web = "3"
 dotenv = "0.15.0"
-diesel = "1.4.6"
+diesel = { version = "1.4.6", features = [ "sqlite" ] }

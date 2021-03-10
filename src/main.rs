@@ -3,6 +3,9 @@ extern crate dotenv;
 use dotenv::dotenv;
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 
+mod database;
+use database::establish_connection;
+
 #[get("/")]
 async fn hello() -> impl Responder {
     HttpResponse::Ok().body("Hello world!")
@@ -20,6 +23,9 @@ async fn manual_hello() -> impl Responder {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
+    
+    let database_url = dotenv::var("DatabaseFile").unwrap();
+    let db_conn = establish_connection(database_url);
 
     HttpServer::new(|| {
         App::new()
