@@ -32,28 +32,7 @@ async fn manual_hello() -> impl Responder {
 use self::models::*;
 use self::diesel::prelude::*;
 
-fn main() {
-    //use diesel_demo::schema::posts::dsl::*;
-
-    use crate::schema::posts::dsl::*;
-
-    let database_url = dotenv::var("DatabaseFile").unwrap();
-
-    let connection = establish_connection(database_url);
-    let results = posts.filter(published.eq(true))
-        .limit(5)
-        .load::<Post>(&connection)
-        .expect("Error loading posts");
-
-    println!("Displaying {} posts", results.len());
-    for post in results {
-        println!("{}", post.title);
-        println!("----------\n");
-        println!("{}", post.body);
-    }
-}
-
-/*#[actix_web::main]
+#[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
     
@@ -84,4 +63,4 @@ async fn main() -> std::io::Result<()> {
     .bind(dotenv::var("Host").unwrap())?
     .run()
     .await
-}*/
+}
