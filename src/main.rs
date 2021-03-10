@@ -1,3 +1,8 @@
+#[macro_use]
+extern crate diesel;
+#[macro_use]
+extern crate diesel_migrations;
+
 extern crate dotenv;
 
 use dotenv::dotenv;
@@ -5,6 +10,9 @@ use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 
 mod database;
 use database::establish_connection;
+
+pub mod schema;
+pub mod models;
 
 #[get("/")]
 async fn hello() -> impl Responder {
