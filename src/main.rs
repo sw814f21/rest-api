@@ -1,5 +1,3 @@
-#[macro_use]
-extern crate dotenv_codegen;
 extern crate dotenv;
 
 use dotenv::dotenv;
@@ -29,7 +27,7 @@ async fn main() -> std::io::Result<()> {
             .service(echo)
             .route("/hey", web::get().to(manual_hello))
     })
-    .bind(dotenv!("Host"))?
+    .bind(dotenv::var("Host").unwrap())?
     .run()
     .await
 }
