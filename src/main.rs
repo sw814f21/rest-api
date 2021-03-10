@@ -3,6 +3,8 @@ extern crate diesel;
 #[macro_use]
 extern crate diesel_migrations;
 
+embed_migrations!();
+
 extern crate dotenv;
 
 use dotenv::dotenv;
@@ -20,6 +22,11 @@ async fn hello() -> impl Responder {
     let database_url = dotenv::var("DatabaseFile").unwrap();
 
     let db_conn = establish_connection(database_url);
+
+    match embedded_migrations::run(&db_conn) {
+        Ok(_v) => (),
+        Err(_e) => panic!("Failed to run migrations")
+    }
 
     use crate::schema::posts::dsl::*;
 
