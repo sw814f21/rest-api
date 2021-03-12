@@ -15,6 +15,7 @@ use database::establish_connection;
 
 pub mod schema;
 pub mod models;
+pub mod routes;
 
 #[get("/")]
 async fn hello(pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>) -> impl Responder {
