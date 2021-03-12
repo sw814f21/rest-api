@@ -3,23 +3,19 @@ extern crate diesel;
 #[macro_use]
 extern crate diesel_migrations;
 
-embed_migrations!();
-
-extern crate dotenv;
-
+use diesel::r2d2::{self, ConnectionManager, Pool};
+use diesel::SqliteConnection;
 use dotenv::dotenv;
 use actix_web::{App, HttpResponse, HttpServer, Responder, get, post, web::{self, JsonConfig}};
+use database::{establish_connection, models::User};
 
 mod database;
-use database::establish_connection;
+mod services;
 
-pub mod schema;
-pub mod models;
-pub mod routes;
+embed_migrations!();
 
 #[get("/")]
 async fn hello(pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>) -> impl Responder {
-
     let conn = pool.get().unwrap();
 
     HttpResponse::Ok().json(User::list(&conn))
@@ -34,16 +30,11 @@ async fn manual_hello() -> impl Responder {
     HttpResponse::Ok().body("Hey there!")
 }
 
-
-use self::models::*;
-use self::diesel::prelude::*;
-
-use diesel::r2d2::{self, ConnectionManager, Pool};
-use diesel::SqliteConnection;
-
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
+
+    // TOOO: Grab connection pool from database.rs's function instead of here. Awaiting Thorulf's testing setup
 
     let database_url = dotenv::var("DatabaseFile").unwrap();
 
