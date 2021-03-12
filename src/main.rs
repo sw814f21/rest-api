@@ -17,22 +17,15 @@ pub mod schema;
 pub mod models;
 
 #[get("/")]
-async fn hello() -> impl Responder {
+async fn hello(pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>) -> impl Responder {
 
-    let database_url = dotenv::var("DatabaseFile").unwrap();
-
-    let db_conn = establish_connection(database_url);
-
-    match embedded_migrations::run(&db_conn) {
-        Ok(_v) => (),
-        Err(_e) => panic!("Failed to run migrations")
-    }
+    let conn = pool.get().unwrap();
 
     use crate::schema::posts::dsl::*;
 
     let results = posts.filter(published.eq(true))
         .limit(5)
-        .load::<Post>(&db_conn)
+        .load::<Post>(&conn)
         .expect("Error loading posts");
 
     println!("Displaying {} posts", results.len());
@@ -58,7 +51,7 @@ async fn manual_hello() -> impl Responder {
 use self::models::*;
 use self::diesel::prelude::*;
 
-use diesel::r2d2::{self, ConnectionManager};
+use diesel::r2d2::{self, ConnectionManager, Pool};
 use diesel::SqliteConnection;
 
 #[actix_web::main]
@@ -71,11 +64,11 @@ async fn main() -> std::io::Result<()> {
 
     let pool = r2d2::Pool::builder().build(manager).expect("Failed to create DB pool.");
 
-    /*let database_pool = r2d2::Pool<ConnectionManager>::builder()
-        .build(ConnectionManager::::new(database_url))
-        .unwrap();*/
-
-    //let db_conn = establish_connection(database_url);
+    let conn = pool.get().unwrap();
+    match embedded_migrations::run(&conn) {
+        Ok(_v) => (),
+        Err(_e) => panic!("Failed to run migrations")
+    }
 
     HttpServer::new(move || {
         App::new()
