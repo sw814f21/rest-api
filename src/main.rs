@@ -22,21 +22,7 @@ async fn hello(pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>) -> im
 
     let conn = pool.get().unwrap();
 
-    use crate::schema::posts::dsl::*;
-
-    let results = posts.filter(published.eq(true))
-        .limit(5)
-        .load::<Post>(&conn)
-        .expect("Error loading posts");
-
-    println!("Displaying {} posts", results.len());
-    for post in results {
-        println!("{}", post.title);
-        println!("----------\n");
-        println!("{}", post.body);
-    }
-
-    HttpResponse::Ok().json("Hello world!")
+    HttpResponse::Ok().json(User::list(&conn))
 }
 
 #[post("/echo")]

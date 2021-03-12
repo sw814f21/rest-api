@@ -18,8 +18,8 @@ use super::schema::posts::dsl::posts as user_dsl;
 #[table_name = "posts"]
 pub struct User {
     pub id: i32,
-    pub title: Option<String>,
-    pub body: Option<String>,
+    pub title: String,
+    pub body: String,
     pub published: bool
 }
 
