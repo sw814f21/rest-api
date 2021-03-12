@@ -1,7 +1,3 @@
-pub mod models;
-pub mod schema;
-
-
 use dotenv::dotenv;
 use diesel::{r2d2::{self, ConnectionManager, Pool}, sqlite::SqliteConnection};
 use std::env;

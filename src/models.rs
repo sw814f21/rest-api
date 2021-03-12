@@ -28,10 +28,10 @@ impl User {
         user_dsl.load::<User>(conn).expect("Error loading posts")
     }
 
-    /*pub fn by_id(id: &str, conn: &SqliteConnection) -> Option<Self> {
+    pub fn by_id(id: i32, conn: &SqliteConnection) -> Option<Self> {
         user_dsl.find(id).get_result::<User>(conn).ok()
     }
-
+    /*
     pub fn by_email(email_str: &str, conn: &SqliteConnection) -> Option<Self> {
         use super::schema::users::dsl::email;
 
