@@ -8,7 +8,7 @@ embed_migrations!();
 extern crate dotenv;
 
 use dotenv::dotenv;
-use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{App, HttpResponse, HttpServer, Responder, get, post, web::{self, JsonConfig}};
 
 mod database;
 use database::establish_connection;
@@ -36,7 +36,7 @@ async fn hello(pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>) -> im
         println!("{}", post.body);
     }
 
-    HttpResponse::Ok().body("Hello world!")
+    HttpResponse::Ok().json("Hello world!")
 }
 
 #[post("/echo")]
@@ -74,6 +74,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .data(pool.clone())
+            .data(JsonConfig::default().limit(4096))
             .service(hello)
             .service(echo)
             .route("/hey", web::get().to(manual_hello))

@@ -1,21 +1,12 @@
+use serde::{Deserialize, Serialize};
 use diesel::prelude::*;
 
-#[derive(Queryable)]
-pub struct Post {
-    pub id: i32,
-    pub title: String,
-    pub body: String,
-    pub published: bool,
-}
-
-use serde::{Deserialize, Serialize};
-
-use super::schema::posts;
-use super::schema::posts::dsl as user_dsl;
+use super::schema::users;
+use super::schema::users::dsl::users as user_dsl;
 
 
 #[derive(Debug, Deserialize, Serialize, Queryable, Insertable)]
-#[table_name = "posts"]
+#[table_name = "users"]
 pub struct User {
     pub id: String,
     pub email: Option<String>,
