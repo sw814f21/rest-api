@@ -11,25 +11,24 @@ pub struct Post {
 use serde::{Deserialize, Serialize};
 
 use super::schema::posts;
-use super::schema::posts::dsl as user_dsl;
+use super::schema::posts::dsl::posts as user_dsl;
 
 
 #[derive(Debug, Deserialize, Serialize, Queryable, Insertable)]
 #[table_name = "posts"]
 pub struct User {
-    pub id: String,
-    pub email: Option<String>,
-    pub phone: Option<String>,
-    pub created_at: chrono::NaiveDateTime,
-    pub updated_at: chrono::NaiveDateTime,
+    pub id: i32,
+    pub title: Option<String>,
+    pub body: Option<String>,
+    pub published: bool
 }
 
 impl User {
     pub fn list(conn: &SqliteConnection) -> Vec<Self> {
-        user_dsl.load::<User>(conn).expect("Error loading users")
+        user_dsl.load::<User>(conn).expect("Error loading posts")
     }
 
-    pub fn by_id(id: &str, conn: &SqliteConnection) -> Option<Self> {
+    /*pub fn by_id(id: &str, conn: &SqliteConnection) -> Option<Self> {
         user_dsl.find(id).get_result::<User>(conn).ok()
     }
 
@@ -43,9 +42,9 @@ impl User {
         use super::schema::users::dsl::phone;
 
         user_dsl.filter(phone.eq(phone_str)).first::<User>(conn).ok()
-    }
+    }*/
 
-    pub fn create(email: Option<&str>, phone: Option<&str>, conn: &SqliteConnection) -> Option<Self> {
+    /*pub fn create(email: Option<&str>, phone: Option<&str>, conn: &SqliteConnection) -> Option<Self> {
         let new_id = Uuid::new_v4().to_hyphenated().to_string();
         
         if email.is_none() && phone.is_none() {
@@ -72,15 +71,14 @@ impl User {
             .expect("Error saving new user");
 
         Self::by_id(&new_id, conn)
-    }
+    }*/
 
-    fn new_user_struct(id: &str, phone: Option<&str>, email: Option<&str>) -> Self {
+    /*fn new_user_struct(id: i32, phone: Option<&str>, email: Option<&str>, published: bool) -> Self {
         User {
             id: id.into(),
-            email: email.map(Into::into),
-            phone: phone.map(Into::into),
-            created_at: chrono::Local::now().naive_local(),
-            updated_at: chrono::Local::now().naive_local(),
+            title: title.map(Into::into),
+            body: body.map(Into::into),
+            published: published.into()
         }
-    }
+    }*/
 }
