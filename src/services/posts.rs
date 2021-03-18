@@ -6,7 +6,6 @@ use crate::database::models::Post;
 #[get("/")]
 pub async fn hello(pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>) -> impl Responder {
     let conn = pool.get().unwrap();
-
     HttpResponse::Ok().json(Post::list(&conn))
 }
 
@@ -62,5 +61,43 @@ mod tests{
             Ok(body) => assert_eq!(body, "Hello, World!"),
             Err(_) => panic!("Couldnt parse response")
         }
+    }
+
+    use crate::database;
+    use crate::database::models::Post;
+
+    #[actix_rt::test]
+    async fn test_index_get_posts(){
+        let x = database::establish_connection();
+
+        let y = database::models::Post{
+            id: 1,
+            title: String::from("Header"),
+            body: String::from("Body"),
+            published: true
+        };
+
+        let p_conn = x.get().unwrap();
+        //database::run_migrations(&p_conn);
+        Post::create(&p_conn, y).expect("Failed to create post");
+        //database::run_migrations(&p_conn2);
+        //let list = Post::list(&p_conn2);
+        //assert_eq!(list[0].title, "XXXX Header XXXX");
+
+        let mut app = init_service(App::new().data(x.clone()).service(super::hello)).await;
+        
+        let result = TestRequest::get()
+        .uri("/")
+        .send_request(&mut app)
+        .await;
+        
+
+
+        let data = read_body(result).await;
+        match String::from_utf8(data.to_vec()){
+            Ok(body) => assert_eq!(body, "[{\"id\":1,\"title\":\"Header\",\"body\":\"Body\",\"published\":true}]"),
+            Err(_) => panic!("Couldnt parse response")
+        }
+
     }
 }

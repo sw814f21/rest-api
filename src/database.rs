@@ -16,9 +16,8 @@ pub fn run_migrations(conn: &SqliteConnection) {
 
 pub fn establish_connection() -> DbPool {
     if cfg!(test) {
-        let manager = ConnectionManager::<SqliteConnection>::new(":memory:");
+        let manager = ConnectionManager::<SqliteConnection>::new("file::memory:?cache=shared");
         let pool = r2d2::Pool::builder().build(manager).expect("Failed to create DB pool.");
-
         run_migrations(&pool.get().unwrap());
 
         pool
