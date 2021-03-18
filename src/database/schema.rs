@@ -6,3 +6,10 @@ table! {
         published -> Bool,
     }
 }
+
+table! {
+    favorites (resturant_id, user_id){
+        resturant_id -> Integer,
+        user_id -> Integer,
+    }
+}

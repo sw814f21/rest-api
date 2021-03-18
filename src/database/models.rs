@@ -74,3 +74,57 @@ impl Post {
         }
     }*/
 }
+
+use super::schema::favorites;
+use super::schema::favorites::dsl::favorites as fav_dsl;
+
+#[derive(Debug, Deserialize, Serialize, Queryable, Insertable)]
+#[table_name = "favorites"]
+pub struct Favorites {
+    pub resturant_id: i32,
+    pub user_id: i32
+}
+
+impl Favorites {
+    pub fn add_favorite (res_id : i32, u_id: i32, conn: &SqliteConnection) -> Self {
+        match Favorites::find_favorite(res_id, u_id, conn){
+            None => {
+                let new_fav = Favorites {
+                    resturant_id : res_id,
+                    user_id : u_id
+                };
+                diesel::insert_into(fav_dsl)
+                    .values(&new_fav)
+                    .execute(conn)
+                    .expect("error saving favorite");
+                new_fav
+            }
+            Some(fav) => {
+                fav 
+            }
+        }
+    }
+
+    pub fn remove_favorite (res_id: i32, u_id: i32, conn: &SqliteConnection) {
+        match Favorites::find_favorite(res_id, u_id, conn){
+            None => {}
+            Some(fav) => {
+                diesel::delete(fav_dsl.find((fav.resturant_id, fav.user_id)))
+                    .execute(conn)
+                    .expect("error deleting");
+            }
+        }
+
+    }
+
+    pub fn find_favorite (res_id:i32, u_id: i32, conn: &SqliteConnection) -> Option<Self> {
+        use super::schema::favorites::dsl::resturant_id;
+        use super::schema::favorites::dsl::user_id;
+
+
+        fav_dsl.filter(resturant_id.eq(res_id)).filter(user_id.eq(u_id)).first::<Favorites>(conn).ok()
+    }
+    pub fn list(conn: &SqliteConnection) -> Vec<Self> {
+        fav_dsl.load::<Favorites>(conn).expect("Error loading posts")
+    }
+}
