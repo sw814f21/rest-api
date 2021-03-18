@@ -3,6 +3,7 @@ use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use super::schema::posts;
+use super::schema::restaurants;
 use super::schema::posts::dsl::posts as post_dsl;
 
 
@@ -13,6 +14,37 @@ pub struct Post {
     pub title: String,
     pub body: String,
     pub published: bool
+}
+
+#[derive(Queryable)]
+pub struct Restaurant {
+    pub id: i32,
+    pub city: Option<String>,
+    pub cvr: Option<String>,
+}
+
+#[derive(Insertable, Deserialize, Serialize)]
+#[table_name = "restaurants"]
+pub struct NewRestaurant {
+    #[serde(alias = "By")]
+    #[serde(skip_serializing_if = "Option::is_none")] 
+    pub city: Option<String>,
+
+    #[serde(alias = "cvrnr")]
+    #[serde(skip_serializing_if = "Option::is_none")] 
+    pub cvr: Option<String>,
+}
+
+pub fn create_restaurant(conn: &SqliteConnection, restaurant_data: NewRestaurant) -> usize {
+    let new_restaurant = NewRestaurant {
+        city: restaurant_data.city,
+        cvr: restaurant_data.cvr
+    };
+
+    diesel::insert_into(restaurants::table)
+        .values(&new_restaurant)
+        .execute(conn)
+        .expect("Error saving new restaurant")
 }
 
 impl Post {
