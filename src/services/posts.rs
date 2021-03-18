@@ -6,7 +6,6 @@ use crate::database::models::Post;
 #[get("/")]
 pub async fn hello(pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>) -> impl Responder {
     let conn = pool.get().unwrap();
-    
     HttpResponse::Ok().json(Post::list(&conn))
 }
 
