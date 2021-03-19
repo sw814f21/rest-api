@@ -4,6 +4,7 @@ use std::env;
 
 pub mod models;
 pub mod schema;
+pub mod restaurants_repository;
 
 embed_migrations!();
 

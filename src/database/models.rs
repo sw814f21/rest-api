@@ -35,13 +35,6 @@ pub struct NewRestaurant {
     pub cvr: Option<String>,
 }
 
-pub fn insert_restaurants(conn: &SqliteConnection, restaurants_data: &Vec<NewRestaurant>) -> usize {
-    diesel::insert_into(restaurants::table)
-        .values(restaurants_data)
-        .execute(conn)
-        .expect("Error saving new restaurant")
-}
-
 impl Post {
     pub fn list(conn: &SqliteConnection) -> Vec<Self> {
         post_dsl.load::<Post>(conn).expect("Error loading posts")
