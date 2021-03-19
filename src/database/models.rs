@@ -35,14 +35,9 @@ pub struct NewRestaurant {
     pub cvr: Option<String>,
 }
 
-pub fn create_restaurant(conn: &SqliteConnection, restaurant_data: NewRestaurant) -> usize {
-    let new_restaurant = NewRestaurant {
-        city: restaurant_data.city,
-        cvr: restaurant_data.cvr
-    };
-
+pub fn create_restaurant(conn: &SqliteConnection, restaurant_data: &NewRestaurant) -> usize {
     diesel::insert_into(restaurants::table)
-        .values(&new_restaurant)
+        .values(restaurant_data)
         .execute(conn)
         .expect("Error saving new restaurant")
 }

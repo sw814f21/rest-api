@@ -15,7 +15,7 @@ pub fn load_data(path: &String){
 
     let pb = ProgressBar::new(r.len() as u64);
     for (_,restaurant) in r {
-        models::create_restaurant(&connection, restaurant);
+        models::create_restaurant(&connection, &restaurant);
         pb.inc(1);
     }
 
