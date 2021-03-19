@@ -10,8 +10,14 @@ table! {
 table! {
     restaurants (id) {
         id -> Integer,
-        city -> Nullable<Text>,
-        cvr -> Nullable<Text>,
+        city -> Text,
+        cvr -> Text,
+        latitude -> Float,
+        longitude -> Float,
+        pnr -> Text,
+        address -> Text,
+        url -> Text,
+        zipcode -> Text,
     }
 }
 

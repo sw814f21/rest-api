@@ -19,20 +19,42 @@ pub struct Post {
 #[derive(Queryable)]
 pub struct Restaurant {
     pub id: i32,
-    pub city: Option<String>,
-    pub cvr: Option<String>,
+    pub city: String,
+    pub cvr: String,
+    pub longitude: f32,
+    pub latitude: f32,
+    pub pnr: String,
+    pub address: String,
+    pub url: String,
+    pub zipcode: String,
 }
 
 #[derive(Insertable, Deserialize, Serialize)]
 #[table_name = "restaurants"]
 pub struct NewRestaurant {
     #[serde(alias = "By")]
-    #[serde(skip_serializing_if = "Option::is_none")] 
-    pub city: Option<String>,
+    pub city: String,
 
     #[serde(alias = "cvrnr")]
-    #[serde(skip_serializing_if = "Option::is_none")] 
-    pub cvr: Option<String>,
+    pub cvr: String,
+
+    #[serde(alias = "Geo_Lat")]
+    pub latitude: f32,
+
+    #[serde(alias = "Geo_Lng")]
+    pub longitude: f32,
+
+    #[serde(alias = "pnr")]
+    pub pnr: String,
+
+    #[serde(alias = "adresse1")]
+    pub address: String,
+
+    #[serde(alias = "URL")]
+    pub url: String,
+
+    #[serde(alias = "postnr")]
+    pub zipcode: String,
 }
 
 impl Post {
