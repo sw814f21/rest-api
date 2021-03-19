@@ -78,34 +78,16 @@ impl Post {
         user_dsl.filter(phone.eq(phone_str)).first::<Post>(conn).ok()
     }*/
 
-    /*pub fn create(email: Option<&str>, phone: Option<&str>, conn: &SqliteConnection) -> Option<Self> {
-        let new_id = Uuid::new_v4().to_hyphenated().to_string();
-        
-        if email.is_none() && phone.is_none() {
-            return None
-        } 
-                
-        if phone.is_some() {
-            if let Some(user) = Self::by_phone(&phone.unwrap(), conn) {
-                return Some(user)
-            } 
-        }
-        
-        if email.is_some() {
-            if let Some(user) = Self::by_email(&email.unwrap(), conn) {
-                return Some(user)
-            } 
-        }
+    pub fn create(conn: &SqliteConnection, post: Post) -> Option<Self> {
+        let id = post.id;
 
-        let new_user = Self::new_user_struct(&new_id, phone, email);
-
-        diesel::insert_into(user_dsl)
-            .values(&new_user)
+        diesel::insert_into(post_dsl)
+            .values(&post)
             .execute(conn)
             .expect("Error saving new user");
 
-        Self::by_id(&new_id, conn)
-    }*/
+        Self::by_id(id, conn)
+    }
 
     /*fn new_user_struct(id: i32, phone: Option<&str>, email: Option<&str>, published: bool) -> Self {
         Post {
