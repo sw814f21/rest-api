@@ -35,9 +35,9 @@ pub struct NewRestaurant {
     pub cvr: Option<String>,
 }
 
-pub fn create_restaurant(conn: &SqliteConnection, restaurant_data: &NewRestaurant) -> usize {
+pub fn insert_restaurants(conn: &SqliteConnection, restaurants_data: &Vec<NewRestaurant>) -> usize {
     diesel::insert_into(restaurants::table)
-        .values(restaurant_data)
+        .values(restaurants_data)
         .execute(conn)
         .expect("Error saving new restaurant")
 }
