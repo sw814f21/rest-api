@@ -128,3 +128,53 @@ impl Favorites {
         fav_dsl.load::<Favorites>(conn).expect("Error loading posts")
     }
 }
+
+
+use super::schema::users;
+use super::schema::users::dsl::users as u_dsl;
+
+#[derive(Debug, Deserialize, Serialize, Queryable, Insertable)]
+#[table_name = "users"]
+pub struct User {
+    pub token_id: String,
+    pub notification: i32
+}
+
+impl User {
+
+    pub fn new_user(id: String, conn: &SqliteConnection){
+        let a_user = User{
+            token_id: id,
+            notification: 0
+        };
+        match u_dsl.find(&a_user.token_id).first::<User>(conn).ok(){
+            None => {
+                diesel::insert_into(u_dsl)
+                    .values(&a_user)
+                    .execute(conn)
+                    .expect("failed to insert new user");
+                }
+            Some(_) =>{}
+            }
+    }
+
+    pub fn notification_change(id: String, conn: &SqliteConnection){
+        use super::schema::users::dsl::token_id;
+        use super::schema::users::dsl::notification;
+        let a_user = u_dsl.find(id).first::<User>(conn).ok();
+        match a_user {
+            None =>{}
+            Some(x) => {
+                diesel::update(u_dsl.filter(token_id.eq(x.token_id)))
+                    .set(notification.eq(if x.notification == 1 {0} else {1}))
+                    .execute(conn)
+                    .expect("error updating notification setting");
+                
+            }
+        }
+    }
+
+
+
+
+}

@@ -13,3 +13,10 @@ table! {
         user_id -> Integer,
     }
 }
+
+table! {
+    users (token_id){
+        token_id -> Text,
+        notification -> Integer,
+    }
+}
