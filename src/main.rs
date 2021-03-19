@@ -40,6 +40,7 @@ async fn main() -> std::io::Result<()> {
             .service(services::posts::add_favorite)
             .service(services::posts::remove_favorite)
             .service(services::posts::all_favorites)
+            .service(services::posts::new_user)
             .route("/hey", web::get().to(services::posts::manual_hello))
     })
     .bind(dotenv::var("Host").unwrap())?

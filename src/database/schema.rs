@@ -8,15 +8,15 @@ table! {
 }
 
 table! {
-    favorites (resturant_id, user_id){
+    favorites (resturant_id, token_id){
         resturant_id -> Integer,
-        user_id -> Integer,
+        token_id -> Text,
     }
 }
 
 table! {
     users (token_id){
         token_id -> Text,
-        notification -> Integer,
+        notifications -> Integer,
     }
 }

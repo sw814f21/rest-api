@@ -82,16 +82,20 @@ use super::schema::favorites::dsl::favorites as fav_dsl;
 #[table_name = "favorites"]
 pub struct Favorites {
     pub resturant_id: i32,
-    pub user_id: i32
+    pub token_id: String,
 }
 
 impl Favorites {
-    pub fn add_favorite (res_id : i32, u_id: i32, conn: &SqliteConnection) -> Self {
-        match Favorites::find_favorite(res_id, u_id, conn){
+    pub fn add_favorite (res_id : i32, u_id: String, conn: &SqliteConnection) -> Self {
+        match Favorites::find_favorite(res_id, u_id.to_string(), conn){
             None => {
+                match u_dsl.find(u_id.to_string()).first::<User>(conn).ok(){
+                    None => {User::new_user(u_id.to_string(), &conn);}
+                    Some(_) => {}
+                }
                 let new_fav = Favorites {
                     resturant_id : res_id,
-                    user_id : u_id
+                    token_id : u_id.to_string()
                 };
                 diesel::insert_into(fav_dsl)
                     .values(&new_fav)
@@ -105,11 +109,11 @@ impl Favorites {
         }
     }
 
-    pub fn remove_favorite (res_id: i32, u_id: i32, conn: &SqliteConnection) {
+    pub fn remove_favorite (res_id: i32, u_id: String, conn: &SqliteConnection) {
         match Favorites::find_favorite(res_id, u_id, conn){
             None => {}
             Some(fav) => {
-                diesel::delete(fav_dsl.find((fav.resturant_id, fav.user_id)))
+                diesel::delete(fav_dsl.find((fav.resturant_id, fav.token_id)))
                     .execute(conn)
                     .expect("error deleting");
             }
@@ -117,12 +121,12 @@ impl Favorites {
 
     }
 
-    pub fn find_favorite (res_id:i32, u_id: i32, conn: &SqliteConnection) -> Option<Self> {
+    pub fn find_favorite (res_id:i32, u_id: String, conn: &SqliteConnection) -> Option<Self> {
         use super::schema::favorites::dsl::resturant_id;
-        use super::schema::favorites::dsl::user_id;
+        use super::schema::favorites::dsl::token_id;
 
 
-        fav_dsl.filter(resturant_id.eq(res_id)).filter(user_id.eq(u_id)).first::<Favorites>(conn).ok()
+        fav_dsl.filter(resturant_id.eq(res_id)).filter(token_id.eq(u_id)).first::<Favorites>(conn).ok()
     }
     pub fn list(conn: &SqliteConnection) -> Vec<Self> {
         fav_dsl.load::<Favorites>(conn).expect("Error loading posts")
@@ -137,7 +141,7 @@ use super::schema::users::dsl::users as u_dsl;
 #[table_name = "users"]
 pub struct User {
     pub token_id: String,
-    pub notification: i32
+    pub notifications: i32
 }
 
 impl User {
@@ -145,7 +149,7 @@ impl User {
     pub fn new_user(id: String, conn: &SqliteConnection){
         let a_user = User{
             token_id: id,
-            notification: 0
+            notifications: 0
         };
         match u_dsl.find(&a_user.token_id).first::<User>(conn).ok(){
             None => {
@@ -160,21 +164,18 @@ impl User {
 
     pub fn notification_change(id: String, conn: &SqliteConnection){
         use super::schema::users::dsl::token_id;
-        use super::schema::users::dsl::notification;
+        use super::schema::users::dsl::notifications;
         let a_user = u_dsl.find(id).first::<User>(conn).ok();
         match a_user {
             None =>{}
             Some(x) => {
                 diesel::update(u_dsl.filter(token_id.eq(x.token_id)))
-                    .set(notification.eq(if x.notification == 1 {0} else {1}))
+                    .set(notifications.eq(if x.notifications == 1 {0} else {1}))
                     .execute(conn)
                     .expect("error updating notification setting");
                 
             }
         }
     }
-
-
-
 
 }
