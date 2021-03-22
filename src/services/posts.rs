@@ -58,6 +58,15 @@ pub async fn new_user(pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>
     HttpResponse::Ok()
 }
 
+#[delete("/remove_user")]
+pub async fn delete_user(pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>, user_info: web::Json<User>) -> impl Responder{
+    let conn = pool.get().unwrap();
+
+    User::remove_user(user_info.token_id.to_string(), &conn);
+
+    HttpResponse::Ok()
+}
+
 #[post("/update_notification")]
 pub async fn update_notification(pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>, user_info: web::Json<User>) -> impl Responder{
     let conn = pool.get().unwrap();

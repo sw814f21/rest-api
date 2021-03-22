@@ -178,4 +178,11 @@ impl User {
         }
     }
 
+    pub fn remove_user(id: String, conn: &SqliteConnection){
+        use super::schema::users::dsl::token_id;
+        diesel::delete(u_dsl.filter(token_id.eq(id)))
+            .execute(conn)
+            .expect("error removing user");
+    }
+
 }
