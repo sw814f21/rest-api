@@ -18,6 +18,11 @@ table! {
         address -> Text,
         url -> Text,
         zipcode -> Text,
+        name -> Text,
+        latest_control -> Nullable<Integer>,
+        second_latest_control -> Nullable<Integer>,
+        third_latest_control -> Nullable<Integer>,
+        fourth_latest_control -> Nullable<Integer>,
     }
 }
 

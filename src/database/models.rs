@@ -27,6 +27,11 @@ pub struct Restaurant {
     pub address: String,
     pub url: String,
     pub zipcode: String,
+    pub name: String,
+    pub latest_control: Option<i32>,
+    pub second_latest_control: Option<i32>,
+    pub third_latest_control: Option<i32>,
+    pub fourth_latest_control: Option<i32>,
 }
 
 #[derive(Insertable, Deserialize, Serialize)]
@@ -55,7 +60,23 @@ pub struct NewRestaurant {
 
     #[serde(alias = "postnr")]
     pub zipcode: String,
+
+    #[serde(alias = "navn1")]
+    pub name: String,
+
+    #[serde(alias = "seneste_kontrol")]
+    pub latest_control: Option<i32>,
+
+    #[serde(alias = "naestseneste_kontrol")]
+    pub second_latest_control: Option<i32>,
+
+    #[serde(alias = "tredjeseneste_kontrol")]
+    pub third_latest_control: Option<i32>,
+
+    #[serde(alias = "fjerdeseneste_kontrol")]
+    pub fourth_latest_control: Option<i32>,
 }
+
 
 impl Post {
     pub fn list(conn: &SqliteConnection) -> Vec<Self> {
