@@ -1,4 +1,5 @@
 # REST-API
+[Enpoint Documentation](docs/api.md)
 
 ## Build & run
 
