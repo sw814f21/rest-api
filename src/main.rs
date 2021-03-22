@@ -8,6 +8,7 @@ use diesel::SqliteConnection;
 use dotenv::dotenv;
 use actix_web::{App, HttpServer, web::{self, JsonConfig}};
 
+pub mod push_notification;
 pub mod database;
 pub mod services;
 
