@@ -3,6 +3,7 @@ use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use super::schema::posts;
+use super::schema::restaurants;
 use super::schema::posts::dsl::posts as post_dsl;
 
 
@@ -14,6 +15,68 @@ pub struct Post {
     pub body: String,
     pub published: bool
 }
+
+#[derive(Queryable)]
+pub struct Restaurant {
+    pub id: i32,
+    pub city: String,
+    pub cvr: String,
+    pub longitude: f32,
+    pub latitude: f32,
+    pub pnr: String,
+    pub address: String,
+    pub url: String,
+    pub zipcode: String,
+    pub name: String,
+    pub latest_control: Option<i32>,
+    pub second_latest_control: Option<i32>,
+    pub third_latest_control: Option<i32>,
+    pub fourth_latest_control: Option<i32>,
+}
+
+#[derive(Insertable, Deserialize, Serialize)]
+#[table_name = "restaurants"]
+pub struct NewRestaurant {
+    #[serde(alias = "By")]
+    pub city: String,
+
+    #[serde(alias = "cvrnr")]
+    pub cvr: String,
+
+    #[serde(alias = "Geo_Lat")]
+    pub latitude: f32,
+
+    #[serde(alias = "Geo_Lng")]
+    pub longitude: f32,
+
+    #[serde(alias = "pnr")]
+    pub pnr: String,
+
+    #[serde(alias = "adresse1")]
+    pub address: String,
+
+    #[serde(alias = "URL")]
+    pub url: String,
+
+    #[serde(alias = "postnr")]
+    pub zipcode: String,
+
+    #[serde(alias = "navn1")]
+    pub name: String,
+
+    #[serde(alias = "seneste_kontrol")]
+    pub latest_control: Option<i32>,
+
+    #[serde(alias = "naestseneste_kontrol")]
+    pub second_latest_control: Option<i32>,
+
+    #[serde(alias = "tredjeseneste_kontrol")]
+    pub third_latest_control: Option<i32>,
+
+    #[serde(alias = "fjerdeseneste_kontrol")]
+    pub fourth_latest_control: Option<i32>,
+}
+
 
 impl Post {
     pub fn list(conn: &SqliteConnection) -> Vec<Self> {
@@ -36,34 +99,16 @@ impl Post {
         user_dsl.filter(phone.eq(phone_str)).first::<Post>(conn).ok()
     }*/
 
-    /*pub fn create(email: Option<&str>, phone: Option<&str>, conn: &SqliteConnection) -> Option<Self> {
-        let new_id = Uuid::new_v4().to_hyphenated().to_string();
-        
-        if email.is_none() && phone.is_none() {
-            return None
-        } 
-                
-        if phone.is_some() {
-            if let Some(user) = Self::by_phone(&phone.unwrap(), conn) {
-                return Some(user)
-            } 
-        }
-        
-        if email.is_some() {
-            if let Some(user) = Self::by_email(&email.unwrap(), conn) {
-                return Some(user)
-            } 
-        }
+    pub fn create(conn: &SqliteConnection, post: Post) -> Option<Self> {
+        let id = post.id;
 
-        let new_user = Self::new_user_struct(&new_id, phone, email);
-
-        diesel::insert_into(user_dsl)
-            .values(&new_user)
+        diesel::insert_into(post_dsl)
+            .values(&post)
             .execute(conn)
             .expect("Error saving new user");
 
-        Self::by_id(&new_id, conn)
-    }*/
+        Self::by_id(id, conn)
+    }
 
     /*fn new_user_struct(id: i32, phone: Option<&str>, email: Option<&str>, published: bool) -> Self {
         Post {

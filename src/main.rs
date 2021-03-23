@@ -7,14 +7,24 @@ use diesel::r2d2::{self, ConnectionManager};
 use diesel::SqliteConnection;
 use dotenv::dotenv;
 use actix_web::{App, HttpServer, web::{self, JsonConfig}};
+use std::env;
+use crate::utils::data_loader;
 
 pub mod database;
 pub mod services;
+pub mod utils;
 
 embed_migrations!();
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    let args: Vec<String> = env::args().collect();
+
+    if args.len() > 2 && args[1] == "load" {
+        data_loader::load_data(&args[2]);
+        return Ok(());
+    }
+
     dotenv().ok();
 
     // TOOO: Grab connection pool from database.rs's function instead of here. Awaiting Thorulf's testing setup
