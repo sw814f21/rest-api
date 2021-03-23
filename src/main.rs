@@ -47,6 +47,10 @@ async fn main() -> std::io::Result<()> {
             .data(JsonConfig::default().limit(4096))
             .service(services::posts::hello)
             .service(services::posts::echo)
+            .service(services::posts::add_favorite)
+            .service(services::posts::remove_favorite)
+            .service(services::posts::all_favorites)
+            .service(services::posts::new_user)
             .route("/hey", web::get().to(services::posts::manual_hello))
     })
     .bind(dotenv::var("Host").unwrap())?
