@@ -3,12 +3,15 @@ extern crate diesel;
 #[macro_use]
 extern crate diesel_migrations;
 
+use crate::utils::data_loader;
+use actix_web::{
+    web::{self, JsonConfig},
+    App, HttpServer,
+};
 use diesel::r2d2::{self, ConnectionManager};
 use diesel::SqliteConnection;
 use dotenv::dotenv;
-use actix_web::{App, HttpServer, web::{self, JsonConfig}};
 use std::env;
-use crate::utils::data_loader;
 
 pub mod database;
 pub mod services;
@@ -32,13 +35,15 @@ async fn main() -> std::io::Result<()> {
 
     let manager = ConnectionManager::<SqliteConnection>::new(&database_url);
 
-    let pool = r2d2::Pool::builder().build(manager).expect("Failed to create DB pool.");
+    let pool = r2d2::Pool::builder()
+        .build(manager)
+        .expect("Failed to create DB pool.");
 
     // TODO: Move migrations to database.rs
     let conn = pool.get().unwrap();
     match embedded_migrations::run(&conn) {
         Ok(_v) => (),
-        Err(_e) => panic!("Failed to run migrations")
+        Err(_e) => panic!("Failed to run migrations"),
     }
 
     HttpServer::new(move || {
