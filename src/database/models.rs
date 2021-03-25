@@ -15,7 +15,7 @@ pub struct Post {
     pub published: bool,
 }
 
-#[derive(Queryable)]
+#[derive(Queryable, Serialize)]
 pub struct Restaurant {
     pub id: i32,
     pub city: String,
@@ -76,6 +76,22 @@ pub struct NewRestaurant {
     pub fourth_latest_control: Option<i32>,
 }
 
+use super::schema::restaurants::dsl::restaurants as res_dsl;
+impl Restaurant {
+    pub fn get_all_resturants(conn: &SqliteConnection) -> Vec<(i32, f32, f32)> {
+        use super::schema::restaurants::dsl::id;
+        use super::schema::restaurants::dsl::latitude;
+        use super::schema::restaurants::dsl::longitude;
+        res_dsl
+            .select((id, longitude, latitude))
+            .load::<(i32, f32, f32)>(conn)
+            .expect("Error fetching restaurant data")
+    }
+    pub fn get_restaurant_by_id(res_id: i32, conn: &SqliteConnection) -> Option<Self> {
+        res_dsl.find(res_id).get_result::<Restaurant>(conn).ok()
+    }
+}
+
 impl Post {
     pub fn list(conn: &SqliteConnection) -> Vec<Self> {
         post_dsl.load::<Post>(conn).expect("Error loading posts")
@@ -124,7 +140,7 @@ use super::schema::favorites::dsl::favorites as fav_dsl;
 #[derive(Debug, Deserialize, Serialize, Queryable, Insertable)]
 #[table_name = "favorites"]
 pub struct Favorites {
-    pub resturant_id: i32,
+    pub restaurant_id: i32,
     pub token_id: String,
 }
 
@@ -139,7 +155,7 @@ impl Favorites {
                     Some(_) => {}
                 }
                 let new_fav = Favorites {
-                    resturant_id: res_id,
+                    restaurant_id: res_id,
                     token_id: u_id.to_string(),
                 };
                 diesel::insert_into(fav_dsl)
@@ -156,7 +172,7 @@ impl Favorites {
         match Favorites::find_favorite(res_id, u_id, conn) {
             None => {}
             Some(fav) => {
-                diesel::delete(fav_dsl.find((fav.resturant_id, fav.token_id)))
+                diesel::delete(fav_dsl.find((fav.restaurant_id, fav.token_id)))
                     .execute(conn)
                     .expect("error deleting");
             }
@@ -164,18 +180,20 @@ impl Favorites {
     }
 
     pub fn find_favorite(res_id: i32, u_id: String, conn: &SqliteConnection) -> Option<Self> {
-        use super::schema::favorites::dsl::resturant_id;
+        use super::schema::favorites::dsl::restaurant_id;
         use super::schema::favorites::dsl::token_id;
 
         fav_dsl
-            .filter(resturant_id.eq(res_id))
+            .filter(restaurant_id.eq(res_id))
             .filter(token_id.eq(u_id))
             .first::<Favorites>(conn)
             .ok()
     }
-    pub fn list(conn: &SqliteConnection) -> Vec<Self> {
+    pub fn user_favorites(u_id: String, conn: &SqliteConnection) -> Vec<Self> {
+        use super::schema::favorites::dsl::token_id;
         fav_dsl
-            .load::<Favorites>(conn)
+            .filter(token_id.eq(u_id))
+            .get_results::<Favorites>(conn)
             .expect("Error loading posts")
     }
 }
