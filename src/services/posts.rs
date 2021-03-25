@@ -5,6 +5,7 @@ use crate::database::models::User;
 use actix_web::{delete, get, post, web, HttpResponse, Responder};
 use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::SqliteConnection;
+use serde::Deserialize;
 
 #[get("/")]
 pub async fn hello(pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>) -> impl Responder {
@@ -30,7 +31,7 @@ pub async fn restaurant(
     HttpResponse::Ok().json(Restaurant::get_all_resturants(&conn))
 }
 
-#[get("/restaurant/{id}")]
+#[get("/restaurant/id{id}")]
 pub async fn restaurant_by_id(
     pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>,
     web::Path(id): web::Path<i32>,
@@ -38,6 +39,43 @@ pub async fn restaurant_by_id(
     let conn = pool.get().unwrap();
 
     HttpResponse::Ok().json(Restaurant::get_restaurant_by_id(id, &conn))
+}
+
+#[derive(Deserialize)]
+pub struct LatLngQuery {
+    northeast: String,
+    southwest: String,
+}
+
+#[derive(Deserialize)]
+pub struct NameQuery {
+    name: String,
+}
+
+#[get("/restaurants/search")]
+pub async fn restaurants_search(
+    pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>,
+    query: web::Query<LatLngQuery>,
+) -> impl Responder {
+    let conn = pool.get().unwrap();
+    let mut northeast = query.northeast.split(",");
+    let mut southwest = query.southwest.split(",");
+    let nelat = northeast.next().unwrap().parse::<f32>().unwrap();
+    let nelng = northeast.next().unwrap().parse::<f32>().unwrap();
+    let swlat = southwest.next().unwrap().parse::<f32>().unwrap();
+    let swlng = southwest.next().unwrap().parse::<f32>().unwrap();
+    HttpResponse::Ok().json(Restaurant::search_by_lat_lng(
+        nelat, nelng, swlat, swlng, &conn,
+    ))
+}
+
+#[get("/restaurant/search")]
+pub async fn restaurant_search(
+    pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>,
+    query: web::Query<NameQuery>,
+) -> impl Responder {
+    let conn = pool.get().unwrap();
+    HttpResponse::Ok().json(Restaurant::search_by_name(query.name.to_string(), &conn))
 }
 
 #[post("/subscribe")]
