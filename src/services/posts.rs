@@ -78,6 +78,106 @@ pub async fn restaurant_search(
     HttpResponse::Ok().json(Restaurant::search_by_name(query.name.to_string(), &conn))
 }
 
+use std::collections::HashMap;
+#[get("/search/{request}")]
+pub async fn search_restaurants(
+    pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>,
+    web::Path(request): web::Path<String>,
+) -> impl Responder {
+    /*
+    Request format (
+    "=" Assign a Field name to a value,
+    "&" Field seperator,
+    "," value seperator) */
+    /*
+    /search/This=is,a,test&For=shitty&implementation=:ok_hand:
+    This = (is, a, test)
+    For = shitty
+    implementation = :ok_hand:
+     */
+    let conn = pool.get().unwrap();
+    let query = request.split("&");
+    let mut kvpair = HashMap::new();
+
+    for q in query {
+        let mut pair = q.split("=");
+        let varname = pair.next().unwrap().to_lowercase();
+        let param = match pair.next() {
+            None => "".split(""),
+            Some(x) => x.split(","),
+        };
+        kvpair.insert(varname, param.to_owned());
+    }
+    let mut queryoutput = Vec::new();
+    /*for p in kvpair {
+        outputtest = outputtest + p.0 + ":";
+        for q in p.1 {
+            outputtest = outputtest + q + " ";
+        }
+        outputtest += "||";
+    }*/
+
+    for key in kvpair.keys() {
+        if key.eq(&"name") {
+            queryoutput.append(
+                Restaurant::search_by_name(
+                    kvpair
+                        .get(key)
+                        .unwrap()
+                        .to_owned()
+                        .fold(String::from(""), |acc, x| acc + &(x.to_string() + " "))
+                        .trim_end()
+                        .to_string(),
+                    &conn,
+                )
+                .as_mut(),
+            );
+        }
+        if key.eq(&"zipcode") {
+            queryoutput.append(
+                Restaurant::search_by_zip(
+                    kvpair
+                        .get(key)
+                        .unwrap()
+                        .to_owned()
+                        .fold(String::from(""), |acc, x| acc + x)
+                        .trim_end()
+                        .to_string(),
+                    &conn,
+                )
+                .as_mut(),
+            );
+        }
+        if key.eq(&"city") {
+            queryoutput.append(
+                Restaurant::search_by_city(
+                    kvpair
+                        .get(key)
+                        .unwrap()
+                        .to_owned()
+                        .fold(String::from(""), |acc, x| acc + &(x.to_string() + " "))
+                        .trim_end()
+                        .to_string(),
+                    &conn,
+                )
+                .as_mut(),
+            );
+        }
+        if key.eq("northeast") && kvpair.get("southwest").is_some() {
+            let mut northeast = kvpair.get(key).unwrap().to_owned();
+            let mut southwest = kvpair.get("southwest").unwrap().to_owned();
+            let nelat = northeast.next().unwrap().parse::<f32>().unwrap();
+            let nelng = northeast.next().unwrap().parse::<f32>().unwrap();
+            let swlat = southwest.next().unwrap().parse::<f32>().unwrap();
+            let swlng = southwest.next().unwrap().parse::<f32>().unwrap();
+            queryoutput
+                .append(Restaurant::search_by_lat_lng(nelat, nelng, swlat, swlng, &conn).as_mut());
+        }
+    }
+
+    HttpResponse::Ok().json(queryoutput)
+}
+
 #[post("/subscribe")]
 pub async fn subscribe(
     pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>,
