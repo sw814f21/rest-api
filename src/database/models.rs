@@ -93,8 +93,12 @@ impl Restaurant {
             .load::<Simplerestaurant>(conn)
             .expect("Error fetching restaurant data")
     }
-    pub fn get_restaurant_by_id(res_id: i32, conn: &SqliteConnection) -> Option<Self> {
-        res_dsl.find(res_id).get_result::<Restaurant>(conn).ok()
+    pub fn get_restaurant_by_id(res_id: i32, conn: &SqliteConnection) -> Restaurant {
+        res_dsl
+            .find(res_id)
+            .get_result::<Restaurant>(conn)
+            .ok()
+            .expect("Error fetching restaurant ID")
     }
 
     pub fn search_by_lat_lng(

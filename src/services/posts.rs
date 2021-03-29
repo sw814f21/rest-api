@@ -1,3 +1,5 @@
+use std::borrow::Borrow;
+
 use crate::database::models::Favorites;
 use crate::database::models::Post;
 use crate::database::models::Restaurant;
@@ -31,7 +33,7 @@ pub async fn restaurant(
 
     HttpResponse::Ok().json(Restaurant::get_all_resturants(&conn))
 }
-
+/*
 #[get("/restaurant/{id}")]
 pub async fn restaurant_by_id(
     pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>,
@@ -39,147 +41,67 @@ pub async fn restaurant_by_id(
 ) -> impl Responder {
     let conn = pool.get().unwrap();
 
-    HttpResponse::Ok().json(Restaurant::get_restaurant_by_id(id, &conn))
-}
+
+}*/
 
 #[derive(Deserialize)]
-pub struct LatLngQuery {
-    northeast: String,
-    southwest: String,
-}
-
-#[derive(Deserialize)]
-pub struct NameQuery {
-    name: String,
-}
-
-#[get("/restaurants/search")]
-pub async fn restaurants_search(
-    pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>,
-    query: web::Query<LatLngQuery>,
-) -> impl Responder {
-    let conn = pool.get().unwrap();
-    let mut northeast = query.northeast.split(",");
-    let mut southwest = query.southwest.split(",");
-    let nelat = northeast.next().unwrap().parse::<f32>().unwrap();
-    let nelng = northeast.next().unwrap().parse::<f32>().unwrap();
-    let swlat = southwest.next().unwrap().parse::<f32>().unwrap();
-    let swlng = southwest.next().unwrap().parse::<f32>().unwrap();
-    HttpResponse::Ok().json(Restaurant::search_by_lat_lng(
-        nelat, nelng, swlat, swlng, &conn,
-    ))
-}
-
-#[get("/restaurant/search")]
-pub async fn restaurant_search(
-    pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>,
-    query: web::Query<NameQuery>,
-) -> impl Responder {
-    let conn = pool.get().unwrap();
-    HttpResponse::Ok().json(Restaurant::search_by_name(query.name.to_string(), &conn))
+pub struct Restaurantsearchinput {
+    id: Option<i32>,
+    name: Option<String>,
+    city: Option<String>,
+    zip: Option<String>,
+    location: Option<((f32, f32), (f32, f32))>,
 }
 
 use array_tool::vec::Intersect;
-use std::collections::HashMap;
-#[get("/search/{request}")]
+#[get("/restaurant/search")]
 pub async fn search_restaurants(
     pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>,
-    web::Path(request): web::Path<String>,
+    input: web::Query<Restaurantsearchinput>,
 ) -> impl Responder {
-    /*
-    Request format (
-    "=" Assign a Field name to a value,
-    "&" Field seperator,
-    "," value seperator) */
-    /*
-    /search/This=is,a,test&For=shitty&implementation=:ok_hand:
-    This = (is, a, test)
-    For = shitty
-    implementation = :ok_hand:
-     */
     let conn = pool.get().unwrap();
-    let query = request.split("&");
-    let mut kvpair = HashMap::new();
-
-    for q in query {
-        let mut pair = q.split("=");
-        let varname = pair.next().unwrap().to_lowercase();
-        let param = match pair.next() {
-            None => "".split(""),
-            Some(x) => x.split(","),
-        };
-        kvpair.insert(varname, param.to_owned());
-    }
-    let mut queryoutput: Vec<Restaurant> = Vec::new();
+    let mut idsearch: Vec<Restaurant> = Vec::new();
     let mut namesearch: Vec<Restaurant> = Vec::new();
     let mut citysearch: Vec<Restaurant> = Vec::new();
     let mut zipsearch: Vec<Restaurant> = Vec::new();
     let mut locationsearch: Vec<Restaurant> = Vec::new();
-    /*for p in kvpair {
-        outputtest = outputtest + p.0 + ":";
-        for q in p.1 {
-            outputtest = outputtest + q + " ";
-        }
-        outputtest += "||";
-    }*/
-    for key in kvpair.keys() {
-        if key.eq(&"name") {
-            namesearch.append(
-                Restaurant::search_by_name(
-                    kvpair
-                        .get(key)
-                        .unwrap()
-                        .to_owned()
-                        .fold(String::from(""), |acc, x| acc + &(x.to_string() + " "))
-                        .trim_end()
-                        .to_string(),
-                    &conn,
-                )
-                .as_mut(),
-            );
-        }
-        if key.eq(&"zipcode") {
-            zipsearch.append(
-                Restaurant::search_by_zip(
-                    kvpair
-                        .get(key)
-                        .unwrap()
-                        .to_owned()
-                        .fold(String::from(""), |acc, x| acc + x)
-                        .trim_end()
-                        .to_string(),
-                    &conn,
-                )
-                .as_mut(),
-            );
-        }
-        if key.eq(&"city") {
-            citysearch.append(
-                Restaurant::search_by_city(
-                    kvpair
-                        .get(key)
-                        .unwrap()
-                        .to_owned()
-                        .fold(String::from(""), |acc, x| acc + &(x.to_string() + " "))
-                        .trim_end()
-                        .to_string(),
-                    &conn,
-                )
-                .as_mut(),
-            );
-        }
-        if key.eq("northeast") && kvpair.get("southwest").is_some() {
-            let mut northeast = kvpair.get(key).unwrap().to_owned();
-            let mut southwest = kvpair.get("southwest").unwrap().to_owned();
-            let nelat = northeast.next().unwrap().parse::<f32>().unwrap();
-            let nelng = northeast.next().unwrap().parse::<f32>().unwrap();
-            let swlat = southwest.next().unwrap().parse::<f32>().unwrap();
-            let swlng = southwest.next().unwrap().parse::<f32>().unwrap();
-            locationsearch
-                .append(Restaurant::search_by_lat_lng(nelat, nelng, swlat, swlng, &conn).as_mut());
+    let mut queryoutput: Vec<Restaurant> = Vec::new();
+
+    match input.id {
+        None => {}
+        Some(x) => {
+            idsearch.append(vec![Restaurant::get_restaurant_by_id(x, &conn)].as_mut());
         }
     }
-    let results = vec![namesearch, citysearch, zipsearch, locationsearch];
+    match input.name.borrow() {
+        None => {}
+        Some(x) => {
+            namesearch.append(Restaurant::search_by_name(x.to_string(), &conn).as_mut());
+        }
+    }
+    match input.zip.borrow() {
+        None => {}
+        Some(x) => {
+            zipsearch.append(Restaurant::search_by_zip(x.to_string(), &conn).as_mut());
+        }
+    }
+    match input.city.borrow() {
+        None => {}
+        Some(x) => {
+            citysearch.append(Restaurant::search_by_city(x.to_string(), &conn).as_mut());
+        }
+    }
+    match input.location.borrow() {
+        None => {}
+        Some(x) => {
+            let ne = x.0;
+            let sw = x.1;
+            locationsearch
+                .append(Restaurant::search_by_lat_lng(ne.0, ne.1, sw.0, sw.1, &conn).as_mut());
+        }
+    }
+
+    let results = vec![idsearch, namesearch, citysearch, zipsearch, locationsearch];
     for r in results {
         if queryoutput.is_empty() {
             queryoutput = r.to_vec();
