@@ -1,9 +1,11 @@
 use crate::database::models::Favorites;
 use crate::database::models::Post;
+use crate::database::models::Restaurant;
 use crate::database::models::User;
 use actix_web::{delete, get, post, web, HttpResponse, Responder};
 use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::SqliteConnection;
+use serde::Deserialize;
 
 #[get("/")]
 pub async fn hello(pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>) -> impl Responder {
@@ -20,36 +22,93 @@ pub async fn manual_hello() -> impl Responder {
     HttpResponse::Ok().body("Hey there!")
 }
 
-#[post("/add_favorite")]
-pub async fn add_favorite(
+#[get("/restaurant")]
+pub async fn restaurant(
+    pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>,
+) -> impl Responder {
+    let conn = pool.get().unwrap();
+
+    HttpResponse::Ok().json(Restaurant::get_all_resturants(&conn))
+}
+
+#[get("/restaurant/{id}")]
+pub async fn restaurant_by_id(
+    pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>,
+    web::Path(id): web::Path<i32>,
+) -> impl Responder {
+    let conn = pool.get().unwrap();
+
+    HttpResponse::Ok().json(Restaurant::get_restaurant_by_id(id, &conn))
+}
+
+#[derive(Deserialize)]
+pub struct LatLngQuery {
+    northeast: String,
+    southwest: String,
+}
+
+#[derive(Deserialize)]
+pub struct NameQuery {
+    name: String,
+}
+
+#[get("/restaurants/search")]
+pub async fn restaurants_search(
+    pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>,
+    query: web::Query<LatLngQuery>,
+) -> impl Responder {
+    let conn = pool.get().unwrap();
+    let mut northeast = query.northeast.split(",");
+    let mut southwest = query.southwest.split(",");
+    let nelat = northeast.next().unwrap().parse::<f32>().unwrap();
+    let nelng = northeast.next().unwrap().parse::<f32>().unwrap();
+    let swlat = southwest.next().unwrap().parse::<f32>().unwrap();
+    let swlng = southwest.next().unwrap().parse::<f32>().unwrap();
+    HttpResponse::Ok().json(Restaurant::search_by_lat_lng(
+        nelat, nelng, swlat, swlng, &conn,
+    ))
+}
+
+#[get("/restaurant/search")]
+pub async fn restaurant_search(
+    pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>,
+    query: web::Query<NameQuery>,
+) -> impl Responder {
+    let conn = pool.get().unwrap();
+    HttpResponse::Ok().json(Restaurant::search_by_name(query.name.to_string(), &conn))
+}
+
+#[post("/subscribe")]
+pub async fn subscribe(
     pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>,
     fav_info: web::Json<Favorites>,
 ) -> impl Responder {
     let conn = pool.get().unwrap();
-    Favorites::add_favorite(fav_info.resturant_id, fav_info.token_id.to_string(), &conn);
+    Favorites::add_favorite(fav_info.restaurant_id, fav_info.token_id.to_string(), &conn);
 
     HttpResponse::Ok()
 }
 
-#[delete("/remove_favorite")]
-pub async fn remove_favorite(
+#[delete("/unsubscribe")]
+pub async fn unsubscribe(
     pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>,
     fav_info: web::Json<Favorites>,
 ) -> impl Responder {
     let conn = pool.get().unwrap();
 
-    Favorites::remove_favorite(fav_info.resturant_id, fav_info.token_id.to_string(), &conn);
+    Favorites::remove_favorite(fav_info.restaurant_id, fav_info.token_id.to_string(), &conn);
 
     HttpResponse::Ok()
 }
 
-#[get("/all_favorites")]
-pub async fn all_favorites(
+#[get("/subscribes/{u_id}")]
+pub async fn subscribes(
+    web::Path(u_id): web::Path<String>,
     pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>,
 ) -> impl Responder {
     let conn = pool.get().unwrap();
 
-    HttpResponse::Ok().json(Favorites::list(&conn))
+    HttpResponse::Ok().json(Favorites::user_favorites(u_id.to_string(), &conn))
 }
 
 #[post("/new_user")]
