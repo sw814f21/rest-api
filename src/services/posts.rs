@@ -31,7 +31,7 @@ pub async fn restaurant(
     HttpResponse::Ok().json(Restaurant::get_all_resturants(&conn))
 }
 
-#[get("/restaurant/id{id}")]
+#[get("/restaurant/{id}")]
 pub async fn restaurant_by_id(
     pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>,
     web::Path(id): web::Path<i32>,
