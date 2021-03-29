@@ -15,7 +15,7 @@ pub struct Post {
     pub published: bool,
 }
 
-#[derive(Queryable, Serialize)]
+#[derive(Clone, PartialEq, Queryable, Serialize)]
 pub struct Restaurant {
     pub id: i32,
     pub city: String,
@@ -75,16 +75,22 @@ pub struct NewRestaurant {
     #[serde(alias = "fjerdeseneste_kontrol")]
     pub fourth_latest_control: Option<i32>,
 }
+#[derive(Queryable, Deserialize, Serialize)]
+pub struct Simplerestaurant {
+    id: i32,
+    lat: f32,
+    lng: f32,
+}
 
 use super::schema::restaurants::dsl::restaurants as res_dsl;
 impl Restaurant {
-    pub fn get_all_resturants(conn: &SqliteConnection) -> Vec<(i32, f32, f32)> {
+    pub fn get_all_resturants(conn: &SqliteConnection) -> Vec<Simplerestaurant> {
         use super::schema::restaurants::dsl::id;
         use super::schema::restaurants::dsl::latitude;
         use super::schema::restaurants::dsl::longitude;
         res_dsl
-            .select((id, longitude, latitude))
-            .load::<(i32, f32, f32)>(conn)
+            .select((id, latitude, longitude))
+            .load::<Simplerestaurant>(conn)
             .expect("Error fetching restaurant data")
     }
     pub fn get_restaurant_by_id(res_id: i32, conn: &SqliteConnection) -> Option<Self> {

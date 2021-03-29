@@ -3,6 +3,7 @@ use crate::database::models::Post;
 use crate::database::models::Restaurant;
 use crate::database::models::User;
 use actix_web::{delete, get, post, web, HttpResponse, Responder};
+use array_tool;
 use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::SqliteConnection;
 use serde::Deserialize;
@@ -31,7 +32,7 @@ pub async fn restaurant(
     HttpResponse::Ok().json(Restaurant::get_all_resturants(&conn))
 }
 
-#[get("/restaurant/id{id}")]
+#[get("/restaurant/{id}")]
 pub async fn restaurant_by_id(
     pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>,
     web::Path(id): web::Path<i32>,
@@ -78,6 +79,7 @@ pub async fn restaurant_search(
     HttpResponse::Ok().json(Restaurant::search_by_name(query.name.to_string(), &conn))
 }
 
+use array_tool::vec::Intersect;
 use std::collections::HashMap;
 #[get("/search/{request}")]
 pub async fn search_restaurants(
@@ -108,7 +110,11 @@ pub async fn search_restaurants(
         };
         kvpair.insert(varname, param.to_owned());
     }
-    let mut queryoutput = Vec::new();
+    let mut queryoutput: Vec<Restaurant> = Vec::new();
+    let mut namesearch: Vec<Restaurant> = Vec::new();
+    let mut citysearch: Vec<Restaurant> = Vec::new();
+    let mut zipsearch: Vec<Restaurant> = Vec::new();
+    let mut locationsearch: Vec<Restaurant> = Vec::new();
     /*for p in kvpair {
         outputtest = outputtest + p.0 + ":";
         for q in p.1 {
@@ -116,10 +122,9 @@ pub async fn search_restaurants(
         }
         outputtest += "||";
     }*/
-
     for key in kvpair.keys() {
         if key.eq(&"name") {
-            queryoutput.append(
+            namesearch.append(
                 Restaurant::search_by_name(
                     kvpair
                         .get(key)
@@ -134,7 +139,7 @@ pub async fn search_restaurants(
             );
         }
         if key.eq(&"zipcode") {
-            queryoutput.append(
+            zipsearch.append(
                 Restaurant::search_by_zip(
                     kvpair
                         .get(key)
@@ -149,7 +154,7 @@ pub async fn search_restaurants(
             );
         }
         if key.eq(&"city") {
-            queryoutput.append(
+            citysearch.append(
                 Restaurant::search_by_city(
                     kvpair
                         .get(key)
@@ -170,11 +175,19 @@ pub async fn search_restaurants(
             let nelng = northeast.next().unwrap().parse::<f32>().unwrap();
             let swlat = southwest.next().unwrap().parse::<f32>().unwrap();
             let swlng = southwest.next().unwrap().parse::<f32>().unwrap();
-            queryoutput
+            locationsearch
                 .append(Restaurant::search_by_lat_lng(nelat, nelng, swlat, swlng, &conn).as_mut());
         }
     }
-
+    let results = vec![namesearch, citysearch, zipsearch, locationsearch];
+    for r in results {
+        if queryoutput.is_empty() {
+            queryoutput = r.to_vec();
+        }
+        if !r.is_empty() {
+            queryoutput = queryoutput.intersect(r);
+        }
+    }
     HttpResponse::Ok().json(queryoutput)
 }
 

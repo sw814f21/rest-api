@@ -307,6 +307,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "array_tool"
+version = "1.0.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8f8cb5d814eb646a863c4f24978cff2880c4be96ad8cde2c0f0678732902e271"
+
+[[package]]
 name = "async-trait"
 version = "0.1.42"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1484,6 +1490,7 @@ version = "0.1.0"
 dependencies = [
  "actix-rt 2.1.0",
  "actix-web",
+ "array_tool",
  "diesel",
  "diesel_migrations",
  "dotenv",
