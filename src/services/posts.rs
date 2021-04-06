@@ -34,16 +34,6 @@ pub async fn restaurant(
     HttpResponse::Ok().json(Restaurant::get_all_resturants(&conn))
 }
 
-/*
-#[get("/restaurant/{id}")]
-pub async fn restaurant_by_id(
-    pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>,
-    web::Path(id): web::Path<i32>,
-) -> impl Responder {
-    let conn = pool.get().unwrap();
-
-}*/
-
 #[derive(Deserialize)]
 pub struct Restaurantsearchinput {
     id: Option<i32>,
@@ -95,17 +85,17 @@ pub async fn search_restaurants(
         None => {}
         Some(x) => {
             let mut strcords = x.split(",");
-            let nelat = strcords.next().unwrap().parse::<f32>();
-            let nelng = strcords.next().unwrap().parse::<f32>();
-            let swlat = strcords.next().unwrap().parse::<f32>();
-            let swlng = strcords.next().unwrap().parse::<f32>();
-            if nelat.is_ok() && nelng.is_ok() && swlat.is_ok() && swlng.is_ok() {
+            let nwlat = strcords.next().unwrap().parse::<f32>();
+            let nwlng = strcords.next().unwrap().parse::<f32>();
+            let selat = strcords.next().unwrap().parse::<f32>();
+            let selng = strcords.next().unwrap().parse::<f32>();
+            if nwlat.is_ok() && nwlng.is_ok() && selat.is_ok() && selng.is_ok() {
                 locationsearch.append(
                     Restaurant::search_by_lat_lng(
-                        nelat.unwrap(),
-                        nelng.unwrap(),
-                        swlat.unwrap(),
-                        swlng.unwrap(),
+                        nwlat.unwrap(),
+                        nwlng.unwrap(),
+                        selat.unwrap(),
+                        selng.unwrap(),
                         &conn,
                     )
                     .as_mut(),

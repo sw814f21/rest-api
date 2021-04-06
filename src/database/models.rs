@@ -15,7 +15,6 @@ pub struct Post {
     pub published: bool,
 }
 
-
 #[derive(Clone, PartialEq, Queryable, Serialize)]
 pub struct Restaurant {
     pub id: i32,
@@ -103,19 +102,19 @@ impl Restaurant {
     }
 
     pub fn search_by_lat_lng(
-        nelat: f32,
-        nelng: f32,
-        swlat: f32,
-        swlng: f32,
+        nwlat: f32,
+        nwlng: f32,
+        selat: f32,
+        selng: f32,
         conn: &SqliteConnection,
     ) -> Vec<Restaurant> {
         use super::schema::restaurants::dsl::latitude;
         use super::schema::restaurants::dsl::longitude;
         res_dsl
-            .filter(latitude.lt(nelat))
-            .filter(latitude.gt(swlat))
-            .filter(longitude.gt(nelng))
-            .filter(longitude.lt(swlng))
+            .filter(latitude.lt(nwlat))
+            .filter(latitude.gt(selat))
+            .filter(longitude.gt(nwlng))
+            .filter(longitude.lt(selng))
             .get_results::<Restaurant>(conn)
             .ok()
             .expect("Error fetching with Latitude/Longitude")
