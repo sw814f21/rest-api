@@ -149,50 +149,6 @@ impl Restaurant {
     }
 }
 
-use super::schema::restaurants::dsl::restaurants as res_dsl;
-impl Restaurant {
-    pub fn get_all_resturants(conn: &SqliteConnection) -> Vec<(i32, f32, f32)> {
-        use super::schema::restaurants::dsl::id;
-        use super::schema::restaurants::dsl::latitude;
-        use super::schema::restaurants::dsl::longitude;
-        res_dsl
-            .select((id, longitude, latitude))
-            .load::<(i32, f32, f32)>(conn)
-            .expect("Error fetching restaurant data")
-    }
-    pub fn get_restaurant_by_id(res_id: i32, conn: &SqliteConnection) -> Option<Self> {
-        res_dsl.find(res_id).get_result::<Restaurant>(conn).ok()
-    }
-
-    pub fn search_by_lat_lng(
-        nelat: f32,
-        nelng: f32,
-        swlat: f32,
-        swlng: f32,
-        conn: &SqliteConnection,
-    ) -> Vec<Restaurant> {
-        use super::schema::restaurants::dsl::latitude;
-        use super::schema::restaurants::dsl::longitude;
-        res_dsl
-            .filter(latitude.gt(nelat))
-            .filter(latitude.lt(swlat))
-            .filter(longitude.gt(nelng))
-            .filter(longitude.lt(swlng))
-            .get_results::<Restaurant>(conn)
-            .ok()
-            .expect("Error fetching with Latitude/Longitude")
-    }
-
-    pub fn search_by_name(query: String, conn: &SqliteConnection) -> Vec<Restaurant> {
-        use super::schema::restaurants::dsl::name;
-        res_dsl
-            .filter(name.like(query + "%"))
-            .get_results::<Restaurant>(conn)
-            .ok()
-            .expect("Error searching with restaurant name")
-    }
-}
-
 impl Post {
     pub fn list(conn: &SqliteConnection) -> Vec<Self> {
         post_dsl.load::<Post>(conn).expect("Error loading posts")
