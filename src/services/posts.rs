@@ -50,7 +50,7 @@ pub struct Restaurantsearchinput {
     name: Option<String>,
     city: Option<String>,
     zip: Option<String>,
-    location: Option<((f32, f32), (f32, f32))>,
+    location: Option<String>, /*xx.yy,xx.yy,xx.yy,xx.yy*/
 }
 
 use array_tool::vec::Intersect;
@@ -94,10 +94,23 @@ pub async fn search_restaurants(
     match input.location.borrow() {
         None => {}
         Some(x) => {
-            let ne = x.0;
-            let sw = x.1;
-            locationsearch
-                .append(Restaurant::search_by_lat_lng(ne.0, ne.1, sw.0, sw.1, &conn).as_mut());
+            let mut strcords = x.split(",");
+            let nelat = strcords.next().unwrap().parse::<f32>();
+            let nelng = strcords.next().unwrap().parse::<f32>();
+            let swlat = strcords.next().unwrap().parse::<f32>();
+            let swlng = strcords.next().unwrap().parse::<f32>();
+            if nelat.is_ok() && nelng.is_ok() && swlat.is_ok() && swlng.is_ok() {
+                locationsearch.append(
+                    Restaurant::search_by_lat_lng(
+                        nelat.unwrap(),
+                        nelng.unwrap(),
+                        swlat.unwrap(),
+                        swlng.unwrap(),
+                        &conn,
+                    )
+                    .as_mut(),
+                );
+            }
         }
     }
 
