@@ -33,6 +33,7 @@ pub async fn restaurant(
 
     HttpResponse::Ok().json(Restaurant::get_all_resturants(&conn))
 }
+
 /*
 #[get("/restaurant/{id}")]
 pub async fn restaurant_by_id(
@@ -40,7 +41,6 @@ pub async fn restaurant_by_id(
     web::Path(id): web::Path<i32>,
 ) -> impl Responder {
     let conn = pool.get().unwrap();
-
 
 }*/
 
