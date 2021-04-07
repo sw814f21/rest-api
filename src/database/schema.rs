@@ -1,23 +1,16 @@
 table! {
-    posts (id) {
-        id -> Integer,
-        title -> Text,
-        body -> Text,
-        published -> Bool,
-    }
-}
-
-table! {
-    favorites (restaurant_id, token_id){
+    favorites (restaurant_id, token_id) {
         restaurant_id -> Integer,
         token_id -> Text,
     }
 }
 
 table! {
-    users (token_id){
-        token_id -> Text,
-        notifications -> Integer,
+    posts (id) {
+        id -> Integer,
+        title -> Text,
+        body -> Text,
+        published -> Bool,
     }
 }
 
@@ -33,11 +26,33 @@ table! {
         url -> Text,
         zipcode -> Text,
         name -> Text,
-        latest_control -> Nullable<Integer>,
-        second_latest_control -> Nullable<Integer>,
-        third_latest_control -> Nullable<Integer>,
-        fourth_latest_control -> Nullable<Integer>,
     }
 }
 
-allow_tables_to_appear_in_same_query!(posts, restaurants,);
+table! {
+    smileyreports (id) {
+        id -> Integer,
+        pnr -> Text,
+        rating -> Integer,
+        date -> Text,
+        report_id -> Text,
+    }
+}
+
+table! {
+    users (token_id) {
+        token_id -> Text,
+        notifications -> Integer,
+    }
+}
+
+joinable!(favorites -> restaurants (restaurant_id));
+joinable!(favorites -> users (token_id));
+
+allow_tables_to_appear_in_same_query!(
+    favorites,
+    posts,
+    restaurants,
+    smileyreports,
+    users,
+);
