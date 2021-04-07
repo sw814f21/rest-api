@@ -15,7 +15,7 @@ pub struct Post {
     pub published: bool,
 }
 
-#[derive(Queryable, Serialize)]
+#[derive(Clone, PartialEq, Queryable, Serialize)]
 pub struct Restaurant {
     pub id: i32,
     pub city: String,
@@ -75,48 +75,76 @@ pub struct NewRestaurant {
     #[serde(alias = "fjerdeseneste_kontrol")]
     pub fourth_latest_control: Option<i32>,
 }
+#[derive(Queryable, Deserialize, Serialize)]
+pub struct Simplerestaurant {
+    id: i32,
+    lat: f32,
+    lng: f32,
+}
 
 use super::schema::restaurants::dsl::restaurants as res_dsl;
 impl Restaurant {
-    pub fn get_all_resturants(conn: &SqliteConnection) -> Vec<(i32, f32, f32)> {
+    pub fn get_all_resturants(conn: &SqliteConnection) -> Vec<Simplerestaurant> {
         use super::schema::restaurants::dsl::id;
         use super::schema::restaurants::dsl::latitude;
         use super::schema::restaurants::dsl::longitude;
         res_dsl
-            .select((id, longitude, latitude))
-            .load::<(i32, f32, f32)>(conn)
+            .select((id, latitude, longitude))
+            .load::<Simplerestaurant>(conn)
             .expect("Error fetching restaurant data")
     }
-    pub fn get_restaurant_by_id(res_id: i32, conn: &SqliteConnection) -> Option<Self> {
-        res_dsl.find(res_id).get_result::<Restaurant>(conn).ok()
+    pub fn get_restaurant_by_id(res_id: i32, conn: &SqliteConnection) -> Restaurant {
+        res_dsl
+            .find(res_id)
+            .get_result::<Restaurant>(conn)
+            .ok()
+            .expect("Error fetching restaurant ID")
     }
 
     pub fn search_by_lat_lng(
-        nelat: f32,
-        nelng: f32,
-        swlat: f32,
-        swlng: f32,
+        nwlat: f32,
+        nwlng: f32,
+        selat: f32,
+        selng: f32,
         conn: &SqliteConnection,
     ) -> Vec<Restaurant> {
         use super::schema::restaurants::dsl::latitude;
         use super::schema::restaurants::dsl::longitude;
         res_dsl
-            .filter(latitude.gt(nelat))
-            .filter(latitude.lt(swlat))
-            .filter(longitude.gt(nelng))
-            .filter(longitude.lt(swlng))
+            .filter(latitude.lt(nwlat))
+            .filter(latitude.gt(selat))
+            .filter(longitude.gt(nwlng))
+            .filter(longitude.lt(selng))
             .get_results::<Restaurant>(conn)
             .ok()
             .expect("Error fetching with Latitude/Longitude")
     }
 
-    pub fn search_by_name(query: String, conn: &SqliteConnection) -> Vec<Restaurant> {
+    pub fn search_by_name(query: String, conn: &SqliteConnection) -> Vec<Self> {
         use super::schema::restaurants::dsl::name;
         res_dsl
             .filter(name.like(query + "%"))
             .get_results::<Restaurant>(conn)
             .ok()
             .expect("Error searching with restaurant name")
+    }
+
+    pub fn search_by_zip(query: String, conn: &SqliteConnection) -> Vec<Self> {
+        use super::schema::restaurants::dsl::zipcode;
+        res_dsl
+            .filter(zipcode.eq(query))
+            .get_results::<Restaurant>(conn)
+            .ok()
+            .expect("Error searching for restaurants with zipcode")
+    }
+
+    pub fn search_by_city(query: String, conn: &SqliteConnection) -> Vec<Self> {
+        use super::schema::restaurants::dsl::city;
+        res_dsl
+            .filter(city.like(query + "%"))
+            .get_results::<Restaurant>(conn)
+            .ok()
+            .expect("Error searching for restaurants with city")
     }
 }
 

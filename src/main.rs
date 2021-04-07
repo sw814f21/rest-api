@@ -57,9 +57,7 @@ async fn main() -> std::io::Result<()> {
             .service(services::posts::subscribes)
             .service(services::posts::new_user)
             .service(services::posts::restaurant)
-            .service(services::posts::restaurant_by_id)
-            .service(services::posts::restaurants_search)
-            .service(services::posts::restaurant_search)
+            .service(services::posts::search_restaurants)
             .route("/hey", web::get().to(services::posts::manual_hello))
     })
     .bind(dotenv::var("Host").unwrap())?

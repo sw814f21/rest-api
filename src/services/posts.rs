@@ -1,8 +1,11 @@
+use std::borrow::Borrow;
+
 use crate::database::models::Favorites;
 use crate::database::models::Post;
 use crate::database::models::Restaurant;
 use crate::database::models::User;
 use actix_web::{delete, get, post, web, HttpResponse, Responder};
+use array_tool;
 use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::SqliteConnection;
 use serde::Deserialize;
@@ -31,51 +34,86 @@ pub async fn restaurant(
     HttpResponse::Ok().json(Restaurant::get_all_resturants(&conn))
 }
 
-#[get("/restaurant/{id}")]
-pub async fn restaurant_by_id(
-    pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>,
-    web::Path(id): web::Path<i32>,
-) -> impl Responder {
-    let conn = pool.get().unwrap();
-
-    HttpResponse::Ok().json(Restaurant::get_restaurant_by_id(id, &conn))
-}
-
 #[derive(Deserialize)]
-pub struct LatLngQuery {
-    northeast: String,
-    southwest: String,
+pub struct Restaurantsearchinput {
+    id: Option<i32>,
+    name: Option<String>,
+    city: Option<String>,
+    zip: Option<String>,
+    location: Option<String>, /*xx.yy,xx.yy,xx.yy,xx.yy*/
 }
 
-#[derive(Deserialize)]
-pub struct NameQuery {
-    name: String,
-}
-
-#[get("/restaurants/search")]
-pub async fn restaurants_search(
-    pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>,
-    query: web::Query<LatLngQuery>,
-) -> impl Responder {
-    let conn = pool.get().unwrap();
-    let mut northeast = query.northeast.split(",");
-    let mut southwest = query.southwest.split(",");
-    let nelat = northeast.next().unwrap().parse::<f32>().unwrap();
-    let nelng = northeast.next().unwrap().parse::<f32>().unwrap();
-    let swlat = southwest.next().unwrap().parse::<f32>().unwrap();
-    let swlng = southwest.next().unwrap().parse::<f32>().unwrap();
-    HttpResponse::Ok().json(Restaurant::search_by_lat_lng(
-        nelat, nelng, swlat, swlng, &conn,
-    ))
-}
-
+use array_tool::vec::Intersect;
 #[get("/restaurant/search")]
-pub async fn restaurant_search(
+pub async fn search_restaurants(
     pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>,
-    query: web::Query<NameQuery>,
+    input: web::Query<Restaurantsearchinput>,
 ) -> impl Responder {
     let conn = pool.get().unwrap();
-    HttpResponse::Ok().json(Restaurant::search_by_name(query.name.to_string(), &conn))
+    let mut idsearch: Vec<Restaurant> = Vec::new();
+    let mut namesearch: Vec<Restaurant> = Vec::new();
+    let mut citysearch: Vec<Restaurant> = Vec::new();
+    let mut zipsearch: Vec<Restaurant> = Vec::new();
+    let mut locationsearch: Vec<Restaurant> = Vec::new();
+    let mut queryoutput: Vec<Restaurant> = Vec::new();
+
+    match input.id {
+        None => {}
+        Some(x) => {
+            idsearch.append(vec![Restaurant::get_restaurant_by_id(x, &conn)].as_mut());
+        }
+    }
+    match input.name.borrow() {
+        None => {}
+        Some(x) => {
+            namesearch.append(Restaurant::search_by_name(x.to_string(), &conn).as_mut());
+        }
+    }
+    match input.zip.borrow() {
+        None => {}
+        Some(x) => {
+            zipsearch.append(Restaurant::search_by_zip(x.to_string(), &conn).as_mut());
+        }
+    }
+    match input.city.borrow() {
+        None => {}
+        Some(x) => {
+            citysearch.append(Restaurant::search_by_city(x.to_string(), &conn).as_mut());
+        }
+    }
+    match input.location.borrow() {
+        None => {}
+        Some(x) => {
+            let mut strcords = x.split(",");
+            let nwlat = strcords.next().unwrap().parse::<f32>();
+            let nwlng = strcords.next().unwrap().parse::<f32>();
+            let selat = strcords.next().unwrap().parse::<f32>();
+            let selng = strcords.next().unwrap().parse::<f32>();
+            if nwlat.is_ok() && nwlng.is_ok() && selat.is_ok() && selng.is_ok() {
+                locationsearch.append(
+                    Restaurant::search_by_lat_lng(
+                        nwlat.unwrap(),
+                        nwlng.unwrap(),
+                        selat.unwrap(),
+                        selng.unwrap(),
+                        &conn,
+                    )
+                    .as_mut(),
+                );
+            }
+        }
+    }
+
+    let results = vec![idsearch, namesearch, citysearch, zipsearch, locationsearch];
+    for r in results {
+        if queryoutput.is_empty() {
+            queryoutput = r.to_vec();
+        }
+        if !r.is_empty() {
+            queryoutput = queryoutput.intersect(r);
+        }
+    }
+    HttpResponse::Ok().json(queryoutput)
 }
 
 #[post("/subscribe")]
