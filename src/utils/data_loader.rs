@@ -3,8 +3,8 @@ use crate::database::restaurants_repository;
 use crate::database::schema::restaurants;
 use crate::database::schema::smileyreports;
 use serde::{Deserialize, Serialize};
-use std::fs::File;
 use std::io::BufReader;
+use std::{borrow::Borrow, fs::File};
 
 #[derive(Deserialize, Serialize)]
 pub struct ParseRestaurants {
@@ -133,8 +133,31 @@ pub fn load_data(path: &String) {
 pub fn extractsmiley(input: ParseSmileyReports, resid: i32) -> NewSmileyReport {
     NewSmileyReport {
         restaurant_id: resid,
-        date: input.date,
+        date: convertdate(input.date),
         rating: input.rating.parse::<i32>().unwrap(),
         report_id: input.report_id,
     }
+}
+
+pub fn convertdate(input: String) -> String {
+    let dateandtime: Vec<&str> = input.split(" ").collect();
+    let date: Vec<&str> = match dateandtime.get(0) {
+        None => {
+            vec![""]
+        }
+        Some(x) => x.split("-").collect(),
+    };
+    let mut output = String::new();
+    for i in date {
+        if output.is_empty() {
+            output = i.to_owned() + " ";
+        } else {
+            output = i.to_owned() + "-" + output.borrow();
+        }
+    }
+    output
+        + match dateandtime.get(1) {
+            None => " ",
+            Some(x) => x.to_owned(),
+        }
 }
