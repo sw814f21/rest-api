@@ -15,10 +15,10 @@ pub struct ParseRestaurants {
     pub cvr: String,
 
     #[serde(alias = "Geo_Lat")]
-    pub latitude: f32,
+    pub latitude: String,
 
     #[serde(alias = "Geo_Lng")]
-    pub longitude: f32,
+    pub longitude: String,
 
     #[serde(alias = "pnr")]
     pub pnr: String,
@@ -49,16 +49,13 @@ pub struct ParseRestaurants {
 }
 #[derive(Deserialize, Serialize)]
 pub struct ParseSmileyReports {
-    #[serde(alias = "pnr name")]
-    pub pnr: String,
-
-    #[serde(alias = "date name")]
+    #[serde(alias = "date")]
     pub date: String,
 
-    #[serde(alias = "rating name")]
-    pub rating: i32,
+    #[serde(alias = "smiley")]
+    pub rating: String,
 
-    #[serde(alias = "report name")]
+    #[serde(alias = "report_id")]
     pub report_id: String,
 }
 #[derive(Deserialize, Serialize, Insertable)]
@@ -78,7 +75,7 @@ pub struct NewRestaurant {
 #[derive(Deserialize, Serialize, Insertable)]
 #[table_name = "smileyreports"]
 pub struct NewSmileyReport {
-    pub pnr: String,
+    pub restaurant_id: i32,
     pub date: String,
     pub rating: i32,
     pub report_id: String,
@@ -90,53 +87,54 @@ pub fn load_data(path: &String) {
     let restaurants_vector: Vec<ParseRestaurants> =
         serde_json::from_reader(reader).expect("Can't parse json");
 
-    let mut newrestaurants: Vec<NewRestaurant> = Vec::new();
     let mut newsmileyreports: Vec<NewSmileyReport> = Vec::new();
-
-    for res in restaurants_vector {
-        newrestaurants.push(NewRestaurant {
-            city: res.city,
-            cvr: res.cvr,
-            latitude: res.latitude,
-            longitude: res.longitude,
-            pnr: res.pnr,
-            address: res.address,
-            url: res.url,
-            zipcode: res.zipcode,
-            name: res.name,
-        });
-        match res.latest_control {
-            None => {}
-            Some(x) => newsmileyreports.push(extractsmiley(x)),
-        }
-        match res.second_latest_control {
-            None => {}
-            Some(x) => newsmileyreports.push(extractsmiley(x)),
-        }
-        match res.third_latest_control {
-            None => {}
-            Some(x) => newsmileyreports.push(extractsmiley(x)),
-        }
-        match res.fourth_latest_control {
-            None => {}
-            Some(x) => newsmileyreports.push(extractsmiley(x)),
-        }
-    }
 
     let connection_pool = establish_connection();
     let connection = connection_pool.get().expect("Can't get connection");
 
-    restaurants_repository::insert_restaurants(&connection, &newrestaurants);
+    for res in restaurants_vector {
+        let resid = restaurants_repository::insert_restaurants(
+            &connection,
+            NewRestaurant {
+                city: res.city,
+                cvr: res.cvr,
+                latitude: res.latitude.parse::<f32>().unwrap(),
+                longitude: res.longitude.parse::<f32>().unwrap(),
+                pnr: res.pnr.to_string(),
+                address: res.address,
+                url: res.url,
+                zipcode: res.zipcode,
+                name: res.name,
+            },
+        );
+        match res.latest_control {
+            None => {}
+            Some(x) => newsmileyreports.push(extractsmiley(x, resid)),
+        }
+        match res.second_latest_control {
+            None => {}
+            Some(x) => newsmileyreports.push(extractsmiley(x, resid)),
+        }
+        match res.third_latest_control {
+            None => {}
+            Some(x) => newsmileyreports.push(extractsmiley(x, resid)),
+        }
+        match res.fourth_latest_control {
+            None => {}
+            Some(x) => newsmileyreports.push(extractsmiley(x, resid)),
+        }
+    }
+
     restaurants_repository::insert_smileys(&connection, &newsmileyreports);
 
     println!("Finished loading data into database")
 }
 
-pub fn extractsmiley(input: ParseSmileyReports) -> NewSmileyReport {
+pub fn extractsmiley(input: ParseSmileyReports, resid: i32) -> NewSmileyReport {
     NewSmileyReport {
-        pnr: input.pnr,
+        restaurant_id: resid,
         date: input.date,
-        rating: input.rating,
+        rating: input.rating.parse::<i32>().unwrap(),
         report_id: input.report_id,
     }
 }

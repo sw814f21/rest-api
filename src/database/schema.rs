@@ -32,7 +32,7 @@ table! {
 table! {
     smileyreports (id) {
         id -> Integer,
-        pnr -> Text,
+        restaurant_id -> Integer,
         rating -> Integer,
         date -> Text,
         report_id -> Text,
@@ -49,10 +49,4 @@ table! {
 joinable!(favorites -> restaurants (restaurant_id));
 joinable!(favorites -> users (token_id));
 
-allow_tables_to_appear_in_same_query!(
-    favorites,
-    posts,
-    restaurants,
-    smileyreports,
-    users,
-);
+allow_tables_to_appear_in_same_query!(favorites, posts, restaurants, smileyreports, users,);

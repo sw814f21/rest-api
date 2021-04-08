@@ -1,10 +1,11 @@
 CREATE TABLE IF NOT EXISTS smileyreports (
   id INTEGER NOT NULL PRIMARY KEY,
-  pnr TEXT NOT NULL,
+  restaurant_id INTEGER NOT NULL,
   rating INTEGER NOT NULL,
   date TEXT NOT NULL,
   report_id TEXT NOT NULL,
-  FOREIGN KEY (pnr) REFERENCES restaurants(pnr) ON DELETE CASCADE
+  FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE
+
 );
 
 
