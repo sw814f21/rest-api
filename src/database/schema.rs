@@ -48,5 +48,12 @@ table! {
 
 joinable!(favorites -> restaurants (restaurant_id));
 joinable!(favorites -> users (token_id));
+joinable!(smileyreports -> restaurants (restaurant_id));
 
-allow_tables_to_appear_in_same_query!(favorites, posts, restaurants, smileyreports, users,);
+allow_tables_to_appear_in_same_query!(
+    favorites,
+    posts,
+    restaurants,
+    smileyreports,
+    users,
+);

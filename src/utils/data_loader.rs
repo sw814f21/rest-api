@@ -87,12 +87,11 @@ pub fn load_data(path: &String) {
     let restaurants_vector: Vec<ParseRestaurants> =
         serde_json::from_reader(reader).expect("Can't parse json");
 
-    let mut newsmileyreports: Vec<NewSmileyReport> = Vec::new();
-
     let connection_pool = establish_connection();
     let connection = connection_pool.get().expect("Can't get connection");
 
     for res in restaurants_vector {
+        let mut newsmileyreports: Vec<NewSmileyReport> = Vec::new();
         let resid = restaurants_repository::insert_restaurants(
             &connection,
             NewRestaurant {
@@ -123,9 +122,8 @@ pub fn load_data(path: &String) {
             None => {}
             Some(x) => newsmileyreports.push(extractsmiley(x, resid)),
         }
+        restaurants_repository::insert_smileys(&connection, &newsmileyreports);
     }
-
-    restaurants_repository::insert_smileys(&connection, &newsmileyreports);
 
     println!("Finished loading data into database")
 }
