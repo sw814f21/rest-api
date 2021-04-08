@@ -15,10 +15,10 @@ pub struct ParseRestaurants {
     pub cvr: String,
 
     #[serde(alias = "Geo_Lat")]
-    pub latitude: String,
+    pub latitude: f32,
 
     #[serde(alias = "Geo_Lng")]
-    pub longitude: String,
+    pub longitude: f32,
 
     #[serde(alias = "pnr")]
     pub pnr: String,
@@ -53,7 +53,7 @@ pub struct ParseSmileyReports {
     pub date: String,
 
     #[serde(alias = "smiley")]
-    pub rating: String,
+    pub rating: i32,
 
     #[serde(alias = "report_id")]
     pub report_id: String,
@@ -98,8 +98,8 @@ pub fn load_data(path: &String) {
             NewRestaurant {
                 city: res.city,
                 cvr: res.cvr,
-                latitude: res.latitude.parse::<f32>().unwrap(),
-                longitude: res.longitude.parse::<f32>().unwrap(),
+                latitude: res.latitude,
+                longitude: res.longitude,
                 pnr: res.pnr.to_string(),
                 address: res.address,
                 url: res.url,
@@ -134,7 +134,7 @@ pub fn extractsmiley(input: ParseSmileyReports, resid: i32) -> NewSmileyReport {
     NewSmileyReport {
         restaurant_id: resid,
         date: convertdate(input.date),
-        rating: input.rating.parse::<i32>().unwrap(),
+        rating: input.rating,
         report_id: input.report_id,
     }
 }
