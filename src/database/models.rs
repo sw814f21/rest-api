@@ -41,12 +41,6 @@ pub struct Simplerestaurant {
     lat: f32,
     lng: f32,
 }
-#[derive(Queryable, Deserialize, Serialize)]
-pub struct Simplerestaurant {
-    id: i32,
-    lat: f32,
-    lng: f32,
-}
 
 use super::schema::restaurants::dsl::restaurants as res_dsl;
 impl Restaurant {
