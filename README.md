@@ -30,7 +30,7 @@ cp .env.example .env
 ```
 Or set them manually
 ```shell
-set DATABASEURL=rest-api.db
+set DATABASE_URL=rest-api.db
 ```
 
 ### Running migrations
