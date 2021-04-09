@@ -1,5 +1,4 @@
 use diesel::prelude::*;
-
 use serde::{Deserialize, Serialize};
 
 use diesel::dsl::{delete, select, insert_into, exists};
@@ -17,6 +16,16 @@ pub struct Restaurant {
     pub latitude: f32,
     pub longitude: f32,
 }
+
+#[derive(Clone, PartialEq, Queryable, Serialize)]
+pub struct SmileyReport {
+    pub id: i32,
+    pub pnr: String,
+    pub rating: i32,
+    pub date: String,
+    pub report_id: String,
+}
+
 #[derive(Queryable, Deserialize, Serialize)]
 pub struct Simplerestaurant {
     id: i32,
