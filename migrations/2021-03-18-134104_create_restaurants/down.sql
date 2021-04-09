@@ -1,1 +1,1 @@
-DROP TABLE restaurants
+DROP TABLE restaurants;

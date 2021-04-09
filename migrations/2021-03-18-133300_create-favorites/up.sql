@@ -1,10 +1,10 @@
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
   token_id TEXT NOT NULL,
-  notifications int,
+  notifications INTEGER NOT NULL,
   PRIMARY KEY (token_id)
 );
 
-CREATE TABLE favorites (
+CREATE TABLE IF NOT EXISTS favorites (
   resturant_id INTEGER NOT NULL,
   token_id TEXT,
   FOREIGN KEY (token_id) REFERENCES users(token_id) ON DELETE CASCADE,

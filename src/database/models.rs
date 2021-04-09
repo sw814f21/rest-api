@@ -1,10 +1,8 @@
 use diesel::prelude::*;
-
 use serde::{Deserialize, Serialize};
 
 use super::schema::posts;
 use super::schema::posts::dsl::posts as post_dsl;
-use super::schema::restaurants;
 
 #[derive(Debug, Deserialize, Serialize, Queryable, Insertable)]
 #[table_name = "posts"]
@@ -27,53 +25,15 @@ pub struct Restaurant {
     pub url: String,
     pub zipcode: String,
     pub name: String,
-    pub latest_control: Option<i32>,
-    pub second_latest_control: Option<i32>,
-    pub third_latest_control: Option<i32>,
-    pub fourth_latest_control: Option<i32>,
 }
 
-#[derive(Insertable, Deserialize, Serialize)]
-#[table_name = "restaurants"]
-pub struct NewRestaurant {
-    #[serde(alias = "By")]
-    pub city: String,
-
-    #[serde(alias = "cvrnr")]
-    pub cvr: String,
-
-    #[serde(alias = "Geo_Lat")]
-    pub latitude: f32,
-
-    #[serde(alias = "Geo_Lng")]
-    pub longitude: f32,
-
-    #[serde(alias = "pnr")]
+#[derive(Clone, PartialEq, Queryable, Serialize)]
+pub struct SmileyReport {
+    pub id: i32,
     pub pnr: String,
-
-    #[serde(alias = "adresse1")]
-    pub address: String,
-
-    #[serde(alias = "URL")]
-    pub url: String,
-
-    #[serde(alias = "postnr")]
-    pub zipcode: String,
-
-    #[serde(alias = "navn1")]
-    pub name: String,
-
-    #[serde(alias = "seneste_kontrol")]
-    pub latest_control: Option<i32>,
-
-    #[serde(alias = "naestseneste_kontrol")]
-    pub second_latest_control: Option<i32>,
-
-    #[serde(alias = "tredjeseneste_kontrol")]
-    pub third_latest_control: Option<i32>,
-
-    #[serde(alias = "fjerdeseneste_kontrol")]
-    pub fourth_latest_control: Option<i32>,
+    pub rating: i32,
+    pub date: String,
+    pub report_id: String,
 }
 #[derive(Queryable, Deserialize, Serialize)]
 pub struct Simplerestaurant {
