@@ -23,10 +23,14 @@ cargo run
 cargo install diesel_cli --no-default-features --features "sqlite-bundled"
 ```
 
-### Set database URL
-
+### Set enviromental variables
+Use either the file `.env.example` and modify to your needs
 ```shell
-set DATABASE_URL=rest-api.db
+cp .env.example .env
+```
+Or set them manually
+```shell
+set DATABASEURL=rest-api.db
 ```
 
 ### Running migrations

@@ -2,11 +2,9 @@ use diesel::{
     r2d2::{self, ConnectionManager, Pool},
     sqlite::SqliteConnection,
 };
-use dotenv::dotenv;
 use std::env;
 
 pub mod models;
-pub mod restaurants_repository;
 pub mod schema;
 
 embed_migrations!();
@@ -17,23 +15,24 @@ pub fn run_migrations(conn: &SqliteConnection) {
     let _ = diesel_migrations::run_pending_migrations(&*conn);
 }
 
-pub fn establish_connection() -> DbPool {
-    if cfg!(test) {
-        let manager = ConnectionManager::<SqliteConnection>::new("file::memory:?cache=shared");
-        let pool = r2d2::Pool::builder()
-            .build(manager)
-            .expect("Failed to create DB pool.");
-        run_migrations(&pool.get().unwrap());
+pub fn new_pool() -> DbPool {
+    match env::var("DATABASE_URL") {
+        Ok(database_url) => {
+            let manager = ConnectionManager::<SqliteConnection>::new(&database_url);
 
-        pool
-    } else {
-        dotenv().ok();
+            r2d2::Pool::builder()
+                .build(manager)
+                .expect("Failed to create DB pool.")
+        }
+        Err(_) => {
+            println!("Creating in-memory db");
+            let manager = ConnectionManager::<SqliteConnection>::new("file::memory:?cache=shared");
+            let pool = r2d2::Pool::builder()
+                .build(manager)
+                .expect("Failed to create DB pool.");
+            run_migrations(&pool.get().unwrap());
 
-        let database_url = env::var("DatabaseFile").expect("DATABASE_URL must be set");
-        let manager = ConnectionManager::<SqliteConnection>::new(&database_url);
-
-        r2d2::Pool::builder()
-            .build(manager)
-            .expect("Failed to create DB pool.")
+            pool
+        }
     }
 }
