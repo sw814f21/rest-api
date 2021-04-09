@@ -8,19 +8,20 @@ use actix_web::{
     web::{self, JsonConfig},
     App, HttpServer,
 };
-use diesel::r2d2::{self, ConnectionManager};
-use diesel::SqliteConnection;
 use dotenv::dotenv;
 use std::env;
 
 pub mod database;
-pub mod services;
-pub mod utils;
 
-embed_migrations!();
+//Services
+mod services;
+
+//Utils
+mod utils;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    dotenv().ok();
     let args: Vec<String> = env::args().collect();
 
     if args.len() > 2 && args[1] == "load" {
@@ -28,39 +29,27 @@ async fn main() -> std::io::Result<()> {
         return Ok(());
     }
 
-    dotenv().ok();
+    let pool = database::new_pool();
+    let bind_addr = match env::var("BIND_ADDRESS") {
+        Ok(e) => e,
+        Err(_) => String::from("127.0.0.1:8080"),
+    };
 
-    // TOOO: Grab connection pool from database.rs's function instead of here. Awaiting Thorulf's testing setup
-    let database_url = dotenv::var("DatabaseFile").unwrap();
-
-    let manager = ConnectionManager::<SqliteConnection>::new(&database_url);
-
-    let pool = r2d2::Pool::builder()
-        .build(manager)
-        .expect("Failed to create DB pool.");
-
-    // TODO: Move migrations to database.rs
-    let conn = pool.get().unwrap();
-    match embedded_migrations::run(&conn) {
-        Ok(_v) => (),
-        Err(_e) => panic!("Failed to run migrations"),
-    }
+    println!("Starting server on http://{}/", bind_addr);
 
     HttpServer::new(move || {
         App::new()
             .data(pool.clone())
             .data(JsonConfig::default().limit(4096))
-            .service(services::posts::hello)
-            .service(services::posts::echo)
-            .service(services::posts::subscribe)
-            .service(services::posts::unsubscribe)
-            .service(services::posts::subscribes)
-            .service(services::posts::new_user)
-            .service(services::posts::restaurant)
-            .service(services::posts::search_restaurants)
-            .route("/hey", web::get().to(services::posts::manual_hello))
+            .service(services::example::echo)
+            .service(services::subscription::subscribe)
+            .service(services::subscription::unsubscribe)
+            .service(services::restaurant::restaurant)
+            .service(services::restaurant::search_restaurants)
+            .service(services::restaurant::restaurant_by_id)
+            .route("/hey", web::get().to(services::example::manual_hello))
     })
-    .bind(dotenv::var("Host").unwrap())?
+    .bind(bind_addr)?
     .run()
     .await
 }
