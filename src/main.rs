@@ -30,7 +30,10 @@ async fn main() -> std::io::Result<()> {
     }
 
     let pool = database::new_pool();
-    let bind_addr = env::var("BIND_ADDRESS").expect("Missing env var BIND_ADDRESS.");
+    let bind_addr = match env::var("BIND_ADDRESS") {
+        Ok(e) => e,
+        Err(_) => String::from("127.0.0.1:8080"),
+    };
 
     println!("Starting server on http://{}/", bind_addr);
 
