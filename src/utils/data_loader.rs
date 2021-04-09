@@ -1,9 +1,5 @@
-use crate::utils::data_inserter::InsertSmileyReport;
-use crate::utils::data_inserter::InsertRestaurant;
-use crate::utils::data_inserter::insert_restaurant;
-use crate::utils::data_inserter::insert_smileys;
-use crate::utils::json_parser::JsonRestaurant;
-use crate::utils::json_parser::JsonSmileyReport;
+use crate::utils::data_inserter::{InsertSmileyReport, InsertRestaurant, insert_restaurant, insert_smileys};
+use crate::utils::json_parser::{JsonRestaurant, JsonSmileyReport};
 use crate::database::new_pool;
 use std::fs::File;
 use std::io::BufReader;
