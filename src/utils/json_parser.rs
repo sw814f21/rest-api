@@ -2,16 +2,16 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct JsonRestaurant {
-    #[serde(alias = "By")]
+    #[serde(alias = "city")]
     pub city: String,
 
     #[serde(alias = "cvrnr")]
     pub cvr: String,
 
-    #[serde(alias = "Geo_Lat")]
+    #[serde(alias = "geo_lat")]
     pub latitude: f32,
 
-    #[serde(alias = "Geo_Lng")]
+    #[serde(alias = "geo_lng")]
     pub longitude: f32,
 
     #[serde(alias = "pnr")]
@@ -20,14 +20,14 @@ pub struct JsonRestaurant {
     #[serde(alias = "adresse1")]
     pub address: String,
 
-    #[serde(alias = "postnr")]
+    #[serde(alias = "zip_code")]
     pub zipcode: String,
 
     #[serde(alias = "navn1")]
     pub name: String,
 
-    #[serde(alias = "navnelbnr")]
-    pub smiley_restaurant_id: i32,
+    #[serde(alias = "name_seq_nr")]
+    pub smiley_restaurant_id: String,
 
     #[serde(alias = "smiley_reports")]
     pub smiley_reports: Vec<JsonSmileyReport>,
