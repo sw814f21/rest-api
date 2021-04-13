@@ -5,7 +5,7 @@ function build {
 }
 
 function upload {
-    rsync --info=progress2 ./target/x86_64-unknown-linux-musl/release/smiley_rest_api p8:/var/smiley_rest_api/target/release/smiley_rest_api
+    rsync --info=progress2 ./target/x86_64-unknown-linux-musl/release/smiley_rest_api p8:/var/smiley_rest_api/smiley_rest_api
 
     ssh p8 sudo -S systemctl restart smiley_rest_api.service
 }
