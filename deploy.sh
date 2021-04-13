@@ -5,13 +5,16 @@ function build {
 }
 
 function upload {
-    rsync --info=progress2 ./target/x86_64-unknown-linux-musl/release/smiley_rest_api p8:/var/smiley_rest_api/smiley_rest_api
+    echo "Uploading the binary"
+    rsync -az --info=progress2 ./target/x86_64-unknown-linux-musl/release/smiley_rest_api p8:/var/smiley_rest_api/smiley_rest_api
+    echo "Uploading migrations"
+    rsync -az -r --info=progress2 ./migrations p8:/var/smiley_rest_api/
 
-    ssh p8 sudo -S systemctl restart smiley_rest_api.service
+    ssh p8 'sudo systemctl restart smiley_rest_api.service'
 }
 
 echo "Building the binary"
 build
-echo "Uploading the binary"
+echo "Deploying.."
 upload
 echo "Done with deployment."
