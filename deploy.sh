@@ -1,10 +1,17 @@
-rsync -r --info=progress2 --exclude target/ --exclude .env  ./ p8:/var/smiley_rest_api/
-ssh p8 "
-    source /opt/rust/env &&
-    cd /var/smiley_rest_api &&
-    cargo build --release &&
-    sudo -S systemctl restart smiley_rest_api.service
-"
+#!/bin/bash
 
-clear
-echo Done with deployment.
+function build {
+    cargo build --target x86_64-unknown-linux-musl --release --locked --bin smiley_rest_api
+}
+
+function upload {
+    rsync --info=progress2 ./target/x86_64-unknown-linux-musl/release/smiley_rest_api p8:/var/smiley_rest_api/target/release/smiley_rest_api
+
+    ssh p8 sudo -S systemctl restart smiley_rest_api.service
+}
+
+echo "Building the binary"
+build
+echo "Uploading the binary"
+upload
+echo "Done with deployment."
