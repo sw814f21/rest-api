@@ -1,7 +1,7 @@
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use diesel::dsl::{delete, select, insert_into, exists};
+use diesel::dsl::{delete, exists, insert_into, select};
 
 #[derive(Clone, PartialEq, Queryable, Serialize)]
 pub struct Restaurant {
@@ -20,7 +20,7 @@ pub struct Restaurant {
 #[derive(Clone, PartialEq, Queryable, Serialize)]
 pub struct SmileyReport {
     pub id: i32,
-    pub pnr: String,
+    pub res_id: i32,
     pub rating: i32,
     pub date: String,
     pub report_id: String,
@@ -109,29 +109,28 @@ pub struct Subscription {
     pub token: String,
 }
 impl Subscription {
-    
     pub fn subscribe(res_id: i32, token_id: &String, conn: &SqliteConnection) {
         use crate::database::schema::subscription::dsl::*;
-        let exists = select(exists(subscription.filter(
-            (restaurant_id.eq(res_id)).and(token.eq(token_id))
-        )
-        )).first::<bool>(conn);
+        let exists = select(exists(
+            subscription.filter((restaurant_id.eq(res_id)).and(token.eq(token_id))),
+        ))
+        .first::<bool>(conn);
         match exists {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(_) => {
-                let new_sub = (
-                    restaurant_id.eq(res_id),
-                    token.eq(token_id),
-                );
-                insert_into(subscription).values(&new_sub).execute(conn).expect("Couldn't create subscription");
+                let new_sub = (restaurant_id.eq(res_id), token.eq(token_id));
+                insert_into(subscription)
+                    .values(&new_sub)
+                    .execute(conn)
+                    .expect("Couldn't create subscription");
             }
         }
     }
 
     pub fn unsubscribe(res_id: i32, token_id: &String, conn: &SqliteConnection) {
         use crate::database::schema::subscription::dsl::*;
-        delete(subscription.filter(
-            (restaurant_id.eq(res_id)).and(token.eq(token_id))
-        )).execute(conn).expect("Couldn't delete subscription");
+        delete(subscription.filter((restaurant_id.eq(res_id)).and(token.eq(token_id))))
+            .execute(conn)
+            .expect("Couldn't delete subscription");
     }
 }

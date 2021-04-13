@@ -68,6 +68,10 @@ mod tests {
         pool
     }
 
+    async fn load_test_data(conn: &SqliteConnection) {
+        load_data(&String::from("test_sample_data.json"), conn);
+    }
+
     async fn clear_database(conn: &SqliteConnection) {
         let _ = diesel::delete(restaurant::table).execute(conn);
         let _ = diesel::delete(notification_history::table).execute(conn);
@@ -110,10 +114,17 @@ mod tests {
     }
 
     #[actix_rt::test]
-    async fn something() {
+    async fn data_loading_test() {
         let conn = init_database().await.get().unwrap();
-
-        load_data(&String::from("test_sample_data.json"), &conn);
+        load_test_data(&conn).await;
+        let addedres: Vec<Restaurant> = restaurant::dsl::restaurant
+            .load(&conn)
+            .expect("error fetching testdata restaurants in test");
+        let addedsmileyreports: Vec<SmileyReport> = smiley_report::dsl::smiley_report
+            .load(&conn)
+            .expect("error fetching smiley reports in test");
+        assert_eq!(addedres.iter().count(), 10);
+        assert_eq!(addedsmileyreports.iter().count(), 40);
 
         clear_database(&conn).await;
     }
