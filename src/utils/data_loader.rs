@@ -3,13 +3,19 @@ use crate::utils::data_inserter::{
     insert_restaurant, insert_smileys, InsertRestaurant, InsertSmileyReport,
 };
 use crate::utils::json_parser::{JsonRestaurant, JsonSmileyReport};
-use std::fs::File;
-use std::io::BufReader;
 
-pub fn load_data(path: &String) {
-    let file = File::open(path).expect("Can't open file from path");
-    let reader = BufReader::new(file);
-    let read_json: Vec<JsonRestaurant> = serde_json::from_reader(reader).expect("Can't parse json");
+pub fn load_data_from_file(path: &String) {
+    let json = std::fs::read_to_string(path).expect("Failed to read file");
+
+    load_data(&json);
+
+    println!("Finished loading data into database");
+}
+
+pub fn load_data(json: &String){
+    let read_json: Vec<JsonRestaurant> =
+    serde_json::from_str(json).expect("Can't parse json");
+
 
     let connection_pool = new_pool();
     let connection = connection_pool.get().expect("Can't get connection");
@@ -25,8 +31,7 @@ pub fn load_data(path: &String) {
         }
 
         insert_smileys(&connection, &newsmileyreports);
-    }
-    println!("Finished loading data into database")
+    }    
 }
 
 fn map_restaurant_json2insert(input: &JsonRestaurant) -> InsertRestaurant {

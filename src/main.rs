@@ -25,7 +25,7 @@ async fn main() -> std::io::Result<()> {
     let args: Vec<String> = env::args().collect();
 
     if args.len() > 2 && args[1] == "load" {
-        data_loader::load_data(&args[2]);
+        data_loader::load_data_from_file(&args[2]);
         return Ok(());
     }
 
@@ -47,6 +47,7 @@ async fn main() -> std::io::Result<()> {
             .service(services::restaurant::restaurant)
             .service(services::restaurant::search_restaurants)
             .service(services::restaurant::restaurant_by_id)
+            .service(services::admin::load_data)
             .route("/hey", web::get().to(services::example::manual_hello))
     })
     .bind(bind_addr)?
