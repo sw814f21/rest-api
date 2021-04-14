@@ -4,20 +4,11 @@ mod tests {
     use crate::tests::response_parser;
     use crate::utils::data_inserter::*;
     use crate::{database::*, services, utils::data_loader::load_data};
-    use actix_web::http::Method;
     use actix_web::{test, web, App};
     use diesel::prelude::*;
 
     use crate::database::new_pool;
-    use diesel::{
-        dsl::{delete, exists, insert_into, select},
-        r2d2::PooledConnection,
-    };
-    use diesel::{
-        r2d2::{self, ConnectionManager, Pool},
-        sqlite::SqliteConnection,
-        QueryDsl, RunQueryDsl,
-    };
+    use diesel::{sqlite::SqliteConnection, QueryDsl, RunQueryDsl};
 
     fn load_test_data(conn: &SqliteConnection) {
         load_data(&String::from("test_sample_data.json"), conn);
@@ -132,5 +123,30 @@ mod tests {
             .await;
         let resp: Vec<response_parser::Simplerestaurant> = test::read_body_json(req).await;
         assert_eq!(resp.iter().count(), 10);
+    }
+
+    #[actix_rt::test]
+    async fn test_get_restaurants_id() {
+        let pool = new_pool();
+        load_test_data(&pool.get().unwrap());
+        let mut app = test::init_service(
+            App::new()
+                .data(pool.clone())
+                .data(web::JsonConfig::default().limit(4096))
+                .service(services::restaurant::restaurant_by_id),
+        )
+        .await;
+        let req = test::TestRequest::get().uri("/restaurant/5").to_request();
+        let resp = test::call_service(&mut app, req).await;
+        assert!(resp.status().is_success());
+        let req = test::TestRequest::get()
+            .uri("/restaurant/5")
+            .send_request(&mut app)
+            .await;
+        let resp: response_parser::Restaurant = test::read_body_json(req).await;
+        assert_eq!(resp.id, 5);
+        assert_eq!(resp.smiley_restaurant_id, 758030);
+        assert_eq!(resp.cvr, "25431944");
+        assert_eq!(resp.pnr, "1008217579");
     }
 }
