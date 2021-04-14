@@ -1,19 +1,14 @@
 //cfg(test) tells compiler only to use this when running tests
 #[cfg(test)]
 mod tests {
-    use crate::database::schema::*;
+    use crate::tests::response_parser;
     use crate::utils::data_inserter::*;
-    use crate::{database::models::*, utils::data_loader::load_data};
+    use crate::{database::*, services, utils::data_loader::load_data};
     use actix_web::http::Method;
-    use actix_web::{
-        test::{init_service, read_body, TestRequest},
-        web, App,
-    };
+    use actix_web::{test, web, App};
     use diesel::prelude::*;
 
     use crate::database::new_pool;
-    use crate::diesel::connection::SimpleConnection;
-    use diesel::r2d2::CustomizeConnection;
     use diesel::{
         dsl::{delete, exists, insert_into, select},
         r2d2::PooledConnection,
@@ -26,13 +21,6 @@ mod tests {
 
     fn load_test_data(conn: &SqliteConnection) {
         load_data(&String::from("test_sample_data.json"), conn);
-    }
-
-    async fn clear_database(conn: &SqliteConnection) {
-        let _ = diesel::delete(restaurant::table).execute(conn);
-        let _ = diesel::delete(notification_history::table).execute(conn);
-        let _ = diesel::delete(smiley_report::table).execute(conn);
-        let _ = diesel::delete(subscription::table).execute(conn);
     }
 
     #[actix_rt::test]
@@ -50,17 +38,17 @@ mod tests {
             longitude: 55.2,
         };
         let testid = insert_restaurant(&conn, &testres);
-        match restaurant::dsl::restaurant
-            .filter(restaurant::smiley_restaurant_id.eq(testres.smiley_restaurant_id))
-            .filter(restaurant::name.eq_all(testres.name))
-            .filter(restaurant::address.eq_all(testres.address))
-            .filter(restaurant::zipcode.eq_all(testres.zipcode))
-            .filter(restaurant::city.eq_all(testres.city))
-            .filter(restaurant::cvr.eq_all(testres.cvr))
-            .filter(restaurant::pnr.eq_all(testres.pnr))
-            .filter(restaurant::latitude.eq_all(testres.latitude))
-            .filter(restaurant::longitude.eq_all(testres.longitude))
-            .first::<Restaurant>(&conn)
+        match schema::restaurant::dsl::restaurant
+            .filter(schema::restaurant::smiley_restaurant_id.eq(testres.smiley_restaurant_id))
+            .filter(schema::restaurant::name.eq_all(testres.name))
+            .filter(schema::restaurant::address.eq_all(testres.address))
+            .filter(schema::restaurant::zipcode.eq_all(testres.zipcode))
+            .filter(schema::restaurant::city.eq_all(testres.city))
+            .filter(schema::restaurant::cvr.eq_all(testres.cvr))
+            .filter(schema::restaurant::pnr.eq_all(testres.pnr))
+            .filter(schema::restaurant::latitude.eq_all(testres.latitude))
+            .filter(schema::restaurant::longitude.eq_all(testres.longitude))
+            .first::<models::Restaurant>(&conn)
         {
             Err(_) => panic!("Error in test for insert of test restaurant"),
             Ok(res) => assert_eq!(res.id, testid),
@@ -71,14 +59,18 @@ mod tests {
     async fn data_loading_test() {
         let conn = new_pool().get().unwrap();
         load_test_data(&conn);
-        let addedres: Vec<Restaurant> = restaurant::dsl::restaurant
-            .order_by(restaurant::dsl::id)
+        let addedres: Vec<models::Restaurant> = schema::restaurant::dsl::restaurant
+            .order_by(schema::restaurant::dsl::id)
             .load(&conn)
             .expect("error fetching testdata restaurants in test");
-        let addedsmileyreports: Vec<SmileyReport> = smiley_report::dsl::smiley_report
-            .order_by((smiley_report::dsl::restaurant_id, smiley_report::dsl::date))
-            .load(&conn)
-            .expect("error fetching smiley reports in test");
+        let addedsmileyreports: Vec<models::SmileyReport> =
+            schema::smiley_report::dsl::smiley_report
+                .order_by((
+                    schema::smiley_report::dsl::restaurant_id,
+                    schema::smiley_report::dsl::date,
+                ))
+                .load(&conn)
+                .expect("error fetching smiley reports in test");
         assert_eq!(addedres.iter().count(), 10);
         assert_eq!(addedsmileyreports.iter().count(), 40);
     }
@@ -87,7 +79,7 @@ mod tests {
     async fn lat_lng_test() {
         let conn = new_pool().get().unwrap();
         load_test_data(&conn);
-        let mut res = Restaurant::search_by_lat_lng(55.9, 9.0, 55.2, 10.1, &conn);
+        let mut res = models::Restaurant::search_by_lat_lng(55.9, 9.0, 55.2, 10.1, &conn);
         struct Vals {
             smiley_restaurant_id: i32,
             cvr: String,
@@ -118,5 +110,27 @@ mod tests {
             assert_eq!(i.pnr, excepted.get(j).unwrap().pnr);
             j = j + 1;
         }
+    }
+
+    #[actix_rt::test]
+    async fn test_get_restaurants() {
+        let pool = new_pool();
+        load_test_data(&pool.get().unwrap());
+        let mut app = test::init_service(
+            App::new()
+                .data(pool.clone())
+                .data(web::JsonConfig::default().limit(4096))
+                .service(services::restaurant::restaurant),
+        )
+        .await;
+        let req = test::TestRequest::get().uri("/restaurant").to_request();
+        let resp = test::call_service(&mut app, req).await;
+        assert!(resp.status().is_success());
+        let req = test::TestRequest::get()
+            .uri("/restaurant")
+            .send_request(&mut app)
+            .await;
+        let resp: Vec<response_parser::Simplerestaurant> = test::read_body_json(req).await;
+        assert_eq!(resp.iter().count(), 10);
     }
 }
