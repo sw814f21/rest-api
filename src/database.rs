@@ -16,23 +16,29 @@ pub fn run_migrations(conn: &SqliteConnection) {
 }
 
 pub fn new_pool() -> DbPool {
-    match env::var("DATABASE_URL") {
-        Ok(database_url) => {
-            let manager = ConnectionManager::<SqliteConnection>::new(&database_url);
 
-            r2d2::Pool::builder()
-                .build(manager)
-                .expect("Failed to create DB pool.")
-        }
-        Err(_) => {
-            println!("Creating in-memory db");
-            let manager = ConnectionManager::<SqliteConnection>::new("file::memory:?cache=shared");
-            let pool = r2d2::Pool::builder()
-                .build(manager)
-                .expect("Failed to create DB pool.");
-            run_migrations(&pool.get().unwrap());
+    if cfg!(test) {
+        println!("Creating in-memory db");
+        let manager = ConnectionManager::<SqliteConnection>::new("file::memory:?cache=shared");
+        let pool = r2d2::Pool::builder()
+            .build(manager)
+            .expect("Failed to create DB pool.");
+        run_migrations(&pool.get().unwrap());
 
-            pool
+        pool
+    } else {
+        match env::var("DATABASE_URL") {
+            Ok(database_url) => {
+                let manager = ConnectionManager::<SqliteConnection>::new(&database_url);
+    
+                r2d2::Pool::builder()
+                    .build(manager)
+                    .expect("Failed to create DB pool.")
+            }
+            Err(_) => {
+                panic!("DATABASE_URL is not set in .env file");
+            }
         }
     }
+
 }
