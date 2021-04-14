@@ -1,24 +1,26 @@
-use crate::database::new_pool;
+use diesel::r2d2::{ConnectionManager, Pool};
+use diesel::SqliteConnection;
+use actix_web::web;
 use crate::utils::data_inserter::{
     insert_restaurant, insert_smileys, InsertRestaurant, InsertSmileyReport,
 };
 use crate::utils::json_parser::{JsonRestaurant, JsonSmileyReport};
+use crate::database;
 
 pub fn load_data_from_file(path: &String) {
     let json = std::fs::read_to_string(path).expect("Failed to read file");
 
-    load_data(&json);
+    let pool = database::new_pool();
+    let conn = pool.get().expect("Cant get connection to database");
+
+    load_data(&json, &conn);
 
     println!("Finished loading data into database");
 }
 
-pub fn load_data(json: &String){
+pub fn load_data(json: &String, connection: &SqliteConnection){
     let read_json: Vec<JsonRestaurant> =
     serde_json::from_str(json).expect("Can't parse json");
-
-
-    let connection_pool = new_pool();
-    let connection = connection_pool.get().expect("Can't get connection");
 
     for res in read_json {
         let new_restaurant = map_restaurant_json2insert(&res);

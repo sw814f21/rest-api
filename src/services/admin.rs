@@ -1,9 +1,11 @@
-use actix_web::{post, HttpResponse, Responder, HttpRequest};
+use diesel::r2d2::{ConnectionManager, Pool};
+use diesel::SqliteConnection;
+use actix_web::{post, web, HttpResponse, Responder, HttpRequest};
 use actix_web::http::StatusCode;
 use crate::utils::data_loader;
 
 #[post("/admin/insert")]
-pub async fn load_data(req: HttpRequest ,req_body: String) -> impl Responder {
+pub async fn load_data(req: HttpRequest ,req_body: String, pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>) -> impl Responder {
     
     let conn_info = req.connection_info();
     let address = match conn_info.remote_addr() {
@@ -12,7 +14,7 @@ pub async fn load_data(req: HttpRequest ,req_body: String) -> impl Responder {
     };
     
     if address.contains("127.0.0.1") {
-        data_loader::load_data(&req_body);
+        data_loader::load_data(&req_body, &pool.get().unwrap());
     
         HttpResponse::Ok().body(req_body)
     } else {
@@ -33,11 +35,13 @@ mod tests {
     #[actix_rt::test]
     async fn test_load_single_entry() {
         let db_pool = database::new_pool();
+        println!("wow");
 
         let mut app = init_service(App::new()
         .data(db_pool.clone())
         .service(super::load_data))
         .await;
+        println!("wow");
 
         //Send a request with a single restaurant in the body in json format
         TestRequest::get()
@@ -48,7 +52,11 @@ mod tests {
             .send_request(&mut app)
             .await;
 
+            println!("wow");
+
         let restaurant_vec = Restaurant::get_all_resturants(&db_pool.get().expect("Cant get database connection"));
+
+        println!("wow");
 
         assert_eq!(restaurant_vec.len(), 1);
     }
