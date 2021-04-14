@@ -37,7 +37,7 @@ mod tests {
 
     #[actix_rt::test]
     async fn test_insert_restaurant() {
-        let pool = new_pool();
+        let conn = new_pool().get().unwrap();
         let testres: InsertRestaurant = InsertRestaurant {
             smiley_restaurant_id: 1,
             name: String::from("Somewhere"),
@@ -49,7 +49,7 @@ mod tests {
             latitude: 1.5,
             longitude: 55.2,
         };
-        let testid = insert_restaurant(&pool.get().unwrap(), &testres);
+        let testid = insert_restaurant(&conn, &testres);
         match restaurant::dsl::restaurant
             .filter(restaurant::smiley_restaurant_id.eq(testres.smiley_restaurant_id))
             .filter(restaurant::name.eq_all(testres.name))
@@ -60,7 +60,7 @@ mod tests {
             .filter(restaurant::pnr.eq_all(testres.pnr))
             .filter(restaurant::latitude.eq_all(testres.latitude))
             .filter(restaurant::longitude.eq_all(testres.longitude))
-            .first::<Restaurant>(&pool.get().unwrap())
+            .first::<Restaurant>(&conn)
         {
             Err(_) => panic!("Error in test for insert of test restaurant"),
             Ok(res) => assert_eq!(res.id, testid),
@@ -69,15 +69,15 @@ mod tests {
 
     #[actix_rt::test]
     async fn data_loading_test() {
-        let pool = new_pool();
-        load_test_data(&pool.get().unwrap());
+        let conn = new_pool().get().unwrap();
+        load_test_data(&conn);
         let addedres: Vec<Restaurant> = restaurant::dsl::restaurant
             .order_by(restaurant::dsl::id)
-            .load(&pool.get().unwrap())
+            .load(&conn)
             .expect("error fetching testdata restaurants in test");
         let addedsmileyreports: Vec<SmileyReport> = smiley_report::dsl::smiley_report
             .order_by((smiley_report::dsl::restaurant_id, smiley_report::dsl::date))
-            .load(&pool.get().unwrap())
+            .load(&conn)
             .expect("error fetching smiley reports in test");
         assert_eq!(addedres.iter().count(), 10);
         assert_eq!(addedsmileyreports.iter().count(), 40);
@@ -85,9 +85,9 @@ mod tests {
 
     #[actix_rt::test]
     async fn lat_lng_test() {
-        let pool = new_pool();
-        load_test_data(&pool.get().unwrap());
-        let mut res = Restaurant::search_by_lat_lng(55.9, 9.0, 55.2, 10.1, &pool.get().unwrap());
+        let conn = new_pool().get().unwrap();
+        load_test_data(&conn);
+        let mut res = Restaurant::search_by_lat_lng(55.9, 9.0, 55.2, 10.1, &conn);
         struct Vals {
             smiley_restaurant_id: i32,
             cvr: String,
