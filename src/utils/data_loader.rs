@@ -1,27 +1,22 @@
-use crate::utils::data_inserter::{InsertSmileyReport, InsertRestaurant, insert_restaurant, insert_smileys};
-use crate::utils::json_parser::{JsonRestaurant, JsonSmileyReport};
 use crate::database::new_pool;
+use crate::utils::data_inserter::{
+    insert_restaurant, insert_smileys, InsertRestaurant, InsertSmileyReport,
+};
+use crate::utils::json_parser::{JsonRestaurant, JsonSmileyReport};
 use std::fs::File;
 use std::io::BufReader;
-
 
 pub fn load_data(path: &String) {
     let file = File::open(path).expect("Can't open file from path");
     let reader = BufReader::new(file);
-    let read_json: Vec<JsonRestaurant> =
-        serde_json::from_reader(reader).expect("Can't parse json");
-
+    let read_json: Vec<JsonRestaurant> = serde_json::from_reader(reader).expect("Can't parse json");
 
     let connection_pool = new_pool();
     let connection = connection_pool.get().expect("Can't get connection");
 
     for res in read_json {
-
         let new_restaurant = map_restaurant_json2insert(&res);
-        let resid = insert_restaurant(
-            &connection,
-            &new_restaurant,
-        );
+        let resid = insert_restaurant(&connection, &new_restaurant);
 
         let mut newsmileyreports: Vec<InsertSmileyReport> = Vec::new();
 
@@ -34,9 +29,9 @@ pub fn load_data(path: &String) {
     println!("Finished loading data into database")
 }
 
-fn map_restaurant_json2insert(input: &JsonRestaurant) -> InsertRestaurant{
+fn map_restaurant_json2insert(input: &JsonRestaurant) -> InsertRestaurant {
     InsertRestaurant {
-        smiley_restaurant_id: input.smiley_restaurant_id,
+        smiley_restaurant_id: input.smiley_restaurant_id.parse::<i32>().unwrap(),
         name: (*input.name).to_string(),
         address: (*input.address).to_string(),
         zipcode: (*input.zipcode).to_string(),
@@ -48,7 +43,7 @@ fn map_restaurant_json2insert(input: &JsonRestaurant) -> InsertRestaurant{
     }
 }
 
-fn map_smileyreport_json2insert(input: &JsonSmileyReport, res_id: i32) -> InsertSmileyReport{
+fn map_smileyreport_json2insert(input: &JsonSmileyReport, res_id: i32) -> InsertSmileyReport {
     InsertSmileyReport {
         date: (*input.date).to_string(),
         smiley: input.smiley,
