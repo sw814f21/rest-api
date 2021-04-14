@@ -10,7 +10,7 @@ pub async fn load_data(req: HttpRequest ,req_body: String) -> impl Responder {
         Some(address) => address,
         None => panic!("Couldnt get remote address")
     };
-    println!("{}",address);
+    
     if address.contains("127.0.0.1") {
         data_loader::load_data(&req_body);
     
