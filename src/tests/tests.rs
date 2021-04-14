@@ -11,6 +11,7 @@ mod tests {
     };
     use diesel::prelude::*;
 
+    use crate::database::new_pool;
     use crate::diesel::connection::SimpleConnection;
     use diesel::r2d2::CustomizeConnection;
     use diesel::{
@@ -22,51 +23,6 @@ mod tests {
         sqlite::SqliteConnection,
         QueryDsl, RunQueryDsl,
     };
-    use diesel_migrations;
-    use std::time::Duration;
-
-    #[derive(Debug)]
-    pub struct ConnectionOptions {
-        pub enable_wal: bool,
-        pub enable_foreign_keys: bool,
-        pub busy_timeout: Option<Duration>,
-    }
-
-    impl diesel::r2d2::CustomizeConnection<SqliteConnection, diesel::r2d2::Error>
-        for ConnectionOptions
-    {
-        fn on_acquire(&self, conn: &mut SqliteConnection) -> Result<(), diesel::r2d2::Error> {
-            (|| {
-                if self.enable_wal {
-                    conn.batch_execute("PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL;")?;
-                }
-                if self.enable_foreign_keys {
-                    conn.batch_execute("PRAGMA foreign_keys = ON;")?;
-                }
-                if let Some(d) = self.busy_timeout {
-                    conn.batch_execute(&format!("PRAGMA busy_timeout = {};", d.as_millis()))?;
-                }
-                Ok(())
-            })()
-            .map_err(diesel::r2d2::Error::QueryError)
-        }
-    }
-
-    async fn init_database() -> Pool<ConnectionManager<SqliteConnection>> {
-        let pool = {
-            let manager = ConnectionManager::<SqliteConnection>::new("test_db.db");
-            r2d2::Pool::builder()
-                .connection_customizer(Box::new(ConnectionOptions {
-                    enable_wal: true,
-                    enable_foreign_keys: true,
-                    busy_timeout: Some(Duration::from_secs(15)),
-                }))
-                .build(manager)
-                .expect("error making db in test")
-        };
-        let _ = diesel_migrations::run_pending_migrations(&pool.get().unwrap());
-        pool
-    }
 
     async fn load_test_data(conn: &SqliteConnection) {
         load_data(&String::from("test_sample_data.json"), conn);
@@ -81,8 +37,7 @@ mod tests {
 
     #[actix_rt::test]
     async fn test_insert_restaurant() {
-        let conn = init_database().await.get().unwrap();
-
+        let conn = new_pool().get().unwrap();
         let testres: InsertRestaurant = InsertRestaurant {
             smiley_restaurant_id: 1,
             name: String::from("Somewhere"),
@@ -115,16 +70,57 @@ mod tests {
 
     #[actix_rt::test]
     async fn data_loading_test() {
-        let conn = init_database().await.get().unwrap();
+        let conn = new_pool().get().unwrap();
         load_test_data(&conn).await;
         let addedres: Vec<Restaurant> = restaurant::dsl::restaurant
+            .order_by(restaurant::dsl::id)
             .load(&conn)
             .expect("error fetching testdata restaurants in test");
         let addedsmileyreports: Vec<SmileyReport> = smiley_report::dsl::smiley_report
+            .order_by((smiley_report::dsl::restaurant_id, smiley_report::dsl::date))
             .load(&conn)
             .expect("error fetching smiley reports in test");
         assert_eq!(addedres.iter().count(), 10);
         assert_eq!(addedsmileyreports.iter().count(), 40);
+
+        clear_database(&conn).await;
+    }
+
+    #[actix_rt::test]
+    async fn lat_lng_test() {
+        let conn = new_pool().get().unwrap();
+        load_test_data(&conn).await;
+        let mut res = Restaurant::search_by_lat_lng(55.9, 9.0, 55.2, 10.1, &conn);
+        struct Vals {
+            smiley_restaurant_id: i32,
+            cvr: String,
+            pnr: String,
+        }
+        let excepted = vec![
+            Vals {
+                smiley_restaurant_id: 69908,
+                cvr: String::from("29367876"),
+                pnr: String::from("1012127266"),
+            },
+            Vals {
+                smiley_restaurant_id: 710347,
+                cvr: String::from("38290789"),
+                pnr: String::from("1022046981"),
+            },
+        ];
+        res.sort_by(|a, b| a.id.partial_cmp(&b.id).unwrap());
+        assert_eq!(res.iter().count(), 2);
+        let mut j = 0;
+
+        for i in res {
+            assert_eq!(
+                i.smiley_restaurant_id,
+                excepted.get(j).unwrap().smiley_restaurant_id
+            );
+            assert_eq!(i.cvr, excepted.get(j).unwrap().cvr);
+            assert_eq!(i.pnr, excepted.get(j).unwrap().pnr);
+            j = j + 1;
+        }
 
         clear_database(&conn).await;
     }

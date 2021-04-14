@@ -28,16 +28,16 @@ async fn main() -> std::io::Result<()> {
     let args: Vec<String> = env::args().collect();
 
     let pool = database::new_pool();
-    let bind_addr = match env::var("BIND_ADDRESS") {
-        Ok(e) => e,
-        Err(_) => String::from("127.0.0.1:8080"),
-    };
 
     if args.len() > 2 && args[1] == "load" {
         data_loader::load_data(&args[2], &pool.get().unwrap());
         return Ok(());
     }
 
+    let bind_addr = match env::var("BIND_ADDRESS") {
+        Ok(e) => e,
+        Err(_) => String::from("127.0.0.1:8080"),
+    };
     println!("Starting server on http://{}/", bind_addr);
 
     HttpServer::new(move || {
