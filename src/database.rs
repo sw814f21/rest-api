@@ -19,7 +19,7 @@ pub fn new_pool() -> DbPool {
 
     if cfg!(test) {
         println!("Creating in-memory db");
-        let manager = ConnectionManager::<SqliteConnection>::new("file::memory:?cache=shared");
+        let manager = ConnectionManager::<SqliteConnection>::new("file::memory:");
         let pool = r2d2::Pool::builder()
             .build(manager)
             .expect("Failed to create DB pool.");

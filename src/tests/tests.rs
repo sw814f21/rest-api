@@ -24,7 +24,7 @@ mod tests {
         QueryDsl, RunQueryDsl,
     };
 
-    async fn load_test_data(conn: &SqliteConnection) {
+    fn load_test_data(conn: &SqliteConnection) {
         load_data(&String::from("test_sample_data.json"), conn);
     }
 
@@ -37,7 +37,7 @@ mod tests {
 
     #[actix_rt::test]
     async fn test_insert_restaurant() {
-        let conn = new_pool().get().unwrap();
+        let pool = new_pool();
         let testres: InsertRestaurant = InsertRestaurant {
             smiley_restaurant_id: 1,
             name: String::from("Somewhere"),
@@ -49,7 +49,7 @@ mod tests {
             latitude: 1.5,
             longitude: 55.2,
         };
-        let testid = insert_restaurant(&conn, &testres);
+        let testid = insert_restaurant(&pool.get().unwrap(), &testres);
         match restaurant::dsl::restaurant
             .filter(restaurant::smiley_restaurant_id.eq(testres.smiley_restaurant_id))
             .filter(restaurant::name.eq_all(testres.name))
@@ -60,37 +60,34 @@ mod tests {
             .filter(restaurant::pnr.eq_all(testres.pnr))
             .filter(restaurant::latitude.eq_all(testres.latitude))
             .filter(restaurant::longitude.eq_all(testres.longitude))
-            .first::<Restaurant>(&conn)
+            .first::<Restaurant>(&pool.get().unwrap())
         {
             Err(_) => panic!("Error in test for insert of test restaurant"),
             Ok(res) => assert_eq!(res.id, testid),
         }
-        clear_database(&conn).await;
     }
 
     #[actix_rt::test]
     async fn data_loading_test() {
-        let conn = new_pool().get().unwrap();
-        load_test_data(&conn).await;
+        let pool = new_pool();
+        load_test_data(&pool.get().unwrap());
         let addedres: Vec<Restaurant> = restaurant::dsl::restaurant
             .order_by(restaurant::dsl::id)
-            .load(&conn)
+            .load(&pool.get().unwrap())
             .expect("error fetching testdata restaurants in test");
         let addedsmileyreports: Vec<SmileyReport> = smiley_report::dsl::smiley_report
             .order_by((smiley_report::dsl::restaurant_id, smiley_report::dsl::date))
-            .load(&conn)
+            .load(&pool.get().unwrap())
             .expect("error fetching smiley reports in test");
         assert_eq!(addedres.iter().count(), 10);
         assert_eq!(addedsmileyreports.iter().count(), 40);
-
-        clear_database(&conn).await;
     }
 
     #[actix_rt::test]
     async fn lat_lng_test() {
-        let conn = new_pool().get().unwrap();
-        load_test_data(&conn).await;
-        let mut res = Restaurant::search_by_lat_lng(55.9, 9.0, 55.2, 10.1, &conn);
+        let pool = new_pool();
+        load_test_data(&pool.get().unwrap());
+        let mut res = Restaurant::search_by_lat_lng(55.9, 9.0, 55.2, 10.1, &pool.get().unwrap());
         struct Vals {
             smiley_restaurant_id: i32,
             cvr: String,
@@ -121,7 +118,5 @@ mod tests {
             assert_eq!(i.pnr, excepted.get(j).unwrap().pnr);
             j = j + 1;
         }
-
-        clear_database(&conn).await;
     }
 }
