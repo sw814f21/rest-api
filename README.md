@@ -45,3 +45,14 @@ Restaurant data can be loaded with the argument `load` followed by the path to t
 ```shell
 cargo run load path/to/json_file.json
 ```
+
+
+## Production
+1. Make sure that you have `x86_64-unknown-linux-musl` in your rust target chain:
+```
+rustup target add x86_64-unknown-linux-musl
+```
+2. Run the deploy script
+```
+./deploy.sh
+```

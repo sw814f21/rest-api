@@ -2,6 +2,7 @@ use crate::utils::data_inserter::{
     insert_restaurant, insert_smileys, InsertRestaurant, InsertSmileyReport,
 };
 use crate::utils::json_parser::{JsonRestaurant, JsonSmileyReport};
+
 use diesel::SqliteConnection;
 
 use std::fs::File;
