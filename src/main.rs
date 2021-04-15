@@ -41,8 +41,6 @@ async fn main() -> std::io::Result<()> {
 
     println!("Starting server on http://{}/", bind_addr);
 
-    push_notification::send_notification("", "Hello World", "Hello from rest-api!").await;
-
     HttpServer::new(move || {
         App::new()
             .data(pool.clone())
