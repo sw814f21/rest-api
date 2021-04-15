@@ -1,20 +1,24 @@
+use crate::database;
 use crate::utils::data_inserter::{
     insert_restaurant, insert_smileys, InsertRestaurant, InsertSmileyReport,
 };
 use crate::utils::json_parser::{JsonRestaurant, JsonSmileyReport};
-
 use diesel::SqliteConnection;
 
-use std::fs::File;
-use std::io::BufReader;
-pub fn load_data(path: &String, conn: &SqliteConnection) {
-    let file = File::open(path).expect("Can't open file from path");
-    let reader = BufReader::new(file);
-    let read_json: Vec<JsonRestaurant> = serde_json::from_reader(reader).expect("Can't parse json");
+pub fn load_data_from_file(path: &String, conn: &SqliteConnection) {
+    let json = std::fs::read_to_string(path).expect("Failed to read file");
+
+    load_data(&json, conn);
+
+    println!("Finished loading data into database");
+}
+
+pub fn load_data(json: &String, connection: &SqliteConnection) {
+    let read_json: Vec<JsonRestaurant> = serde_json::from_str(json).expect("Can't parse json");
 
     for res in read_json {
         let new_restaurant = map_restaurant_json2insert(&res);
-        let resid = insert_restaurant(conn, &new_restaurant);
+        let resid = insert_restaurant(connection, &new_restaurant);
 
         let mut newsmileyreports: Vec<InsertSmileyReport> = Vec::new();
 
@@ -22,9 +26,8 @@ pub fn load_data(path: &String, conn: &SqliteConnection) {
             newsmileyreports.push(map_smileyreport_json2insert(&report, resid));
         }
 
-        insert_smileys(conn, &newsmileyreports);
+        insert_smileys(&connection, &newsmileyreports);
     }
-    println!("Finished loading data into database")
 }
 
 fn map_restaurant_json2insert(input: &JsonRestaurant) -> InsertRestaurant {

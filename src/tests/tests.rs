@@ -3,7 +3,7 @@
 mod tests {
     use crate::tests::response_parser;
     use crate::utils::data_inserter::*;
-    use crate::{database::*, services, utils::data_loader::load_data};
+    use crate::{database::*, services, utils::data_loader::load_data_from_file};
     use actix_web::{test, web, App};
     use diesel::prelude::*;
 
@@ -11,7 +11,7 @@ mod tests {
     use diesel::{sqlite::SqliteConnection, QueryDsl, RunQueryDsl};
 
     fn load_test_data(conn: &SqliteConnection) {
-        load_data(&String::from("test_sample_data.json"), conn);
+        load_data_from_file(&String::from("test_sample_data.json"), conn);
     }
 
     #[actix_rt::test]

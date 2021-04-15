@@ -30,7 +30,7 @@ async fn main() -> std::io::Result<()> {
     let pool = database::new_pool();
 
     if args.len() > 2 && args[1] == "load" {
-        data_loader::load_data(&args[2], &pool.get().unwrap());
+        data_loader::load_data_from_file(&args[2], &pool.get().unwrap());
         return Ok(());
     }
 
@@ -49,6 +49,7 @@ async fn main() -> std::io::Result<()> {
             .service(services::restaurant::restaurant)
             .service(services::restaurant::search_restaurants)
             .service(services::restaurant::restaurant_by_id)
+            .service(services::admin::load_data)
     })
     .bind(bind_addr)?
     .run()
