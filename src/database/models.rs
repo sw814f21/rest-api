@@ -20,7 +20,7 @@ pub struct Restaurant {
 #[derive(Clone, PartialEq, Queryable, Serialize)]
 pub struct SmileyReport {
     pub id: i32,
-    pub pnr: String,
+    pub res_id: i32,
     pub rating: i32,
     pub date: String,
     pub report_id: String,

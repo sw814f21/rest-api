@@ -1,11 +1,11 @@
 use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::SqliteConnection;
 use actix_web::web;
+use crate::database;
 use crate::utils::data_inserter::{
     insert_restaurant, insert_smileys, InsertRestaurant, InsertSmileyReport,
 };
 use crate::utils::json_parser::{JsonRestaurant, JsonSmileyReport};
-use crate::database;
 
 pub fn load_data_from_file(path: &String) {
     let json = std::fs::read_to_string(path).expect("Failed to read file");
