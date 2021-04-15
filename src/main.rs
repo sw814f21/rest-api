@@ -48,6 +48,7 @@ async fn main() -> std::io::Result<()> {
             .service(services::restaurant::search_restaurants)
             .service(services::restaurant::restaurant_by_id)
             .service(services::admin::load_data)
+            .service(services::admin::get_ids)
             .route("/hey", web::get().to(services::example::manual_hello))
     })
     .bind(bind_addr)?
