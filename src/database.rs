@@ -16,7 +16,6 @@ pub fn run_migrations(conn: &SqliteConnection) {
 }
 
 pub fn new_pool() -> DbPool {
-
     if cfg!(test) {
         println!("Creating in-memory db");
         let manager = ConnectionManager::<SqliteConnection>::new("file::memory:");
@@ -30,7 +29,7 @@ pub fn new_pool() -> DbPool {
         match env::var("DATABASE_URL") {
             Ok(database_url) => {
                 let manager = ConnectionManager::<SqliteConnection>::new(&database_url);
-    
+
                 r2d2::Pool::builder()
                     .build(manager)
                     .expect("Failed to create DB pool.")
@@ -40,5 +39,4 @@ pub fn new_pool() -> DbPool {
             }
         }
     }
-
 }

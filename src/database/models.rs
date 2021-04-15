@@ -74,7 +74,7 @@ impl Restaurant {
     pub fn search_by_name(query: String, conn: &SqliteConnection) -> Vec<Self> {
         use super::schema::restaurant::dsl::name;
         res_dsl
-            .filter(name.like(query + "%"))
+            .filter(name.like("%".to_owned() + query.as_str() + "%"))
             .get_results::<Restaurant>(conn)
             .ok()
             .expect("Error searching with restaurant name")
@@ -92,7 +92,7 @@ impl Restaurant {
     pub fn search_by_city(query: String, conn: &SqliteConnection) -> Vec<Self> {
         use super::schema::restaurant::dsl::city;
         res_dsl
-            .filter(city.like(query + "%"))
+            .filter(city.like("%".to_owned() + query.as_str() + "%"))
             .get_results::<Restaurant>(conn)
             .ok()
             .expect("Error searching for restaurants with city")

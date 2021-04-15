@@ -1,4 +1,3 @@
-
 use actix_web::{delete, post, web, HttpResponse, Responder};
 
 use diesel::r2d2::{ConnectionManager, Pool};
