@@ -95,3 +95,15 @@ pub struct Restaurantandsmiley {
     #[serde(alias = "smiley_reports")]
     pub smiley_reports: Vec<SmileyReport>,
 }
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct Subscription {
+    #[serde(alias = "id")]
+    pub id: i32,
+
+    #[serde(alias = "restaurant_id")]
+    pub res_id: i32,
+
+    #[serde(alias = "token")]
+    pub rating: String,
+}

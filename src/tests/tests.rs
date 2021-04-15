@@ -120,11 +120,7 @@ mod tests {
         let req = test::TestRequest::get().uri("/restaurant").to_request();
         let resp = test::call_service(&mut app, req).await;
         assert!(resp.status().is_success());
-        let req = test::TestRequest::get()
-            .uri("/restaurant")
-            .send_request(&mut app)
-            .await;
-        let resp: Vec<response_parser::Simplerestaurant> = test::read_body_json(req).await;
+        let resp: Vec<response_parser::Simplerestaurant> = test::read_body_json(resp).await;
         assert_eq!(resp.iter().count(), 10);
     }
 
@@ -142,11 +138,7 @@ mod tests {
         let req = test::TestRequest::get().uri("/restaurant/5").to_request();
         let resp = test::call_service(&mut app, req).await;
         assert!(resp.status().is_success());
-        let req = test::TestRequest::get()
-            .uri("/restaurant/5")
-            .send_request(&mut app)
-            .await;
-        let resp: response_parser::Restaurant = test::read_body_json(req).await;
+        let resp: response_parser::Restaurant = test::read_body_json(resp).await;
         assert_eq!(resp.id, 5);
         assert_eq!(resp.smiley_restaurant_id, 758030);
         assert_eq!(resp.cvr, "25431944");
@@ -169,11 +161,7 @@ mod tests {
             .to_request();
         let resp = test::call_service(&mut app, req).await;
         assert!(resp.status().is_success());
-        let req = test::TestRequest::get()
-            .uri("/restaurant/search?name=bager")
-            .send_request(&mut app)
-            .await;
-        let mut resp: Vec<response_parser::Restaurant> = test::read_body_json(req).await;
+        let mut resp: Vec<response_parser::Restaurant> = test::read_body_json(resp).await;
         resp.sort_by(|a, b| {
             a.smiley_restaurant_id
                 .partial_cmp(&b.smiley_restaurant_id)
@@ -212,16 +200,43 @@ mod tests {
             .to_request();
         let resp = test::call_service(&mut app, req).await;
         assert!(resp.status().is_success());
-        let req = test::TestRequest::get()
-            .uri("/restaurant/search?name=n&city=d&location=55.7,12.3,55.5,12.7")
-            .send_request(&mut app)
-            .await;
-        let resp: Vec<response_parser::Restaurant> = test::read_body_json(req).await;
+        let resp: Vec<response_parser::Restaurant> = test::read_body_json(resp).await;
         assert_eq!(resp.iter().count(), 1);
         let resp = resp.get(0).unwrap();
         assert_eq!(resp.id, 4);
         assert_eq!(resp.smiley_restaurant_id, 717825);
         assert_eq!(resp.cvr, "31262208");
         assert_eq!(resp.pnr, "1022913332");
+    }
+
+    #[actix_rt::test]
+    async fn test_subscribing() {
+        let pool = new_pool();
+        load_test_data(&pool.get().unwrap());
+        let mut app = test::init_service(
+            App::new()
+                .data(pool.clone())
+                .data(web::JsonConfig::default().limit(4096))
+                .service(services::subscription::subscribe),
+        )
+        .await;
+
+        let input = services::subscription::SubscriptionRequest {
+            restaurant_id: 5,
+            token: String::from("i like this"),
+        };
+        let req = test::TestRequest::post()
+            .uri("/subscribe")
+            .set_json(&input)
+            .to_request();
+        let resp = test::call_service(&mut app, req).await;
+        assert!(resp.status().is_success());
+        let lookup = schema::subscription::dsl::subscription
+            .filter(schema::subscription::dsl::restaurant_id.eq_all(input.restaurant_id))
+            .filter(schema::subscription::dsl::token.eq_all(input.token))
+            .get_result::<models::Subscription>(&pool.get().unwrap())
+            .expect("error looking for test subscription");
+        assert_eq!(lookup.restaurant_id, 5);
+        assert_eq!(lookup.token, String::from("i like this"));
     }
 }

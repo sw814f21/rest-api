@@ -4,9 +4,9 @@ use crate::database;
 use crate::database::schema::subscription;
 use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::SqliteConnection;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Insertable, Deserialize)]
+#[derive(Insertable, Serialize, Deserialize)]
 #[table_name = "subscription"]
 pub struct SubscriptionRequest {
     pub restaurant_id: i32,
