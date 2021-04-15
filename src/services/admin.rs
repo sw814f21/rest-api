@@ -1,8 +1,25 @@
 use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::SqliteConnection;
-use actix_web::{post, web, HttpResponse, Responder, HttpRequest};
+use actix_web::{get, post, web, HttpResponse, Responder, HttpRequest};
 use actix_web::http::StatusCode;
-use crate::utils::data_loader;
+use crate::{database::models::Restaurant, utils::data_loader};
+
+
+#[get("/admin/ids")]
+pub async fn get_ids(req: HttpRequest, pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>) -> impl Responder {
+    let conn_info = req.connection_info();
+    let address = match conn_info.remote_addr() {
+        Some(address) => address,
+        None => panic!("Couldnt get remote address")
+    };
+    
+    if address.contains("127.0.0.1") {
+    
+        HttpResponse::Ok().json(Restaurant::get_restaurant_references(&pool.get().unwrap()))
+    } else {
+        HttpResponse::build(StatusCode::from_u16(404).expect("Failed to create status code")).finish()
+    }
+}
 
 #[post("/admin/insert")]
 pub async fn load_data(req: HttpRequest ,req_body: String, pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>) -> impl Responder {
