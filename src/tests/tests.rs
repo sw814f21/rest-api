@@ -196,4 +196,32 @@ mod tests {
         assert_eq!(third.cvr, "30138929");
         assert_eq!(third.pnr, "1000765515");
     }
+    #[actix_rt::test]
+    async fn test_restaurant_search_multiple_params() {
+        let pool = new_pool();
+        load_test_data(&pool.get().unwrap());
+        let mut app = test::init_service(
+            App::new()
+                .data(pool.clone())
+                .data(web::JsonConfig::default().limit(4096))
+                .service(services::restaurant::search_restaurants),
+        )
+        .await;
+        let req = test::TestRequest::get()
+            .uri("/restaurant/search?name=n&city=d&location=55.7,12.3,55.5,12.7")
+            .to_request();
+        let resp = test::call_service(&mut app, req).await;
+        assert!(resp.status().is_success());
+        let req = test::TestRequest::get()
+            .uri("/restaurant/search?name=n&city=d&location=55.7,12.3,55.5,12.7")
+            .send_request(&mut app)
+            .await;
+        let resp: Vec<response_parser::Restaurant> = test::read_body_json(req).await;
+        assert_eq!(resp.iter().count(), 1);
+        let resp = resp.get(0).unwrap();
+        assert_eq!(resp.id, 4);
+        assert_eq!(resp.smiley_restaurant_id, 717825);
+        assert_eq!(resp.cvr, "31262208");
+        assert_eq!(resp.pnr, "1022913332");
+    }
 }
