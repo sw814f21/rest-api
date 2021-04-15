@@ -1,6 +1,4 @@
-use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::SqliteConnection;
-use actix_web::web;
 use crate::database;
 use crate::utils::data_inserter::{
     insert_restaurant, insert_smileys, InsertRestaurant, InsertSmileyReport,
