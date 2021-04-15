@@ -19,6 +19,10 @@ mod services;
 //Utils
 mod utils;
 
+// Push notification.
+// TODO: Maybe move this to utils or so
+mod push_notification;
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
@@ -36,6 +40,8 @@ async fn main() -> std::io::Result<()> {
     };
 
     println!("Starting server on http://{}/", bind_addr);
+
+    push_notification::send_notification("", "Hello World", "Hello from rest-api!").await;
 
     HttpServer::new(move || {
         App::new()
