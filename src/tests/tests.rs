@@ -6,6 +6,7 @@ mod tests {
     use crate::{database::*, services, utils::data_loader::load_data_from_file};
     use actix_web::{test, web, App};
     use diesel::prelude::*;
+    use models::SmileyReport;
 
     use crate::database::new_pool;
     use diesel::{sqlite::SqliteConnection, QueryDsl, RunQueryDsl};
@@ -274,5 +275,51 @@ mod tests {
             .get_results::<models::Subscription>(&pool.get().unwrap())
             .expect("error looking for test subscription");
         assert_eq!(lookup.iter().count(), 0);
+    }
+
+    #[actix_rt::test]
+    async fn test_get_smiley_reports_by_restaurant_id() {
+        let pool = new_pool().get().unwrap();
+        load_test_data(&pool);
+        let res = models::SmileyReport::get_smiley_reports_for_id(2, &pool);
+        assert_eq!(res.iter().count(), 4);
+        let mut expected: Vec<SmileyReport> = vec![
+            SmileyReport {
+                id: 8,
+                res_id: 2,
+                rating: 1,
+                report_id: String::from("Virk1597065"),
+                date: String::from("2019-03-27T00:00:00Z"),
+            },
+            SmileyReport {
+                id: 7,
+                res_id: 2,
+                rating: 1,
+                report_id: String::from("Virk1629508"),
+                date: String::from("2019-06-27T00:00:00Z"),
+            },
+            SmileyReport {
+                id: 6,
+                res_id: 2,
+                rating: 1,
+                report_id: String::from("Virk1774060"),
+                date: String::from("2020-06-17T00:00:00Z"),
+            },
+            SmileyReport {
+                id: 5,
+                res_id: 2,
+                rating: 1,
+                report_id: String::from("Virk1827526"),
+                date: String::from("2020-10-28T00:00:00Z"),
+            },
+        ];
+        for r in res {
+            let vals = expected.pop().unwrap();
+            assert_eq!(r.id, vals.id);
+            assert_eq!(r.res_id, vals.res_id);
+            assert_eq!(r.rating, vals.rating);
+            assert_eq!(r.report_id, vals.report_id);
+            assert_eq!(r.date, vals.date);
+        }
     }
 }

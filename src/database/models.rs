@@ -17,15 +17,6 @@ pub struct Restaurant {
     pub longitude: f32,
 }
 
-#[derive(Clone, PartialEq, Queryable, Serialize)]
-pub struct SmileyReport {
-    pub id: i32,
-    pub res_id: i32,
-    pub rating: i32,
-    pub date: String,
-    pub report_id: String,
-}
-
 #[derive(Queryable, Deserialize, Serialize)]
 pub struct Simplerestaurant {
     id: i32,
@@ -98,6 +89,30 @@ impl Restaurant {
             .expect("Error searching for restaurants with city")
     }
 }
+
+#[derive(Clone, PartialEq, Queryable, Serialize)]
+pub struct SmileyReport {
+    pub id: i32,
+    pub res_id: i32,
+    pub rating: i32,
+    pub report_id: String,
+    pub date: String,
+}
+
+impl SmileyReport {
+    pub fn get_smiley_reports_for_id(res_id: i32, conn: &SqliteConnection) -> Vec<SmileyReport> {
+        use crate::database::schema::smiley_report::dsl::*;
+
+        let mut query: Vec<SmileyReport> = smiley_report
+            .filter(restaurant_id.eq_all(res_id))
+            .get_results::<SmileyReport>(conn)
+            .expect("Error fetching reports for restaurant id");
+
+        query.sort_by(|a, b| b.date.partial_cmp(&a.date).unwrap());
+        query
+    }
+}
+
 use crate::services::subscription::SubscriptionRequest;
 #[derive(Clone, PartialEq, Queryable, Serialize)]
 pub struct Subscription {
