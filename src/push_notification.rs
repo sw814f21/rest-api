@@ -10,7 +10,6 @@ pub async fn send_notification(token: &str, title: &str, msg: &str) {
 
     let response = client
         .post("https://exp.host/--/api/v2/push/send")
-        .header("User-Agent", "Actix-web")
         .send_json(&json)
         .await;
 
