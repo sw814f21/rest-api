@@ -239,4 +239,40 @@ mod tests {
         assert_eq!(lookup.restaurant_id, 5);
         assert_eq!(lookup.token, String::from("i like this"));
     }
+
+    #[actix_rt::test]
+    async fn test_unsubscribing() {
+        let pool = new_pool();
+        load_test_data(&pool.get().unwrap());
+        let mut app = test::init_service(
+            App::new()
+                .data(pool.clone())
+                .data(web::JsonConfig::default().limit(4096))
+                .service(services::subscription::unsubscribe),
+        )
+        .await;
+
+        let input = services::subscription::SubscriptionRequest {
+            restaurant_id: 5,
+            token: String::from("i like this"),
+        };
+
+        diesel::insert_into(schema::subscription::table)
+            .values(&input)
+            .execute(&pool.get().unwrap())
+            .expect("error preparing data for unsubscribing");
+
+        let req = test::TestRequest::delete()
+            .uri("/unsubscribe")
+            .set_json(&input)
+            .to_request();
+        let resp = test::call_service(&mut app, req).await;
+        assert!(resp.status().is_success());
+        let lookup = schema::subscription::dsl::subscription
+            .filter(schema::subscription::dsl::restaurant_id.eq_all(input.restaurant_id))
+            .filter(schema::subscription::dsl::token.eq_all(input.token))
+            .get_results::<models::Subscription>(&pool.get().unwrap())
+            .expect("error looking for test subscription");
+        assert_eq!(lookup.iter().count(), 0);
+    }
 }
