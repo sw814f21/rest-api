@@ -10,7 +10,7 @@ use actix_web::{
 };
 use dotenv::dotenv;
 use std::env;
-use utils::push_notification;
+use utils::push_notification::{self, PushNotification};
 
 pub mod database;
 
@@ -38,7 +38,15 @@ async fn main() -> std::io::Result<()> {
 
     println!("Starting server on http://{}/", bind_addr);
 
-    push_notification::send_notification("waer", "awerawer", "negus").await;
+    let mut vec = Vec::new();
+    vec.push("nice".to_string());
+
+    push_notification::send_notification(PushNotification {
+        to: vec,
+        title: "Testing title".to_string(),
+        msg: "Testing message".to_string(),
+    })
+    .await;
 
     HttpServer::new(move || {
         App::new()
