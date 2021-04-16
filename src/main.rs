@@ -10,7 +10,6 @@ use actix_web::{
 };
 use dotenv::dotenv;
 use std::env;
-use utils::push_notification::{self, PushNotification};
 
 pub mod database;
 
