@@ -10,6 +10,7 @@ use actix_web::{
 };
 use dotenv::dotenv;
 use std::env;
+use utils::push_notification;
 
 pub mod database;
 
@@ -18,10 +19,6 @@ mod services;
 
 //Utils
 mod utils;
-
-// Push notification.
-// TODO: Maybe move this to utils or so
-mod push_notification;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -40,6 +37,8 @@ async fn main() -> std::io::Result<()> {
     };
 
     println!("Starting server on http://{}/", bind_addr);
+
+    push_notification::send_notification("waer", "awerawer", "negus").await;
 
     HttpServer::new(move || {
         App::new()
