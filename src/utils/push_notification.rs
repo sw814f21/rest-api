@@ -3,9 +3,9 @@ use std::collections::HashMap;
 
 #[derive(Serialize)]
 pub struct PushNotification {
-    pub to: Vec<String>,
-    pub title: String,
-    pub msg: String,
+    pub to: Vec<&'static str>,
+    pub title: &'static str,
+    pub body: &'static str,
 }
 
 pub async fn send_notification(push_notificaton: PushNotification) {
