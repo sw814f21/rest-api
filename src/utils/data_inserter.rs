@@ -36,8 +36,10 @@ pub fn insert_restaurant(conn: &SqliteConnection, restaurants_data: &InsertResta
         .values(restaurants_data)
         .execute(conn)
         .expect("Error saving new restaurant");
-    
-    diesel::select(last_insert_rowid).get_result::<i32>(conn).expect("Error getting result")
+
+    diesel::select(last_insert_rowid)
+        .get_result::<i32>(conn)
+        .expect("Error getting result")
 }
 
 pub fn insert_smileys(conn: &SqliteConnection, smiley_data: &Vec<InsertSmileyReport>) -> usize {
