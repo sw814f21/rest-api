@@ -3,9 +3,10 @@ use crate::database::schema::{
 };
 use diesel::prelude::*;
 use crate::utils::json_parser::{JsonRestaurant, JsonSmileyReport};
-use crate::database::models::Version;
+use crate::database::models::{Version, Restaurant};
 
-#[derive(Insertable)]
+
+#[derive(Insertable, AsChangeset)]
 #[table_name = "restaurant"]
 pub struct InsertRestaurant {
     pub smiley_restaurant_id: i32,
@@ -20,7 +21,7 @@ pub struct InsertRestaurant {
     pub version_number: i32,
 }
 
-#[derive(Insertable)]
+#[derive(Insertable, AsChangeset)]
 #[table_name = "smiley_report"]
 pub struct InsertSmileyReport {
     pub date: String,
@@ -81,6 +82,25 @@ pub fn remove_restaurant(conn: &SqliteConnection, restaurant_id: i32, version: &
         .execute(conn).expect("Failed to delete restaurant entry");
 
 }
+
+pub fn update_restaurant(conn: &SqliteConnection, restaurant: &JsonRestaurant, version: &Version){
+    let insertable_restaurant = map_restaurant_json2insert(restaurant, version.id);
+    
+    let db_ref = Restaurant::get_restaurant_by_smiley_id(insertable_restaurant.smiley_restaurant_id, conn);
+
+    diesel::update(restaurant::table)
+        .filter(restaurant::id.eq(db_ref.id))
+        .set(&insertable_restaurant)
+        .execute(conn).expect("Failed to update restaurant");
+    
+    diesel::delete(smiley_report::table)
+        .filter(smiley_report::restaurant_id.eq(db_ref.id))
+        .execute(conn).expect("Failed to delete smiley report entries");
+    
+    insert_smileys(conn, &restaurant.smiley_reports, db_ref.id);
+}
+
+
 
 
 fn map_restaurant_json2insert(input: &JsonRestaurant, version_number: i32) -> InsertRestaurant {

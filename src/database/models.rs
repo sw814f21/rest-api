@@ -55,6 +55,10 @@ impl Restaurant {
             .expect("Error fetching restaurant ID")
     }
 
+    pub fn get_restaurant_by_smiley_id(smiley_restaurant_id: i32, conn: &SqliteConnection) -> Restaurant {
+        restaurant::table.filter(restaurant::smiley_restaurant_id.eq(smiley_restaurant_id)).load(conn).expect("Failed to get restaurant").remove(0)
+    }
+
     pub fn search_by_lat_lng(
         nwlat: f32,
         nwlng: f32,

@@ -45,6 +45,49 @@ mod tests {
         assert_eq!(res_v2.len(), 0);
     }
 
+    #[actix_rt::test]
+    async fn restaurant_updating() {
+        let db_pool = database::new_pool();
+
+        let mut restaurant = test_restaurant();
+
+        let version_1 = Version::create_new_version(&db_pool.get().unwrap());
+        data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, &version_1);
+
+
+        restaurant.name = String::from("some other name");
+        let version_2 = Version::create_new_version(&db_pool.get().unwrap());
+        data_inserter::update_restaurant(&db_pool.get().unwrap(), &restaurant, &version_2);
+        
+        let changed_restaurant = Restaurant::get_since_version(&db_pool.get().unwrap(), version_1.id).remove(0);
+
+        assert_eq!(changed_restaurant.name, "some other name");
+    }
+
+    #[actix_rt::test]
+    async fn restaurant_updating_versioning() {
+        let db_pool = database::new_pool();
+
+        let mut restaurant = test_restaurant();
+
+        let version_1 = Version::create_new_version(&db_pool.get().unwrap());
+        data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, &version_1);
+
+        restaurant.smiley_restaurant_id = String::from("5435345"); // Change id for other restaurant
+        data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, &version_1);
+
+
+        restaurant.name = String::from("some other name");
+        let version_2 = Version::create_new_version(&db_pool.get().unwrap());
+        data_inserter::update_restaurant(&db_pool.get().unwrap(), &restaurant, &version_2);
+        
+        let res_v1 = Restaurant::get_since_version(&db_pool.get().unwrap(), version_1.id);
+        let res_total = Restaurant::get_all_resturants(&db_pool.get().unwrap());
+
+        assert_eq!(res_v1.len(), 1);
+        assert_eq!(res_total.len(), 2);
+    }
+
     fn test_restaurant() -> json_parser::JsonRestaurant{
         json_parser::JsonRestaurant{
             city: String::from("test"),
