@@ -1,28 +1,36 @@
+use crate::database::models::Restaurant;
+use crate::utils::data_loader;
+use actix_web::http::StatusCode;
+use actix_web::{get, post, web, HttpRequest, HttpResponse, Responder};
 use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::SqliteConnection;
-use actix_web::{get, post, web, HttpResponse, Responder, HttpRequest};
-use actix_web::http::StatusCode;
-use crate::{database::models::Restaurant, utils::data_loader};
-
 
 #[get("/admin/ids")]
-pub async fn get_ids(req: HttpRequest, pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>) -> impl Responder {
+pub async fn get_ids(
+    req: HttpRequest,
+    pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>,
+) -> impl Responder {
     if is_localhost(req) {
-    
         HttpResponse::Ok().json(Restaurant::get_restaurant_references(&pool.get().unwrap()))
     } else {
-        HttpResponse::build(StatusCode::from_u16(404).expect("Failed to create status code")).finish()
+        HttpResponse::build(StatusCode::from_u16(404).expect("Failed to create status code"))
+            .finish()
     }
 }
 
 #[post("/admin/insert")]
-pub async fn load_data(req: HttpRequest ,req_body: String, pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>) -> impl Responder {
+pub async fn load_data(
+    req: HttpRequest,
+    req_body: String,
+    pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>,
+) -> impl Responder {
     if is_localhost(req) {
         data_loader::load_data(&req_body, &pool.get().unwrap());
-    
+
         HttpResponse::Ok().body(req_body)
     } else {
-        HttpResponse::build(StatusCode::from_u16(404).expect("Failed to create status code")).finish()
+        HttpResponse::build(StatusCode::from_u16(404).expect("Failed to create status code"))
+            .finish()
     }
 }
 
@@ -37,12 +45,13 @@ fn is_localhost(req: HttpRequest) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use actix_web::http::Method;
-    use actix_web::{
-        test::{init_service, TestRequest}, App,
-    };
     use crate::database;
     use crate::database::models::Restaurant;
+    use actix_web::http::Method;
+    use actix_web::{
+        test::{init_service, TestRequest},
+        App,
+    };
     use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
     #[actix_rt::test]
@@ -50,10 +59,8 @@ mod tests {
         let db_pool = database::new_pool();
         println!("wow");
 
-        let mut app = init_service(App::new()
-        .data(db_pool.clone())
-        .service(super::load_data))
-        .await;
+        let mut app =
+            init_service(App::new().data(db_pool.clone()).service(super::load_data)).await;
         println!("wow");
 
         //Send a request with a single restaurant in the body in json format
@@ -65,24 +72,22 @@ mod tests {
             .send_request(&mut app)
             .await;
 
-            println!("wow");
+        println!("wow");
 
-        let restaurant_vec = Restaurant::get_all_resturants(&db_pool.get().expect("Cant get database connection"));
+        let restaurant_vec =
+            Restaurant::get_all_resturants(&db_pool.get().expect("Cant get database connection"));
 
         println!("wow");
 
         assert_eq!(restaurant_vec.len(), 1);
     }
 
-
     #[actix_rt::test]
     async fn test_remote_connection() {
         let db_pool = database::new_pool();
 
-        let mut app = init_service(App::new()
-        .data(db_pool.clone())
-        .service(super::load_data))
-        .await;
+        let mut app =
+            init_service(App::new().data(db_pool.clone()).service(super::load_data)).await;
 
         //Send a request with a single restaurant in the body in json format
         TestRequest::get()
@@ -93,7 +98,8 @@ mod tests {
             .send_request(&mut app)
             .await;
 
-        let restaurant_vec = Restaurant::get_all_resturants(&db_pool.get().expect("Cant get database connection"));
+        let restaurant_vec =
+            Restaurant::get_all_resturants(&db_pool.get().expect("Cant get database connection"));
 
         assert_eq!(restaurant_vec.len(), 0);
     }
@@ -102,13 +108,12 @@ mod tests {
     async fn test_extract_id() {
         let db_pool = database::new_pool();
 
-        let mut app = init_service(App::new()
-        .data(db_pool.clone())
-        .service(super::load_data))
-        .await;
+        let mut app =
+            init_service(App::new().data(db_pool.clone()).service(super::load_data)).await;
 
-
-        let mut restaurant_vec = Restaurant::get_restaurant_references(&db_pool.get().expect("Cant get database connection"));
+        let mut restaurant_vec = Restaurant::get_restaurant_references(
+            &db_pool.get().expect("Cant get database connection"),
+        );
         assert_eq!(restaurant_vec.len(), 0);
 
         //Send a request with a single restaurant in the body in json format
@@ -120,7 +125,9 @@ mod tests {
             .send_request(&mut app)
             .await;
 
-        restaurant_vec = Restaurant::get_restaurant_references(&db_pool.get().expect("Cant get database connection"));
+        restaurant_vec = Restaurant::get_restaurant_references(
+            &db_pool.get().expect("Cant get database connection"),
+        );
 
         assert_eq!(restaurant_vec.len(), 1);
         assert_eq!(restaurant_vec[0], 757164)
@@ -130,13 +137,12 @@ mod tests {
     async fn test_extract_ids() {
         let db_pool = database::new_pool();
 
-        let mut app = init_service(App::new()
-        .data(db_pool.clone())
-        .service(super::load_data))
-        .await;
+        let mut app =
+            init_service(App::new().data(db_pool.clone()).service(super::load_data)).await;
 
-
-        let mut restaurant_vec = Restaurant::get_restaurant_references(&db_pool.get().expect("Cant get database connection"));
+        let mut restaurant_vec = Restaurant::get_restaurant_references(
+            &db_pool.get().expect("Cant get database connection"),
+        );
         assert_eq!(restaurant_vec.len(), 0);
 
         //Send a request with two restaurants in the body in json format
@@ -148,7 +154,9 @@ mod tests {
             .send_request(&mut app)
             .await;
 
-        restaurant_vec = Restaurant::get_restaurant_references(&db_pool.get().expect("Cant get database connection"));
+        restaurant_vec = Restaurant::get_restaurant_references(
+            &db_pool.get().expect("Cant get database connection"),
+        );
 
         assert_eq!(restaurant_vec.len(), 2);
         assert!(restaurant_vec.contains(&1));
