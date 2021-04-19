@@ -3,9 +3,9 @@ use std::borrow::Borrow;
 use crate::database::models::Restaurant;
 use actix_web::{get, web, HttpResponse, Responder};
 use array_tool;
-use serde::Deserialize;
 use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::SqliteConnection;
+use serde::Deserialize;
 
 #[get("/restaurant")]
 pub async fn restaurant(

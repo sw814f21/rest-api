@@ -1,8 +1,8 @@
+use super::schema::*;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
-use super::schema::*;
 
-use diesel::dsl::{delete, select, insert_into, exists};
+use diesel::dsl::{delete, exists, insert_into, select};
 
 #[derive(Clone, PartialEq, Queryable, Serialize)]
 pub struct Restaurant {
@@ -35,7 +35,6 @@ pub struct Simplerestaurant {
     lng: f32,
 }
 
-
 use super::schema::restaurant::dsl::restaurant as res_dsl;
 impl Restaurant {
     pub fn get_all_resturants(conn: &SqliteConnection) -> Vec<Simplerestaurant> {
@@ -55,8 +54,15 @@ impl Restaurant {
             .expect("Error fetching restaurant ID")
     }
 
-    pub fn get_restaurant_by_smiley_id(smiley_restaurant_id: i32, conn: &SqliteConnection) -> Restaurant {
-        restaurant::table.filter(restaurant::smiley_restaurant_id.eq(smiley_restaurant_id)).load(conn).expect("Failed to get restaurant").remove(0)
+    pub fn get_restaurant_by_smiley_id(
+        smiley_restaurant_id: i32,
+        conn: &SqliteConnection,
+    ) -> Restaurant {
+        restaurant::table
+            .filter(restaurant::smiley_restaurant_id.eq(smiley_restaurant_id))
+            .load(conn)
+            .expect("Failed to get restaurant")
+            .remove(0)
     }
 
     pub fn search_by_lat_lng(
@@ -105,8 +111,11 @@ impl Restaurant {
             .expect("Error searching for restaurants with city")
     }
 
-    pub fn get_since_version(conn: &SqliteConnection, version: i32) -> Vec<Restaurant>{
-        restaurant::table.filter(restaurant::version_number.gt(version)).load::<Restaurant>(conn).expect("Failed to get restaurants based on version")
+    pub fn get_since_version(conn: &SqliteConnection, version: i32) -> Vec<Restaurant> {
+        restaurant::table
+            .filter(restaurant::version_number.gt(version))
+            .load::<Restaurant>(conn)
+            .expect("Failed to get restaurants based on version")
     }
 }
 
@@ -120,65 +129,72 @@ pub struct Subscription {
     pub token: String,
 }
 impl Subscription {
-    
     pub fn subscribe(res_id: i32, token_id: &String, conn: &SqliteConnection) {
         use crate::database::schema::subscription::dsl::*;
-        let exists = select(exists(subscription.filter(
-            (restaurant_id.eq(res_id)).and(token.eq(token_id))
-        )
-        )).first::<bool>(conn);
+        let exists = select(exists(
+            subscription.filter((restaurant_id.eq(res_id)).and(token.eq(token_id))),
+        ))
+        .first::<bool>(conn);
         match exists {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(_) => {
-                let new_sub = (
-                    restaurant_id.eq(res_id),
-                    token.eq(token_id),
-                );
-                insert_into(subscription).values(&new_sub).execute(conn).expect("Couldn't create subscription");
+                let new_sub = (restaurant_id.eq(res_id), token.eq(token_id));
+                insert_into(subscription)
+                    .values(&new_sub)
+                    .execute(conn)
+                    .expect("Couldn't create subscription");
             }
         }
     }
 
     pub fn unsubscribe(res_id: i32, token_id: &String, conn: &SqliteConnection) {
         use crate::database::schema::subscription::dsl::*;
-        delete(subscription.filter(
-            (restaurant_id.eq(res_id)).and(token.eq(token_id))
-        )).execute(conn).expect("Couldn't delete subscription");
+        delete(subscription.filter((restaurant_id.eq(res_id)).and(token.eq(token_id))))
+            .execute(conn)
+            .expect("Couldn't delete subscription");
     }
 }
 
 #[table_name = "version_history"]
 #[derive(Clone, PartialEq, Serialize, Queryable, QueryableByName)]
-pub struct Version{
+pub struct Version {
     pub id: i32,
     pub timestamp: String,
 }
 
-
-impl Version{
-    pub fn create_new_version(conn: &SqliteConnection) -> Version{
+impl Version {
+    pub fn create_new_version(conn: &SqliteConnection) -> Version {
         insert_into(version_history::table)
             .default_values()
             .execute(conn)
             .expect("New version insertaton failed");
 
-        version_history::table.order(version_history::id.desc()).first::<Version>(conn).expect("Failed to get new version")
+        version_history::table
+            .order(version_history::id.desc())
+            .first::<Version>(conn)
+            .expect("Failed to get new version")
     }
 
-    pub fn current_version(conn: &SqliteConnection) -> Version{
-        version_history::table.order(version_history::id.desc()).first::<Version>(conn).expect("Failed to get latest version")
+    pub fn current_version(conn: &SqliteConnection) -> Version {
+        version_history::table
+            .order(version_history::id.desc())
+            .first::<Version>(conn)
+            .expect("Failed to get latest version")
     }
 }
 
 #[table_name = "removed_restaurant"]
 #[derive(Clone, PartialEq, Serialize, Queryable, QueryableByName)]
-pub struct RemovedRestaurant{
+pub struct RemovedRestaurant {
     pub restaurant_id: i32,
     pub version_number: i32,
 }
 
-impl RemovedRestaurant{
-    pub fn get_removals_since(conn: &SqliteConnection, version: i32) -> Vec<RemovedRestaurant>{
-        removed_restaurant::table.filter(removed_restaurant::version_number.gt(version)).load::<RemovedRestaurant>(conn).expect("Failed to get removed restaurants")
+impl RemovedRestaurant {
+    pub fn get_removals_since(conn: &SqliteConnection, version: i32) -> Vec<RemovedRestaurant> {
+        removed_restaurant::table
+            .filter(removed_restaurant::version_number.gt(version))
+            .load::<RemovedRestaurant>(conn)
+            .expect("Failed to get removed restaurants")
     }
 }
