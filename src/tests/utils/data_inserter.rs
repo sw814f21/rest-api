@@ -16,7 +16,7 @@ mod tests {
 
         let version2 = Version::create_new_version(&db_pool.get().unwrap());
         data_inserter::remove_restaurant(&db_pool.get().unwrap(), id, &version2);
-        
+
         let res_vec = Restaurant::get_all_resturants(&db_pool.get().unwrap());
         let removals = RemovedRestaurant::get_removals_since(&db_pool.get().unwrap(), version.id);
 
@@ -35,7 +35,7 @@ mod tests {
 
         let version_2 = Version::create_new_version(&db_pool.get().unwrap());
         data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, &version_2);
-        
+
         let res_total = Restaurant::get_all_resturants(&db_pool.get().unwrap());
         let res_v1 = Restaurant::get_since_version(&db_pool.get().unwrap(), version_1.id);
         let res_v2 = Restaurant::get_since_version(&db_pool.get().unwrap(), version_2.id);
@@ -54,12 +54,12 @@ mod tests {
         let version_1 = Version::create_new_version(&db_pool.get().unwrap());
         data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, &version_1);
 
-
         restaurant.name = String::from("some other name");
         let version_2 = Version::create_new_version(&db_pool.get().unwrap());
         data_inserter::update_restaurant(&db_pool.get().unwrap(), &restaurant, &version_2);
-        
-        let changed_restaurant = Restaurant::get_since_version(&db_pool.get().unwrap(), version_1.id).remove(0);
+
+        let changed_restaurant =
+            Restaurant::get_since_version(&db_pool.get().unwrap(), version_1.id).remove(0);
 
         assert_eq!(changed_restaurant.name, "some other name");
     }
@@ -76,11 +76,10 @@ mod tests {
         restaurant.smiley_restaurant_id = String::from("5435345"); // Change id for other restaurant
         data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, &version_1);
 
-
         restaurant.name = String::from("some other name");
         let version_2 = Version::create_new_version(&db_pool.get().unwrap());
         data_inserter::update_restaurant(&db_pool.get().unwrap(), &restaurant, &version_2);
-        
+
         let res_v1 = Restaurant::get_since_version(&db_pool.get().unwrap(), version_1.id);
         let res_total = Restaurant::get_all_resturants(&db_pool.get().unwrap());
 
@@ -88,8 +87,8 @@ mod tests {
         assert_eq!(res_total.len(), 2);
     }
 
-    fn test_restaurant() -> json_parser::JsonRestaurant{
-        json_parser::JsonRestaurant{
+    fn test_restaurant() -> json_parser::JsonRestaurant {
+        json_parser::JsonRestaurant {
             city: String::from("test"),
             cvr: String::from("15454331"),
             latitude: 32.0,

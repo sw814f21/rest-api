@@ -15,7 +15,6 @@ mod tests {
         assert_eq!(version_2.id < version_3.id, true);
     }
 
-
     #[actix_rt::test]
     async fn version_latest_consistency() {
         let db_pool = database::new_pool();
