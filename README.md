@@ -46,6 +46,16 @@ Restaurant data can be loaded with the argument `load` followed by the path to t
 cargo run load path/to/json_file.json
 ```
 
+### Load or empty sample data
+Load sample data:
+```shell
+sqlite3 rest-api.db '.read sample_data/sample.sql'
+```
+Truncate data (Delete data from the database):
+```shell
+sqlite3 rest-api.db '.read sample_data/truncate.sql'
+```
+
 
 ## Production
 1. Make sure that you have `x86_64-unknown-linux-musl` in your rust target chain:
