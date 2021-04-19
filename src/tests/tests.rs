@@ -3,10 +3,12 @@
 mod tests {
     use crate::tests::response_parser;
     use crate::utils::data_inserter::*;
+    use crate::utils::json_parser;
     use crate::{database::*, services, utils::data_loader::load_data_from_file};
     use actix_web::{test, web, App};
     use diesel::prelude::*;
 
+    use crate::database::models::Version;
     use crate::database::new_pool;
     use diesel::{sqlite::SqliteConnection, QueryDsl, RunQueryDsl};
 
@@ -17,20 +19,25 @@ mod tests {
     #[actix_rt::test]
     async fn test_insert_restaurant() {
         let conn = new_pool().get().unwrap();
-        let testres: InsertRestaurant = InsertRestaurant {
-            smiley_restaurant_id: 1,
-            name: String::from("Somewhere"),
-            address: String::from("Over"),
-            zipcode: String::from("The"),
-            city: String::from("Rainbow"),
-            cvr: String::from("Is"),
-            pnr: String::from("Happiness"),
-            latitude: 1.5,
-            longitude: 55.2,
+
+        let version = Version::create_new_version(&conn);
+
+        let testres = json_parser::JsonRestaurant {
+            city: String::from("test"),
+            cvr: String::from("15454331"),
+            latitude: 32.0,
+            longitude: 13.0,
+            pnr: String::from("64848234"),
+            address: String::from("someting vej 3"),
+            zipcode: String::from("3145"),
+            name: String::from("Fishing fish grill"),
+            smiley_restaurant_id: String::from("42545"),
+            smiley_reports: Vec::new(),
         };
-        let testid = insert_restaurant(&conn, &testres);
+
+        let testid = insert_restaurant(&conn, &testres, &version);
         match schema::restaurant::dsl::restaurant
-            .filter(schema::restaurant::smiley_restaurant_id.eq(testres.smiley_restaurant_id))
+            .filter(schema::restaurant::smiley_restaurant_id.eq(42545))
             .filter(schema::restaurant::name.eq_all(testres.name))
             .filter(schema::restaurant::address.eq_all(testres.address))
             .filter(schema::restaurant::zipcode.eq_all(testres.zipcode))
