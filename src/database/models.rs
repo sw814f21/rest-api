@@ -35,14 +35,14 @@ pub struct Simplerestaurant {
 
 use super::schema::restaurant::dsl::restaurant as res_dsl;
 impl Restaurant {
-    
     pub fn get_restaurant_references(conn: &SqliteConnection) -> Vec<i32> {
         use super::schema::restaurant::dsl::smiley_restaurant_id;
-        res_dsl.select(smiley_restaurant_id)
+        res_dsl
+            .select(smiley_restaurant_id)
             .load::<i32>(conn)
             .expect("Error fetching ids from database")
     }
-    
+
     pub fn get_all_resturants(conn: &SqliteConnection) -> Vec<Simplerestaurant> {
         use super::schema::restaurant::dsl::id;
         use super::schema::restaurant::dsl::latitude;
