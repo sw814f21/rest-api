@@ -11,6 +11,8 @@ use actix_web::{
 use dotenv::dotenv;
 use std::env;
 
+mod tests;
+
 pub mod database;
 
 //Services

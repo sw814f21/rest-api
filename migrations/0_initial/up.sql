@@ -1,5 +1,10 @@
 -- Your SQL goes here
 
+CREATE TABLE IF NOT EXISTS version_history(
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  timestamp VARCHAR NOT NULL DEFAULT CURRENT_TIMESTAMP 
+);
+
 CREATE TABLE IF NOT EXISTS restaurant (
   id INTEGER NOT NULL PRIMARY KEY,
   smiley_restaurant_id INTEGER NOT NULL,
@@ -10,7 +15,10 @@ CREATE TABLE IF NOT EXISTS restaurant (
   cvr VARCHAR NOT NULL,
   pnr VARCHAR NOT NULL,
   latitude REAL NOT NULL,
-  longitude REAL NOT NULL
+  longitude REAL NOT NULL,
+  version_number INTEGER NOT NULL,
+
+  FOREIGN KEY (version_number) REFERENCES version_history(id)
 );
 
 CREATE TABLE IF NOT EXISTS smiley_report (
@@ -36,5 +44,12 @@ CREATE TABLE IF NOT EXISTS notification_history (
   data VARCHAR NOT NULL,
   title VARCHAR NOT NULL,
   body VARCHAR NOT NULL,
-  FOREIGN KEY (subscription_id) REFERENCES subscription(id) ON DELETE CASCADE
+  CONSTRAINT FK_version_number FOREIGN KEY (subscription_id) REFERENCES subscription(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS removed_restaurant (
+  restaurant_id INTEGER NOT NULL PRIMARY KEY,
+  version_number INTEGER NOT NULL,
+
+  CONSTRAINT FK_version_number FOREIGN KEY (version_number) REFERENCES version_history (id)
+)
