@@ -1,16 +1,12 @@
-use crate::database;
 use crate::database::models::Version;
 use crate::utils::data_inserter::{insert_restaurant, insert_smileys};
 use crate::utils::json_parser::JsonRestaurant;
 use diesel::SqliteConnection;
 
-pub fn load_data_from_file(path: &String) {
+pub fn load_data_from_file(path: &String, conn: &SqliteConnection) {
     let json = std::fs::read_to_string(path).expect("Failed to read file");
 
-    let pool = database::new_pool();
-    let conn = pool.get().expect("Cant get connection to database");
-
-    load_data(&json, &conn);
+    load_data(&json, conn);
 
     println!("Finished loading data into database");
 }
