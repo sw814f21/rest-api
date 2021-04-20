@@ -24,5 +24,5 @@ pub fn insert_smiley_data(json: &String, connection: &SqliteConnection) {
 }
 
 pub fn get_data(conn: &SqliteConnection) {
-    //todo: Read the restaurant join smiley_report table and output
+    // TODO: We should read the restaurant and smiley_report, and join on the restaurant_id. The result should be delivered as an output.
 }
