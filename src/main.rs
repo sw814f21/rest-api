@@ -4,10 +4,7 @@ extern crate diesel;
 extern crate diesel_migrations;
 
 use crate::utils::data_loader;
-use actix_web::{
-    web::{self, JsonConfig},
-    App, HttpServer,
-};
+use actix_web::{web::JsonConfig, App, HttpServer};
 use dotenv::dotenv;
 use std::env;
 
@@ -50,6 +47,7 @@ async fn main() -> std::io::Result<()> {
             .service(services::restaurant::search_restaurants)
             .service(services::restaurant::restaurant_by_id)
             .service(services::admin::load_data)
+            .service(services::admin::get_ids)
     })
     .bind(bind_addr)?
     .run()
