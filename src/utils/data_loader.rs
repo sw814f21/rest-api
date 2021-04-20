@@ -11,6 +11,8 @@ use serde::{Deserialize, Serialize};
 
 use diesel::dsl::{delete, exists, insert_into, select};
 
+use crate::database::models::*;
+
 pub fn load_data_from_file(path: &String, conn: &SqliteConnection) {
     let json = std::fs::read_to_string(path).expect("Failed to read file");
 
@@ -32,14 +34,13 @@ pub fn insert_smiley_data(json: &String, connection: &SqliteConnection) {
 }
 
 pub fn get_data(conn: &SqliteConnection) {
-    use crate::diesel::ExpressionMethods;
     use schema::*;
 
     //let implicit_on_clause = smiley_report::table.inner_join(restaurant::table);
 
     let test = restaurant::table
-        .inner_join(smiley_report::table.on(smiley_report::restaurant_id.eq(restaurant::id)));
-    //.load::<i32>(conn);
+        .inner_join(smiley_report::table.on(smiley_report::restaurant_id.eq(restaurant::id)))
+        .load::<(Restaurant, SmileyReport)>(conn);
 
     //let test = smiley_report::table
     //.inner_join(restaurant::table.on(restaurant::id.eq(smiley_report::restaurant_id)));
