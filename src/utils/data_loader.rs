@@ -42,6 +42,10 @@ pub fn get_data(conn: &SqliteConnection) {
         .inner_join(smiley_report::table.on(smiley_report::restaurant_id.eq(restaurant::id)))
         .load::<(Restaurant, SmileyReport)>(conn);
 
+    let awer = test.unwrap();
+
+    let testy = awer.get(0).unwrap();
+
     //let test = smiley_report::table
     //.inner_join(restaurant::table.on(restaurant::id.eq(smiley_report::restaurant_id)));
 
