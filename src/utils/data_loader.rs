@@ -1,7 +1,5 @@
 use crate::database::models::Version;
-use crate::utils::data_inserter::{
-    insert_restaurant, insert_smileys
-};
+use crate::utils::data_inserter::{insert_restaurant, insert_smileys};
 use crate::utils::json_parser::JsonRestaurant;
 use diesel::SqliteConnection;
 

@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use diesel::dsl::{delete, exists, insert_into, select};
 
-#[derive(Clone, PartialEq, Queryable, Serialize)]
+#[derive(Debug, Clone, PartialEq, Queryable, Serialize)]
 pub struct Restaurant {
     pub id: i32,
     pub smiley_restaurant_id: i32,
@@ -28,6 +28,24 @@ pub struct Simplerestaurant {
 
 use super::schema::restaurant::dsl::restaurant as res_dsl;
 impl Restaurant {
+    pub fn testing_res_smiley(
+        res_id: i32,
+        conn: &SqliteConnection,
+    ) -> Vec<RestaurantWithSmileyReport> {
+        use super::schema::restaurant::dsl::id;
+        use super::schema::smiley_report::dsl::date;
+        use super::schema::smiley_report::table as smiley_table;
+        let query = res_dsl
+            .inner_join(smiley_table)
+            .filter(id.eq_all(res_id))
+            .order_by(id.asc())
+            .then_order_by(date.desc())
+            .get_results::<(Restaurant, SmileyReport)>(conn)
+            .ok()
+            .expect("Error fetching restaurant ID");
+        convert_res_smiley_pairs(query)
+    }
+
     pub fn get_restaurant_references(conn: &SqliteConnection) -> Vec<i32> {
         use super::schema::restaurant::dsl::smiley_restaurant_id;
         res_dsl
@@ -117,8 +135,7 @@ impl Restaurant {
             .expect("Failed to get restaurants based on version")
     }
 }
-
-#[derive(Clone, PartialEq, Queryable, Serialize)]
+#[derive(Debug, Clone, PartialEq, Queryable, Serialize)]
 pub struct SmileyReport {
     pub id: i32,
     pub res_id: i32,
@@ -139,6 +156,75 @@ impl SmileyReport {
         query.sort_by(|a, b| b.date.partial_cmp(&a.date).unwrap());
         query
     }
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct RestaurantWithSmileyReport {
+    pub id: i32,
+    pub smiley_restaurant_id: i32,
+    pub name: String,
+    pub address: String,
+    pub zipcode: String,
+    pub city: String,
+    pub cvr: String,
+    pub pnr: String,
+    pub latitude: f32,
+    pub longitude: f32,
+    pub version_number: i32,
+    pub smileyreports: Vec<SmileyReport>,
+}
+
+fn convert_res_smiley_pairs(
+    input: Vec<(Restaurant, SmileyReport)>,
+) -> Vec<RestaurantWithSmileyReport> {
+    let mut result: Vec<RestaurantWithSmileyReport> = Vec::new();
+    let mut current: Restaurant = Restaurant {
+        id: -1,
+        smiley_restaurant_id: 0,
+        name: String::from(""),
+        address: String::from(""),
+        zipcode: String::from(""),
+        city: String::from(""),
+        cvr: String::from(""),
+        pnr: String::from(""),
+        latitude: 0.0,
+        longitude: 0.0,
+        version_number: 0,
+    };
+    let mut smileys: Vec<SmileyReport> = Vec::new();
+    for i in input {
+        if !(current.id == i.0.id) {
+            if !&smileys.is_empty() {
+                result.append(make_res_smiley(current, smileys).as_mut());
+                smileys = Vec::new();
+            }
+            println!("{:?}", &i.0);
+            current = i.0;
+        }
+        println!("{:?}", &i.1);
+        smileys.append(vec![i.1].as_mut());
+    }
+    result.append(make_res_smiley(current, smileys).as_mut());
+    result
+}
+fn make_res_smiley(
+    current: Restaurant,
+    smileys: Vec<SmileyReport>,
+) -> Vec<RestaurantWithSmileyReport> {
+    vec![RestaurantWithSmileyReport {
+        id: current.id,
+        smiley_restaurant_id: current.smiley_restaurant_id,
+        name: current.name,
+        address: current.address,
+        zipcode: current.zipcode,
+        city: current.city,
+        cvr: current.cvr,
+        pnr: current.pnr,
+        latitude: current.latitude,
+        longitude: current.longitude,
+        version_number: current.version_number,
+        smileyreports: smileys,
+    }]
 }
 
 use crate::services::subscription::SubscriptionRequest;

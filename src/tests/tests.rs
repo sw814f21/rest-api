@@ -329,4 +329,12 @@ mod tests {
             assert_eq!(r.date, vals.date);
         }
     }
+
+    #[actix_rt::test]
+    async fn testing_combi_res_smiley() {
+        let conn = new_pool().get().unwrap();
+        load_test_data(&conn);
+        let res = models::Restaurant::testing_res_smiley(1, &conn);
+        assert_eq!(res.iter().count(), 1);
+    }
 }
