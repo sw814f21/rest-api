@@ -22,3 +22,7 @@ pub fn load_data(json: &String, connection: &SqliteConnection) {
         insert_smileys(&connection, &res.smiley_reports, resid);
     }
 }
+
+pub fn get_data(conn: &SqliteConnection) {
+    //todo: Read the restaurant join smiley_report table and output
+}
