@@ -27,10 +27,20 @@ pub fn insert_smiley_data(json: &String, connection: &SqliteConnection) {
 }
 
 pub fn get_data(conn: &SqliteConnection) {
-    let test = schema::smiley_report::table.inner_join(
-        schema::restaurant::table
-            .on(schema::restaurant::smiley_restaurant_id.eq(schema::smiley_report::restaurant_id)),
-    );
+    /*
+
+    let explicit_on_clause = users::table
+        .inner_join(posts::table.on(posts::user_id.eq(users::id)));*/
+
+    use schema::*;
+
+    //let implicit_on_clause = smiley_report::table.inner_join(restaurant::table);
+
+    let test = smiley_report::table
+        .inner_join(restaurant::table.on(restaurant::id.eq(smiley_report::restaurant_id)));
+
+    //let test = smiley_report::table
+    //.inner_join(restaurant::table.on(restaurant::id.eq(smiley_report::restaurant_id)));
 
     /*smiley_report::table
     .filter(restaurant::version_number.gt(version))
