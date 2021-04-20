@@ -18,13 +18,13 @@ pub async fn get_ids(
 }
 
 #[post("/admin/load")]
-pub async fn load_data(
+pub async fn insert_smiley_data(
     req: HttpRequest,
     req_body: String,
     pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>,
 ) -> impl Responder {
     if is_localhost(req) {
-        data_loader::load_data(&req_body, &pool.get().unwrap());
+        data_loader::insert_smiley_data(&req_body, &pool.get().unwrap());
 
         HttpResponse::Ok().body(req_body)
     } else {
@@ -58,8 +58,12 @@ mod tests {
         let db_pool = database::new_pool();
         println!("wow");
 
-        let mut app =
-            init_service(App::new().data(db_pool.clone()).service(super::load_data)).await;
+        let mut app = init_service(
+            App::new()
+                .data(db_pool.clone())
+                .service(super::insert_smiley_data),
+        )
+        .await;
         println!("wow");
 
         //Send a request with a single restaurant in the body in json format
@@ -85,8 +89,12 @@ mod tests {
     async fn test_remote_connection() {
         let db_pool = database::new_pool();
 
-        let mut app =
-            init_service(App::new().data(db_pool.clone()).service(super::load_data)).await;
+        let mut app = init_service(
+            App::new()
+                .data(db_pool.clone())
+                .service(super::insert_smiley_data),
+        )
+        .await;
 
         //Send a request with a single restaurant in the body in json format
         TestRequest::get()

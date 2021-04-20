@@ -46,7 +46,7 @@ async fn main() -> std::io::Result<()> {
             .service(services::restaurant::restaurant)
             .service(services::restaurant::search_restaurants)
             .service(services::restaurant::restaurant_by_id)
-            .service(services::admin::load_data)
+            .service(services::admin::insert_smiley_data)
             .service(services::admin::get_ids)
     })
     .bind(bind_addr)?

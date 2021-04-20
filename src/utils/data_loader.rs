@@ -6,12 +6,12 @@ use diesel::SqliteConnection;
 pub fn load_data_from_file(path: &String, conn: &SqliteConnection) {
     let json = std::fs::read_to_string(path).expect("Failed to read file");
 
-    load_data(&json, conn);
+    insert_smiley_data(&json, conn);
 
     println!("Finished loading data into database");
 }
 
-pub fn load_data(json: &String, connection: &SqliteConnection) {
+pub fn insert_smiley_data(json: &String, connection: &SqliteConnection) {
     let read_json: Vec<JsonRestaurant> = serde_json::from_str(json).expect("Can't parse json");
 
     let new_version = Version::create_new_version(connection);
