@@ -1,5 +1,5 @@
+use crate::database::models::Version;
 use crate::utils::json_parser::JsonRestaurant;
-use crate::{database::models::Version, services::restaurant::restaurant};
 use crate::{
     database::schema,
     utils::data_inserter::{insert_restaurant, insert_smileys},
@@ -7,9 +7,6 @@ use crate::{
 use diesel::{JoinOnDsl, QueryDsl, SqliteConnection};
 
 use diesel::prelude::*;
-use serde::{Deserialize, Serialize};
-
-use diesel::dsl::{delete, exists, insert_into, select};
 
 use crate::database::models::*;
 
@@ -33,25 +30,29 @@ pub fn insert_smiley_data(json: &String, connection: &SqliteConnection) {
     }
 }
 
-pub fn get_data(conn: &SqliteConnection) {
+pub fn get_data(conn: &SqliteConnection) -> Vec<(Restaurant, SmileyReport)> {
     use schema::*;
 
-    //let implicit_on_clause = smiley_report::table.inner_join(restaurant::table);
-
-    let test = restaurant::table
+    // We join on the restaurant ID on the restaurant table and smiley_report table
+    let joined_smiley_report_restaurnt = restaurant::table
         .inner_join(smiley_report::table.on(smiley_report::restaurant_id.eq(restaurant::id)))
-        .load::<(Restaurant, SmileyReport)>(conn);
+        .load::<(Restaurant, SmileyReport)>(conn)
+        .unwrap();
 
-    let awer = test.unwrap();
+    // (LONG COMMENTS, TO BE DELETED) We iterate for the sake of the example.
+    // We can already at this point simply return the vector from the function
 
-    let testy = awer.get(0).unwrap();
+    // Iterate over the vector. Note that we have two objects, the smiley report and restaurants.
+    // The reason behind the two objects is that the two tables are joined, hence
+    // we can access both values.
+    for joined in &joined_smiley_report_restaurnt {
+        let joined_restaurant = &joined.0;
+        let joined_smiley_report = &joined.1;
 
-    //let test = smiley_report::table
-    //.inner_join(restaurant::table.on(restaurant::id.eq(smiley_report::restaurant_id)));
+        println!("Name of joined restaurant: {}", joined_restaurant.name);
+        println!("Smiley rating: {}", joined_smiley_report.rating)
+    }
 
-    /*smiley_report::table
-    .filter(restaurant::version_number.gt(version))
-    .load::<Restaurant>(conn)
-    .expect("Failed to get restaurants based on version")*/
-    // TODO: We should read the restaurant and smiley_report, and join on the restaurant_id. The result should be delivered as an output.
+    // Return the value joined result
+    joined_smiley_report_restaurnt
 }
