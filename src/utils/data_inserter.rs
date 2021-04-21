@@ -73,19 +73,22 @@ pub fn insert_smileys(
         .expect("Error saving new smiley data")
 }
 
-pub fn remove_restaurant(conn: &SqliteConnection, restaurant_id: i32, version: &Version) {
-    let entry = InsertRemovedRestaurant {
-        restaurant_id: restaurant_id,
-        version_number: version.id,
-    };
+pub fn remove_restaurant(conn: &SqliteConnection, restaurant_ids: Vec<i32>, version: &Version) {
+    let removed_restaurant_entry: Vec<InsertRemovedRestaurant> = restaurant_ids
+        .iter()
+        .map(|id| InsertRemovedRestaurant {
+            restaurant_id: *id,
+            version_number: version.id,
+        })
+        .collect();
 
     diesel::insert_into(removed_restaurant::table)
-        .values(&entry)
+        .values(&removed_restaurant_entry)
         .execute(conn)
         .expect("Failed to add removed restaurant entry");
 
     diesel::delete(restaurant::table)
-        .filter(restaurant::id.eq(restaurant_id))
+        .filter(restaurant::id.eq_any(&restaurant_ids))
         .execute(conn)
         .expect("Failed to delete restaurant entry");
 }

@@ -192,6 +192,13 @@ impl Version {
             .first::<Version>(conn)
             .expect("Failed to get latest version")
     }
+
+    pub fn version_from_str(conn: &SqliteConnection, str: &String) -> Version {
+        version_history::table
+            .filter(version_history::timestamp.eq(str))
+            .first::<Version>(conn)
+            .expect("Failed to find version history number")
+    }
 }
 
 #[table_name = "removed_restaurant"]

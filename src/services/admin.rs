@@ -1,7 +1,7 @@
 use crate::database::models::Restaurant;
 use crate::utils::data_loader;
 use actix_web::http::StatusCode;
-use actix_web::{get, post, web, HttpRequest, HttpResponse, Responder};
+use actix_web::{delete, get, post, web, HttpRequest, HttpResponse, Responder};
 use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::SqliteConnection;
 
@@ -28,6 +28,22 @@ pub async fn load_data(
         data_loader::load_data(&req_body, &pool.get().unwrap());
 
         HttpResponse::Ok().body(req_body)
+    } else {
+        HttpResponse::build(StatusCode::from_u16(404).expect("Failed to create status code"))
+            .finish()
+    }
+}
+
+#[delete("/admin/load")]
+pub async fn delete_smiley_entries(
+    req: HttpRequest,
+    req_body: String,
+    pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>,
+) -> impl Responder {
+    if is_localhost(req) {
+        data_loader::delete_smiley_records(&req_body, &pool.get().unwrap());
+
+        HttpResponse::Ok().finish()
     } else {
         HttpResponse::build(StatusCode::from_u16(404).expect("Failed to create status code"))
             .finish()
