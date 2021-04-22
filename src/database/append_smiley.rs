@@ -1,5 +1,5 @@
 use crate::database::models::{Restaurant, SmileyReport};
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct RestaurantWithSmileyReport {
