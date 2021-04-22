@@ -6,6 +6,7 @@ mod tests {
     use crate::utils::json_parser;
     use crate::{database::*, services, utils::data_loader::load_data_from_file};
     use actix_web::{test, web, App};
+    use append_smiley::RestaurantWithSmileyReport;
     use diesel::prelude::*;
     use models::SmileyReport;
 
@@ -146,7 +147,7 @@ mod tests {
         let req = test::TestRequest::get().uri("/restaurant/5").to_request();
         let resp = test::call_service(&mut app, req).await;
         assert!(resp.status().is_success());
-        let resp: response_parser::Restaurant = test::read_body_json(resp).await;
+        let resp: response_parser::Restaurantandsmiley = test::read_body_json(resp).await;
         assert_eq!(resp.id, 5);
         assert_eq!(resp.smiley_restaurant_id, 758030);
         assert_eq!(resp.cvr, "25431944");
@@ -169,12 +170,13 @@ mod tests {
             .to_request();
         let resp = test::call_service(&mut app, req).await;
         assert!(resp.status().is_success());
-        let mut resp: Vec<response_parser::Restaurant> = test::read_body_json(resp).await;
+        let mut resp: Vec<response_parser::Restaurantandsmiley> = test::read_body_json(resp).await;
         resp.sort_by(|a, b| {
             a.smiley_restaurant_id
                 .partial_cmp(&b.smiley_restaurant_id)
                 .unwrap()
         });
+
         assert_eq!(resp.iter().count(), 3);
         let first = resp.pop().unwrap();
         let second = resp.pop().unwrap();
@@ -328,13 +330,5 @@ mod tests {
             assert_eq!(r.report_id, vals.report_id);
             assert_eq!(r.date, vals.date);
         }
-    }
-
-    #[actix_rt::test]
-    async fn testing_combi_res_smiley() {
-        let conn = new_pool().get().unwrap();
-        load_test_data(&conn);
-        let res = models::Restaurant::testing_res_smiley(1, &conn);
-        assert_eq!(res.iter().count(), 1);
     }
 }

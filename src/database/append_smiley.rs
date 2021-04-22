@@ -1,5 +1,5 @@
 use crate::database::models::{Restaurant, SmileyReport};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct RestaurantWithSmileyReport {
@@ -24,9 +24,10 @@ pub fn convert_res_smiley_pairs(
     let mut current: Restaurant;
     let mut smileys: Vec<SmileyReport> = Vec::new();
     if !input.is_empty() {
-        let first = input.pop().unwrap();
-        current = first.0;
-        smileys.append(vec![first.1].as_mut());
+        let first = input.get(0).unwrap();
+        current = first.0.clone();
+        smileys.append(vec![first.1.clone()].as_mut());
+        input.remove(0);
         for i in input {
             if !(current.id == i.0.id) {
                 result.append(make_res_smiley(current, smileys).as_mut());

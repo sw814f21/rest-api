@@ -1,5 +1,6 @@
+use super::append_smiley::{convert_res_smiley_pairs, RestaurantWithSmileyReport};
+use super::schema;
 use super::schema::*;
-use crate::database::append_smiley;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -29,24 +30,6 @@ pub struct Simplerestaurant {
 
 use super::schema::restaurant::dsl::restaurant as res_dsl;
 impl Restaurant {
-    pub fn testing_res_smiley(
-        res_id: i32,
-        conn: &SqliteConnection,
-    ) -> Vec<append_smiley::RestaurantWithSmileyReport> {
-        use super::schema::restaurant::dsl::id;
-        use super::schema::smiley_report::dsl::date;
-        use super::schema::smiley_report::table as smiley_table;
-        let query = res_dsl
-            .inner_join(smiley_table)
-            .filter(id.eq_all(res_id))
-            .order_by(id.asc())
-            .then_order_by(date.desc())
-            .get_results::<(Restaurant, SmileyReport)>(conn)
-            .ok()
-            .expect("Error fetching restaurant ID");
-        append_smiley::convert_res_smiley_pairs(query)
-    }
-
     pub fn get_restaurant_references(conn: &SqliteConnection) -> Vec<i32> {
         use super::schema::restaurant::dsl::smiley_restaurant_id;
         res_dsl
@@ -64,12 +47,18 @@ impl Restaurant {
             .load::<Simplerestaurant>(conn)
             .expect("Error fetching restaurant data")
     }
-    pub fn get_restaurant_by_id(res_id: i32, conn: &SqliteConnection) -> Restaurant {
-        res_dsl
-            .find(res_id)
-            .get_result::<Restaurant>(conn)
+    pub fn get_restaurant_by_id(
+        res_id: i32,
+        conn: &SqliteConnection,
+    ) -> RestaurantWithSmileyReport {
+        let query = res_dsl
+            .inner_join(schema::smiley_report::table)
+            .filter(schema::restaurant::dsl::id.eq_all(res_id))
+            .order(schema::smiley_report::date.asc())
+            .get_results::<(Restaurant, SmileyReport)>(conn)
             .ok()
-            .expect("Error fetching restaurant ID")
+            .expect("Error fetching restaurant ID");
+        convert_res_smiley_pairs(query).get(0).unwrap().to_owned()
     }
 
     pub fn get_restaurant_by_smiley_id(
@@ -89,44 +78,74 @@ impl Restaurant {
         selat: f32,
         selng: f32,
         conn: &SqliteConnection,
-    ) -> Vec<Restaurant> {
+    ) -> Vec<RestaurantWithSmileyReport> {
         use super::schema::restaurant::dsl::latitude;
         use super::schema::restaurant::dsl::longitude;
-        res_dsl
+        let query = res_dsl
+            .inner_join(schema::smiley_report::table)
             .filter(latitude.lt(nwlat))
             .filter(latitude.gt(selat))
             .filter(longitude.gt(nwlng))
             .filter(longitude.lt(selng))
-            .get_results::<Restaurant>(conn)
+            .order((
+                schema::restaurant::id.asc(),
+                schema::smiley_report::date.asc(),
+            ))
+            .get_results::<(Restaurant, SmileyReport)>(conn)
             .ok()
-            .expect("Error fetching with Latitude/Longitude")
+            .expect("Error fetching with Latitude/Longitude");
+        convert_res_smiley_pairs(query)
     }
 
-    pub fn search_by_name(query: String, conn: &SqliteConnection) -> Vec<Self> {
-        use super::schema::restaurant::dsl::name;
-        res_dsl
+    pub fn search_by_name(
+        query: String,
+        conn: &SqliteConnection,
+    ) -> Vec<RestaurantWithSmileyReport> {
+        use super::schema::restaurant::dsl::*;
+        let query = res_dsl
+            .inner_join(schema::smiley_report::table)
             .filter(name.like("%".to_owned() + query.as_str() + "%"))
-            .get_results::<Restaurant>(conn)
+            .order_by((id.asc(), schema::smiley_report::date.asc()))
+            .get_results::<(Restaurant, SmileyReport)>(conn)
             .ok()
-            .expect("Error searching with restaurant name")
+            .expect("Error searching with restaurant name");
+        convert_res_smiley_pairs(query)
     }
 
-    pub fn search_by_zip(query: String, conn: &SqliteConnection) -> Vec<Self> {
+    pub fn search_by_zip(
+        query: String,
+        conn: &SqliteConnection,
+    ) -> Vec<RestaurantWithSmileyReport> {
         use super::schema::restaurant::dsl::zipcode;
-        res_dsl
+        let query = res_dsl
+            .inner_join(schema::smiley_report::table)
             .filter(zipcode.eq(query))
-            .get_results::<Restaurant>(conn)
+            .order((
+                schema::restaurant::id.asc(),
+                schema::smiley_report::date.asc(),
+            ))
+            .get_results::<(Restaurant, SmileyReport)>(conn)
             .ok()
-            .expect("Error searching for restaurants with zipcode")
+            .expect("Error searching for restaurants with zipcode");
+        convert_res_smiley_pairs(query)
     }
 
-    pub fn search_by_city(query: String, conn: &SqliteConnection) -> Vec<Self> {
+    pub fn search_by_city(
+        query: String,
+        conn: &SqliteConnection,
+    ) -> Vec<RestaurantWithSmileyReport> {
         use super::schema::restaurant::dsl::city;
-        res_dsl
+        let query = res_dsl
+            .inner_join(schema::smiley_report::table)
             .filter(city.like("%".to_owned() + query.as_str() + "%"))
-            .get_results::<Restaurant>(conn)
+            .order((
+                schema::restaurant::id.asc(),
+                schema::smiley_report::date.asc(),
+            ))
+            .get_results::<(Restaurant, SmileyReport)>(conn)
             .ok()
-            .expect("Error searching for restaurants with city")
+            .expect("Error searching for restaurants with city");
+        convert_res_smiley_pairs(query)
     }
 
     pub fn get_since_version(conn: &SqliteConnection, version: i32) -> Vec<Restaurant> {
