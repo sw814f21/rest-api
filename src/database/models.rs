@@ -1,4 +1,5 @@
 use super::schema::*;
+use crate::services::subscription::SubscriptionRequest;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -126,7 +127,7 @@ impl Restaurant {
             .expect("Failed to get restaurants based on version")
     }
 }
-use crate::services::subscription::SubscriptionRequest;
+
 #[derive(Clone, PartialEq, Queryable, Serialize)]
 pub struct Subscription {
     pub id: i32,

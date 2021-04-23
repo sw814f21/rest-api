@@ -27,13 +27,6 @@ pub struct InsertSmileyReport {
     pub report_id: String,
 }
 
-#[derive(Insertable)]
-#[table_name = "removed_restaurant"]
-pub struct InsertRemovedRestaurant {
-    pub restaurant_id: i32,
-    pub version_number: i32,
-}
-
 no_arg_sql_function!(
     last_insert_rowid,
     diesel::sql_types::Integer,
@@ -74,14 +67,14 @@ pub fn insert_smileys(
 }
 
 pub fn remove_restaurant(conn: &SqliteConnection, restaurant_id_1: i32, version_1: &Version) {
-    use crate::database::schema::removed_restaurant;
+    use crate::database::schema::removed_restaurant::dsl::*;
 
     let entry = (
         restaurant_id.eq(&restaurant_id_1),
-        removed_restaurant::version_number.eq(version_1.id),
+        version_number.eq(version_1.id),
     );
 
-    diesel::insert_into(removed_restaurant::table)
+    diesel::insert_into(removed_restaurant)
         .values(&entry)
         .execute(conn)
         .expect("Failed to add removed restaurant entry");
