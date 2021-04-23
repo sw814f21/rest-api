@@ -53,6 +53,6 @@ pub fn get_data(conn: &SqliteConnection) -> Vec<(Restaurant, SmileyReport)> {
         println!("Smiley rating: {}", joined_smiley_report.rating)
     }
 
-    // Return the value joined result
+    // Return the joined result
     joined_smiley_report_restaurnt
 }
