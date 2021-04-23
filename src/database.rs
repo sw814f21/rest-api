@@ -4,6 +4,7 @@ use diesel::{
 };
 use std::env;
 
+pub mod append_smiley;
 pub mod models;
 pub mod schema;
 
