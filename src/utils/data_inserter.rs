@@ -1,5 +1,5 @@
 use crate::database::models::{Restaurant, Version};
-use crate::database::schema::{removed_restaurant, restaurant, smiley_report};
+use crate::database::schema::{restaurant, smiley_report};
 use crate::utils::json_parser::{JsonRestaurant, JsonSmileyReport};
 use diesel::prelude::*;
 
@@ -73,11 +73,13 @@ pub fn insert_smileys(
         .expect("Error saving new smiley data")
 }
 
-pub fn remove_restaurant(conn: &SqliteConnection, restaurant_id: i32, version: &Version) {
-    let entry = InsertRemovedRestaurant {
-        restaurant_id: restaurant_id,
-        version_number: version.id,
-    };
+pub fn remove_restaurant(conn: &SqliteConnection, restaurant_id_1: i32, version_1: &Version) {
+    use crate::database::schema::removed_restaurant;
+
+    let entry = (
+        restaurant_id.eq(&restaurant_id_1),
+        removed_restaurant::version_number.eq(version_1.id),
+    );
 
     diesel::insert_into(removed_restaurant::table)
         .values(&entry)
@@ -85,7 +87,7 @@ pub fn remove_restaurant(conn: &SqliteConnection, restaurant_id: i32, version: &
         .expect("Failed to add removed restaurant entry");
 
     diesel::delete(restaurant::table)
-        .filter(restaurant::id.eq(restaurant_id))
+        .filter(restaurant::id.eq(restaurant_id_1))
         .execute(conn)
         .expect("Failed to delete restaurant entry");
 }
