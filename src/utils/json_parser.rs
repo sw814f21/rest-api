@@ -44,3 +44,9 @@ pub struct JsonSmileyReport {
     #[serde(alias = "report_id")]
     pub report_id: String,
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct DeleteJson {
+    pub timestamp: String,
+    pub data: Vec<i32>,
+}
