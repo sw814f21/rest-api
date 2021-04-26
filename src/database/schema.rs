@@ -54,6 +54,7 @@ table! {
     version_history (id) {
         id -> Integer,
         timestamp -> Text,
+        token -> Text,
     }
 }
 

@@ -22,7 +22,7 @@ mod tests {
     async fn test_insert_restaurant() {
         let conn = new_pool().get().unwrap();
 
-        let version = Version::create_new_version(&conn);
+        let version = Version::get_from_token(&conn, "1");
 
         let testres = json_parser::JsonRestaurant {
             city: String::from("test"),
@@ -37,7 +37,7 @@ mod tests {
             smiley_reports: Vec::new(),
         };
 
-        let testid = insert_restaurant(&conn, &testres, &version);
+        let testid = insert_restaurant(&conn, &testres, version.id);
         match schema::restaurant::dsl::restaurant
             .filter(schema::restaurant::smiley_restaurant_id.eq(42545))
             .filter(schema::restaurant::name.eq_all(testres.name))

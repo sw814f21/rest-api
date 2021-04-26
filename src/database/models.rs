@@ -62,15 +62,12 @@ impl Restaurant {
         convert_res_smiley_pairs(query).get(0).unwrap().to_owned()
     }
 
-    pub fn get_restaurant_by_smiley_id(
-        smiley_restaurant_id: i32,
-        conn: &SqliteConnection,
-    ) -> Restaurant {
+    pub fn get_restaurant_by_smiley_id(smiley_restaurant_id: i32, conn: &SqliteConnection) -> i32 {
         restaurant::table
             .filter(restaurant::smiley_restaurant_id.eq(smiley_restaurant_id))
-            .load(conn)
+            .select(restaurant::id)
+            .first::<i32>(conn)
             .expect("Failed to get restaurant")
-            .remove(0)
     }
 
     pub fn search_by_lat_lng(
@@ -178,6 +175,23 @@ impl SmileyReport {
         query.sort_by(|a, b| b.date.partial_cmp(&a.date).unwrap());
         query
     }
+
+    pub fn smiley_report_exists(res_id: i32, ireport_id: &str, conn: &SqliteConnection) -> bool {
+        use crate::database::schema::smiley_report::dsl::*;
+
+        let result = select(exists(
+            smiley_report
+                .filter(restaurant_id.eq(res_id))
+                .filter(report_id.eq(ireport_id)),
+        ))
+        .get_result::<bool>(conn);
+
+        match result {
+            Ok(true) => true,
+            Ok(false) => false,
+            _ => panic!("Error testing if smiley report exists"),
+        }
+    }
 }
 
 #[derive(Clone, PartialEq, Queryable, Serialize)]
@@ -224,26 +238,37 @@ impl Subscription {
 pub struct Version {
     pub id: i32,
     pub timestamp: String,
+    pub token: String,
 }
 
 impl Version {
-    pub fn create_new_version(conn: &SqliteConnection) -> Version {
-        insert_into(version_history::table)
-            .default_values()
-            .execute(conn)
-            .expect("New version insertaton failed");
-
-        version_history::table
-            .order(version_history::id.desc())
-            .first::<Version>(conn)
-            .expect("Failed to get new version")
-    }
-
     pub fn current_version(conn: &SqliteConnection) -> Version {
         version_history::table
             .order(version_history::id.desc())
             .first::<Version>(conn)
             .expect("Failed to get latest version")
+    }
+
+    pub fn get_from_token(conn: &SqliteConnection, token_val: &str) -> Version {
+        let exists = select(exists(
+            version_history::table.filter(version_history::token.eq(token_val)),
+        ))
+        .get_result::<bool>(conn);
+        match exists {
+            Ok(true) => {}
+            Ok(false) => {
+                insert_into(version_history::table)
+                    .values(version_history::token.eq(token_val))
+                    .execute(conn)
+                    .expect("Erro");
+            }
+            Err(_) => {}
+        }
+        version_history::table
+            .order(version_history::id.desc())
+            .filter(version_history::token.eq(token_val))
+            .first::<Version>(conn)
+            .expect("Failed to fetch version from token")
     }
 }
 

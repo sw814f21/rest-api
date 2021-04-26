@@ -1,8 +1,8 @@
 use crate::database::models::Version;
-use crate::utils::json_parser::JsonRestaurant;
+use crate::utils::json_parser::RichData;
 use crate::{
     database::schema,
-    utils::data_inserter::{insert_restaurant, insert_smileys},
+    utils::data_inserter::{insert_restaurant, insert_smileys, update_restaurant, update_smileys},
 };
 use diesel::{JoinOnDsl, QueryDsl, SqliteConnection};
 
@@ -19,14 +19,29 @@ pub fn load_data_from_file(path: &String, conn: &SqliteConnection) {
 }
 
 pub fn insert_smiley_data(json: &String, connection: &SqliteConnection) {
-    let read_json: Vec<JsonRestaurant> = serde_json::from_str(json).expect("Can't parse json");
+    let read_json: RichData = serde_json::from_str(json).expect("wut");
 
-    let new_version = Version::create_new_version(connection);
+    let ver = Version::get_from_token(connection, &read_json.token);
 
-    for res in read_json {
-        let resid = insert_restaurant(&connection, &res, &new_version);
+    for res in read_json.data {
+        let resid = insert_restaurant(&connection, &res, ver.id);
 
         insert_smileys(&connection, &res.smiley_reports, resid);
+    }
+}
+
+pub fn update_smiley_data(json: &String, connection: &SqliteConnection) {
+    let read_json: RichData = serde_json::from_str(json).expect("Can't parse json");
+
+    let ver = Version::get_from_token(connection, &read_json.token);
+
+    let restaurants = read_json.data;
+
+    for res in restaurants {
+        let resid: i32 = update_restaurant(&connection, &res, ver.id);
+        for report in &res.smiley_reports {
+            update_smileys(&connection, &report, resid);
+        }
     }
 }
 

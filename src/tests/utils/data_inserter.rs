@@ -11,10 +11,10 @@ mod tests {
 
         let restaurant = test_restaurant();
 
-        let version = Version::create_new_version(&db_pool.get().unwrap());
-        let id = data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, &version);
+        let version = Version::get_from_token(&db_pool.get().unwrap(),"1");
+        let id = data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, version.id);
 
-        let version2 = Version::create_new_version(&db_pool.get().unwrap());
+        let version2 = Version::get_from_token(&db_pool.get().unwrap(), "2");
         data_inserter::remove_restaurant(&db_pool.get().unwrap(), id, &version2);
 
         let res_vec = Restaurant::get_all_resturants(&db_pool.get().unwrap());
@@ -30,11 +30,11 @@ mod tests {
 
         let restaurant = test_restaurant();
 
-        let version_1 = Version::create_new_version(&db_pool.get().unwrap());
-        data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, &version_1);
+        let version_1 = Version::get_from_token(&db_pool.get().unwrap(),"1");
+        data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, version_1.id);
 
-        let version_2 = Version::create_new_version(&db_pool.get().unwrap());
-        data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, &version_2);
+        let version_2 = Version::get_from_token(&db_pool.get().unwrap(), "2");
+        data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, version_2.id);
 
         let res_total = Restaurant::get_all_resturants(&db_pool.get().unwrap());
         let res_v1 = Restaurant::get_since_version(&db_pool.get().unwrap(), version_1.id);
@@ -51,12 +51,12 @@ mod tests {
 
         let mut restaurant = test_restaurant();
 
-        let version_1 = Version::create_new_version(&db_pool.get().unwrap());
-        data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, &version_1);
+        let version_1 = Version::get_from_token(&db_pool.get().unwrap(),"1");
+        data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, version_1.id);
 
         restaurant.name = String::from("some other name");
-        let version_2 = Version::create_new_version(&db_pool.get().unwrap());
-        data_inserter::update_restaurant(&db_pool.get().unwrap(), &restaurant, &version_2);
+        let version_2 = Version::get_from_token(&db_pool.get().unwrap(), "2");
+        data_inserter::update_restaurant(&db_pool.get().unwrap(), &restaurant, version_2.id);
 
         let changed_restaurant =
             Restaurant::get_since_version(&db_pool.get().unwrap(), version_1.id).remove(0);
@@ -70,15 +70,15 @@ mod tests {
 
         let mut restaurant = test_restaurant();
 
-        let version_1 = Version::create_new_version(&db_pool.get().unwrap());
-        data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, &version_1);
+        let version_1 = Version::get_from_token(&db_pool.get().unwrap(), "1");
+        data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, version_1.id);
 
         restaurant.smiley_restaurant_id = String::from("5435345"); // Change id for other restaurant
-        data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, &version_1);
+        data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, version_1.id);
 
         restaurant.name = String::from("some other name");
-        let version_2 = Version::create_new_version(&db_pool.get().unwrap());
-        data_inserter::update_restaurant(&db_pool.get().unwrap(), &restaurant, &version_2);
+        let version_2 = Version::get_from_token(&db_pool.get().unwrap(), "2");
+        data_inserter::update_restaurant(&db_pool.get().unwrap(), &restaurant, version_2.id);
 
         let res_v1 = Restaurant::get_since_version(&db_pool.get().unwrap(), version_1.id);
         let res_total = Restaurant::get_all_resturants(&db_pool.get().unwrap());

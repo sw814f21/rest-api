@@ -44,3 +44,17 @@ pub struct JsonSmileyReport {
     #[serde(alias = "report_id")]
     pub report_id: String,
 }
+
+#[derive(Deserialize)]
+pub struct RichData {
+    #[serde(alias = "token")]
+    pub token: String,
+    #[serde(alias = "data")]
+    pub data: Vec<JsonRestaurant>,
+}
+
+#[derive(Deserialize)]
+pub struct DeleteData {
+    pub token: String,
+    pub data: Vec<i32>,
+}

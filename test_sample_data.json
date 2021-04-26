@@ -1,432 +1,435 @@
-[
-    {
-        "cvrnr": "27560946",
-        "pnr": "1012180825",
-        "region": null,
-        "industry_code": "472400",
-        "industry_text": "Detailhandel med br\u00f8d, konditori- og sukkervarer",
-        "start_date": "2005-06-01T00:00:00Z",
-        "smiley_reports": [
-            {
-                "report_id": "Virk1873390",
-                "smiley": 1,
-                "date": "2021-03-22T00:00:00Z"
-            },
-            {
-                "report_id": "Virk1834536",
-                "smiley": 1,
-                "date": "2020-11-11T00:00:00Z"
-            },
-            {
-                "report_id": "Virk1789610",
-                "smiley": 1,
-                "date": "2020-08-04T00:00:00Z"
-            },
-            {
-                "report_id": "Virk1771244",
-                "smiley": 2,
-                "date": "2020-06-10T00:00:00Z"
-            }
-        ],
-        "city": "Charlottenlund",
-        "elite_smiley": "0",
-        "geo_lat": 55.762464,
-        "geo_lng": 12.585801,
-        "franchise_name": null,
-        "niche_industry": "Bagere og bagerafdelinger",
-        "url": "http://www.findsmiley.dk/da-DK/Searching/DetailsView.htm?virk=757164",
-        "address": "Ordrup Jagtvej 42B, st",
-        "name": "Patricks Bake Shop - Ordrup ApS",
-        "name_seq_nr": "757164",
-        "zip_code": "2920",
-        "ad_protection": "0",
-        "company_type": "Detail"
-    },
-    {
-        "cvrnr": "36545860",
-        "pnr": "1020169008",
-        "region": null,
-        "industry_code": "107120",
-        "industry_text": "Fremstilling af friske bageriprodukter",
-        "start_date": "2015-02-09T00:00:00Z",
-        "smiley_reports": [
-            {
-                "report_id": "Virk1827526",
-                "smiley": 1,
-                "date": "2020-10-28T00:00:00Z"
-            },
-            {
-                "report_id": "Virk1774060",
-                "smiley": 1,
-                "date": "2020-06-17T00:00:00Z"
-            },
-            {
-                "report_id": "Virk1629508",
-                "smiley": 1,
-                "date": "2019-06-27T00:00:00Z"
-            },
-            {
-                "report_id": "Virk1597065",
-                "smiley": 1,
-                "date": "2019-03-27T00:00:00Z"
-            }
-        ],
-        "city": "Nyk\u00f8bing Sj\u00e6lland",
-        "elite_smiley": "1",
-        "geo_lat": 55.923161,
-        "geo_lng": 11.670532,
-        "franchise_name": null,
-        "niche_industry": "Bagere og bagerafdelinger",
-        "url": "http://www.findsmiley.dk/da-DK/Searching/DetailsView.htm?virk=659918",
-        "address": "Svanestr\u00e6de 2",
-        "name": "BAGEREN I SVANESTR\u00c6DE IVS",
-        "name_seq_nr": "659918",
-        "zip_code": "4500",
-        "ad_protection": "0",
-        "company_type": "Detail"
-    },
-    {
-        "cvrnr": "30138929",
-        "pnr": "1000765515",
-        "region": null,
-        "industry_code": "107120",
-        "industry_text": "Fremstilling af friske bageriprodukter",
-        "start_date": "1990-10-29T00:00:00Z",
-        "smiley_reports": [
-            {
-                "report_id": "Virk1859542",
-                "smiley": 2,
-                "date": "2021-02-24T00:00:00Z"
-            },
-            {
-                "report_id": "Virk1450178",
-                "smiley": 1,
-                "date": "2018-02-23T00:00:00Z"
-            },
-            {
-                "report_id": "Virk1279262",
-                "smiley": 1,
-                "date": "2016-11-22T00:00:00Z"
-            },
-            {
-                "report_id": "Virk1183854",
-                "smiley": 1,
-                "date": "2016-06-06T00:00:00Z"
-            }
-        ],
-        "city": "\u00c5rhus V",
-        "elite_smiley": "0",
-        "geo_lat": 56.172657,
-        "geo_lng": 10.181455,
-        "franchise_name": null,
-        "niche_industry": "Bagere og bagerafdelinger",
-        "url": "http://www.findsmiley.dk/da-DK/Searching/DetailsView.htm?virk=47738",
-        "address": "Hammershusvej 41",
-        "name": "Fru Nielsens Bageri V/ Niels S. Nielsen",
-        "name_seq_nr": "47738",
-        "zip_code": "8210",
-        "ad_protection": "0",
-        "company_type": "Detail"
-    },
-    {
-        "cvrnr": "31262208",
-        "pnr": "1022913332",
-        "region": null,
-        "industry_code": "107120",
-        "industry_text": "Fremstilling af friske bageriprodukter",
-        "start_date": "2017-10-10T00:00:00Z",
-        "smiley_reports": [
-            {
-                "report_id": "Virk1735261",
-                "smiley": 1,
-                "date": "2020-06-04T00:00:00Z"
-            },
-            {
-                "report_id": "Virk1575044",
-                "smiley": 1,
-                "date": "2019-03-25T00:00:00Z"
-            },
-            {
-                "report_id": "Virk1573595",
-                "smiley": 2,
-                "date": "2019-01-29T00:00:00Z"
-            },
-            {
-                "report_id": "Virk1425232",
-                "smiley": 1,
-                "date": "2017-12-04T00:00:00Z"
-            }
-        ],
-        "city": "Frederiksberg C",
-        "elite_smiley": "0",
-        "geo_lat": 55.678594,
-        "geo_lng": 12.547036,
-        "franchise_name": null,
-        "niche_industry": "Bagere og bagerafdelinger",
-        "url": "http://www.findsmiley.dk/da-DK/Searching/DetailsView.htm?virk=717825",
-        "address": "Amalievej 23, st",
-        "name": "Grannys House",
-        "name_seq_nr": "717825",
-        "zip_code": "1875",
-        "ad_protection": "0",
-        "company_type": "Detail"
-    },
-    {
-        "cvrnr": "25431944",
-        "pnr": "1008217579",
-        "region": null,
-        "industry_code": "107120",
-        "industry_text": "Fremstilling af friske bageriprodukter",
-        "start_date": "2000-06-07T00:00:00Z",
-        "smiley_reports": [
-            {
-                "report_id": "Virk1512366",
-                "smiley": 1,
-                "date": "2018-08-15T00:00:00Z"
-            },
-            {
-                "report_id": "Virk1504415",
-                "smiley": 1,
-                "date": "2017-09-25T00:00:00Z"
-            },
-            {
-                "report_id": "Virk1504414",
-                "smiley": 1,
-                "date": "2016-07-12T00:00:00Z"
-            },
-            {
-                "report_id": "Virk1504412",
-                "smiley": 1,
-                "date": "2016-02-09T00:00:00Z"
-            }
-        ],
-        "city": "Gentofte",
-        "elite_smiley": "1",
-        "geo_lat": 55.74126,
-        "geo_lng": 12.546971,
-        "franchise_name": null,
-        "niche_industry": "Bagere og bagerafdelinger",
-        "url": "http://www.findsmiley.dk/da-DK/Searching/DetailsView.htm?virk=758030",
-        "address": "Anemonevej 62",
-        "name": "Prinsessens L\u00e6kre Bag ApS",
-        "name_seq_nr": "758030",
-        "zip_code": "2820",
-        "ad_protection": "0",
-        "company_type": "Detail"
-    },
-    {
-        "cvrnr": "33388446",
-        "pnr": "1019324911",
-        "region": null,
-        "industry_code": "472400",
-        "industry_text": "Detailhandel med br\u00f8d, konditori- og sukkervarer",
-        "start_date": "2014-05-25T00:00:00Z",
-        "smiley_reports": [
-            {
-                "report_id": "Virk1854193",
-                "smiley": 1,
-                "date": "2021-01-26T00:00:00Z"
-            },
-            {
-                "report_id": "Virk1718882",
-                "smiley": 1,
-                "date": "2020-01-09T00:00:00Z"
-            },
-            {
-                "report_id": "Virk1688401",
-                "smiley": 1,
-                "date": "2019-10-30T00:00:00Z"
-            },
-            {
-                "report_id": "Virk1601832",
-                "smiley": 1,
-                "date": "2019-04-09T00:00:00Z"
-            }
-        ],
-        "city": "Holte",
-        "elite_smiley": "1",
-        "geo_lat": 55.810423,
-        "geo_lng": 12.470396,
-        "franchise_name": null,
-        "niche_industry": "Bagere og bagerafdelinger",
-        "url": "http://www.findsmiley.dk/da-DK/Searching/DetailsView.htm?virk=544885",
-        "address": "Holte Stationsvej 16",
-        "name": "emmerys ApS",
-        "name_seq_nr": "544885",
-        "zip_code": "2840",
-        "ad_protection": "0",
-        "company_type": "Detail"
-    },
-    {
-        "cvrnr": "29367876",
-        "pnr": "1012127266",
-        "region": null,
-        "industry_code": "107120",
-        "industry_text": "Fremstilling af friske bageriprodukter",
-        "start_date": "2006-03-15T00:00:00Z",
-        "smiley_reports": [
-            {
-                "report_id": "Virk1771713",
-                "smiley": 1,
-                "date": "2020-06-17T00:00:00Z"
-            },
-            {
-                "report_id": "Virk1763087",
-                "smiley": 1,
-                "date": "2020-05-19T00:00:00Z"
-            },
-            {
-                "report_id": "Virk1664902",
-                "smiley": 1,
-                "date": "2019-09-09T00:00:00Z"
-            },
-            {
-                "report_id": "Virk1588240",
-                "smiley": 1,
-                "date": "2019-03-20T00:00:00Z"
-            }
-        ],
-        "city": "L\u00f8sning",
-        "elite_smiley": "1",
-        "geo_lat": 55.803849,
-        "geo_lng": 9.697719,
-        "franchise_name": null,
-        "niche_industry": "Bagere og bagerafdelinger",
-        "url": "http://www.findsmiley.dk/da-DK/Searching/DetailsView.htm?virk=69908",
-        "address": "Vestergade 34",
-        "name": "Den Lille Bager V/Lars Due Christensen",
-        "name_seq_nr": "69908",
-        "zip_code": "8723",
-        "ad_protection": "0",
-        "company_type": "Detail"
-    },
-    {
-        "cvrnr": "39885158",
-        "pnr": "1023979906",
-        "region": null,
-        "industry_code": "107120",
-        "industry_text": "Fremstilling af friske bageriprodukter",
-        "start_date": "2018-09-22T00:00:00Z",
-        "smiley_reports": [
-            {
-                "report_id": "Virk1868161",
-                "smiley": 1,
-                "date": "2021-03-11T00:00:00Z"
-            },
-            {
-                "report_id": "Virk1843354",
-                "smiley": 2,
-                "date": "2020-12-08T00:00:00Z"
-            },
-            {
-                "report_id": "Virk1833897",
-                "smiley": 2,
-                "date": "2020-11-10T00:00:00Z"
-            },
-            {
-                "report_id": "Virk1745864",
-                "smiley": 1,
-                "date": "2020-03-11T00:00:00Z"
-            }
-        ],
-        "city": "K\u00f8benhavn S",
-        "elite_smiley": "0",
-        "geo_lat": 55.666063,
-        "geo_lng": 12.597365,
-        "franchise_name": null,
-        "niche_industry": "Bagere og bagerafdelinger",
-        "url": "http://www.findsmiley.dk/da-DK/Searching/DetailsView.htm?virk=767832",
-        "address": "Amager Boulevard 127",
-        "name": "SHAMYAT IVS",
-        "name_seq_nr": "767832",
-        "zip_code": "2300",
-        "ad_protection": "0",
-        "company_type": "Detail"
-    },
-    {
-        "cvrnr": "26219590",
-        "pnr": "1008740298",
-        "region": null,
-        "industry_code": "107120",
-        "industry_text": "Fremstilling af friske bageriprodukter",
-        "start_date": "2001-07-01T00:00:00Z",
-        "smiley_reports": [
-            {
-                "report_id": "Virk1673837",
-                "smiley": 1,
-                "date": "2019-09-25T00:00:00Z"
-            },
-            {
-                "report_id": "Virk1665131",
-                "smiley": 1,
-                "date": "2018-06-21T00:00:00Z"
-            },
-            {
-                "report_id": "Virk1665128",
-                "smiley": 1,
-                "date": "2018-04-04T00:00:00Z"
-            },
-            {
-                "report_id": "Virk1665125",
-                "smiley": 1,
-                "date": "2017-11-24T00:00:00Z"
-            }
-        ],
-        "city": "Hadsten",
-        "elite_smiley": "1",
-        "geo_lat": 56.328359,
-        "geo_lng": 10.047242,
-        "franchise_name": null,
-        "niche_industry": "Bagere og bagerafdelinger",
-        "url": "http://www.findsmiley.dk/da-DK/Searching/DetailsView.htm?virk=912890",
-        "address": "N\u00f8rregade 4",
-        "name": "Mester Jacob v/Jacob Overgaard",
-        "name_seq_nr": "912890",
-        "zip_code": "8370",
-        "ad_protection": "0",
-        "company_type": "Detail"
-    },
-    {
-        "cvrnr": "38290789",
-        "pnr": "1022046981",
-        "region": null,
-        "industry_code": "562100",
-        "industry_text": "Event catering",
-        "start_date": "2017-01-01T00:00:00Z",
-        "smiley_reports": [
-            {
-                "report_id": "Virk1724799",
-                "smiley": 1,
-                "date": "2020-02-04T00:00:00Z"
-            },
-            {
-                "report_id": "Virk1613193",
-                "smiley": 1,
-                "date": "2019-07-08T00:00:00Z"
-            },
-            {
-                "report_id": "Virk1486401",
-                "smiley": 1,
-                "date": "2018-06-18T00:00:00Z"
-            },
-            {
-                "report_id": "Virk1369662",
-                "smiley": 1,
-                "date": "2017-07-05T00:00:00Z"
-            }
-        ],
-        "city": "Vejle",
-        "elite_smiley": "1",
-        "geo_lat": 55.722964,
-        "geo_lng": 9.521294,
-        "franchise_name": null,
-        "niche_industry": "Bagere og bagerafdelinger",
-        "url": "http://www.findsmiley.dk/da-DK/Searching/DetailsView.htm?virk=710347",
-        "address": "Jellingvej 106, st",
-        "name": "La Nouvelle",
-        "name_seq_nr": "710347",
-        "zip_code": "7100",
-        "ad_protection": "0",
-        "company_type": "Detail"
-    }
-]
+{
+    "token": "test",
+    "data": [
+        {
+            "cvrnr": "27560946",
+            "pnr": "1012180825",
+            "region": null,
+            "industry_code": "472400",
+            "industry_text": "Detailhandel med br\u00f8d, konditori- og sukkervarer",
+            "start_date": "2005-06-01T00:00:00Z",
+            "smiley_reports": [
+                {
+                    "report_id": "Virk1873390",
+                    "smiley": 1,
+                    "date": "2021-03-22T00:00:00Z"
+                },
+                {
+                    "report_id": "Virk1834536",
+                    "smiley": 1,
+                    "date": "2020-11-11T00:00:00Z"
+                },
+                {
+                    "report_id": "Virk1789610",
+                    "smiley": 1,
+                    "date": "2020-08-04T00:00:00Z"
+                },
+                {
+                    "report_id": "Virk1771244",
+                    "smiley": 2,
+                    "date": "2020-06-10T00:00:00Z"
+                }
+            ],
+            "city": "Charlottenlund",
+            "elite_smiley": "0",
+            "geo_lat": 55.762464,
+            "geo_lng": 12.585801,
+            "franchise_name": null,
+            "niche_industry": "Bagere og bagerafdelinger",
+            "url": "http://www.findsmiley.dk/da-DK/Searching/DetailsView.htm?virk=757164",
+            "address": "Ordrup Jagtvej 42B, st",
+            "name": "Patricks Bake Shop - Ordrup ApS",
+            "name_seq_nr": "757164",
+            "zip_code": "2920",
+            "ad_protection": "0",
+            "company_type": "Detail"
+        },
+        {
+            "cvrnr": "36545860",
+            "pnr": "1020169008",
+            "region": null,
+            "industry_code": "107120",
+            "industry_text": "Fremstilling af friske bageriprodukter",
+            "start_date": "2015-02-09T00:00:00Z",
+            "smiley_reports": [
+                {
+                    "report_id": "Virk1827526",
+                    "smiley": 1,
+                    "date": "2020-10-28T00:00:00Z"
+                },
+                {
+                    "report_id": "Virk1774060",
+                    "smiley": 1,
+                    "date": "2020-06-17T00:00:00Z"
+                },
+                {
+                    "report_id": "Virk1629508",
+                    "smiley": 1,
+                    "date": "2019-06-27T00:00:00Z"
+                },
+                {
+                    "report_id": "Virk1597065",
+                    "smiley": 1,
+                    "date": "2019-03-27T00:00:00Z"
+                }
+            ],
+            "city": "Nyk\u00f8bing Sj\u00e6lland",
+            "elite_smiley": "1",
+            "geo_lat": 55.923161,
+            "geo_lng": 11.670532,
+            "franchise_name": null,
+            "niche_industry": "Bagere og bagerafdelinger",
+            "url": "http://www.findsmiley.dk/da-DK/Searching/DetailsView.htm?virk=659918",
+            "address": "Svanestr\u00e6de 2",
+            "name": "BAGEREN I SVANESTR\u00c6DE IVS",
+            "name_seq_nr": "659918",
+            "zip_code": "4500",
+            "ad_protection": "0",
+            "company_type": "Detail"
+        },
+        {
+            "cvrnr": "30138929",
+            "pnr": "1000765515",
+            "region": null,
+            "industry_code": "107120",
+            "industry_text": "Fremstilling af friske bageriprodukter",
+            "start_date": "1990-10-29T00:00:00Z",
+            "smiley_reports": [
+                {
+                    "report_id": "Virk1859542",
+                    "smiley": 2,
+                    "date": "2021-02-24T00:00:00Z"
+                },
+                {
+                    "report_id": "Virk1450178",
+                    "smiley": 1,
+                    "date": "2018-02-23T00:00:00Z"
+                },
+                {
+                    "report_id": "Virk1279262",
+                    "smiley": 1,
+                    "date": "2016-11-22T00:00:00Z"
+                },
+                {
+                    "report_id": "Virk1183854",
+                    "smiley": 1,
+                    "date": "2016-06-06T00:00:00Z"
+                }
+            ],
+            "city": "\u00c5rhus V",
+            "elite_smiley": "0",
+            "geo_lat": 56.172657,
+            "geo_lng": 10.181455,
+            "franchise_name": null,
+            "niche_industry": "Bagere og bagerafdelinger",
+            "url": "http://www.findsmiley.dk/da-DK/Searching/DetailsView.htm?virk=47738",
+            "address": "Hammershusvej 41",
+            "name": "Fru Nielsens Bageri V/ Niels S. Nielsen",
+            "name_seq_nr": "47738",
+            "zip_code": "8210",
+            "ad_protection": "0",
+            "company_type": "Detail"
+        },
+        {
+            "cvrnr": "31262208",
+            "pnr": "1022913332",
+            "region": null,
+            "industry_code": "107120",
+            "industry_text": "Fremstilling af friske bageriprodukter",
+            "start_date": "2017-10-10T00:00:00Z",
+            "smiley_reports": [
+                {
+                    "report_id": "Virk1735261",
+                    "smiley": 1,
+                    "date": "2020-06-04T00:00:00Z"
+                },
+                {
+                    "report_id": "Virk1575044",
+                    "smiley": 1,
+                    "date": "2019-03-25T00:00:00Z"
+                },
+                {
+                    "report_id": "Virk1573595",
+                    "smiley": 2,
+                    "date": "2019-01-29T00:00:00Z"
+                },
+                {
+                    "report_id": "Virk1425232",
+                    "smiley": 1,
+                    "date": "2017-12-04T00:00:00Z"
+                }
+            ],
+            "city": "Frederiksberg C",
+            "elite_smiley": "0",
+            "geo_lat": 55.678594,
+            "geo_lng": 12.547036,
+            "franchise_name": null,
+            "niche_industry": "Bagere og bagerafdelinger",
+            "url": "http://www.findsmiley.dk/da-DK/Searching/DetailsView.htm?virk=717825",
+            "address": "Amalievej 23, st",
+            "name": "Grannys House",
+            "name_seq_nr": "717825",
+            "zip_code": "1875",
+            "ad_protection": "0",
+            "company_type": "Detail"
+        },
+        {
+            "cvrnr": "25431944",
+            "pnr": "1008217579",
+            "region": null,
+            "industry_code": "107120",
+            "industry_text": "Fremstilling af friske bageriprodukter",
+            "start_date": "2000-06-07T00:00:00Z",
+            "smiley_reports": [
+                {
+                    "report_id": "Virk1512366",
+                    "smiley": 1,
+                    "date": "2018-08-15T00:00:00Z"
+                },
+                {
+                    "report_id": "Virk1504415",
+                    "smiley": 1,
+                    "date": "2017-09-25T00:00:00Z"
+                },
+                {
+                    "report_id": "Virk1504414",
+                    "smiley": 1,
+                    "date": "2016-07-12T00:00:00Z"
+                },
+                {
+                    "report_id": "Virk1504412",
+                    "smiley": 1,
+                    "date": "2016-02-09T00:00:00Z"
+                }
+            ],
+            "city": "Gentofte",
+            "elite_smiley": "1",
+            "geo_lat": 55.74126,
+            "geo_lng": 12.546971,
+            "franchise_name": null,
+            "niche_industry": "Bagere og bagerafdelinger",
+            "url": "http://www.findsmiley.dk/da-DK/Searching/DetailsView.htm?virk=758030",
+            "address": "Anemonevej 62",
+            "name": "Prinsessens L\u00e6kre Bag ApS",
+            "name_seq_nr": "758030",
+            "zip_code": "2820",
+            "ad_protection": "0",
+            "company_type": "Detail"
+        },
+        {
+            "cvrnr": "33388446",
+            "pnr": "1019324911",
+            "region": null,
+            "industry_code": "472400",
+            "industry_text": "Detailhandel med br\u00f8d, konditori- og sukkervarer",
+            "start_date": "2014-05-25T00:00:00Z",
+            "smiley_reports": [
+                {
+                    "report_id": "Virk1854193",
+                    "smiley": 1,
+                    "date": "2021-01-26T00:00:00Z"
+                },
+                {
+                    "report_id": "Virk1718882",
+                    "smiley": 1,
+                    "date": "2020-01-09T00:00:00Z"
+                },
+                {
+                    "report_id": "Virk1688401",
+                    "smiley": 1,
+                    "date": "2019-10-30T00:00:00Z"
+                },
+                {
+                    "report_id": "Virk1601832",
+                    "smiley": 1,
+                    "date": "2019-04-09T00:00:00Z"
+                }
+            ],
+            "city": "Holte",
+            "elite_smiley": "1",
+            "geo_lat": 55.810423,
+            "geo_lng": 12.470396,
+            "franchise_name": null,
+            "niche_industry": "Bagere og bagerafdelinger",
+            "url": "http://www.findsmiley.dk/da-DK/Searching/DetailsView.htm?virk=544885",
+            "address": "Holte Stationsvej 16",
+            "name": "emmerys ApS",
+            "name_seq_nr": "544885",
+            "zip_code": "2840",
+            "ad_protection": "0",
+            "company_type": "Detail"
+        },
+        {
+            "cvrnr": "29367876",
+            "pnr": "1012127266",
+            "region": null,
+            "industry_code": "107120",
+            "industry_text": "Fremstilling af friske bageriprodukter",
+            "start_date": "2006-03-15T00:00:00Z",
+            "smiley_reports": [
+                {
+                    "report_id": "Virk1771713",
+                    "smiley": 1,
+                    "date": "2020-06-17T00:00:00Z"
+                },
+                {
+                    "report_id": "Virk1763087",
+                    "smiley": 1,
+                    "date": "2020-05-19T00:00:00Z"
+                },
+                {
+                    "report_id": "Virk1664902",
+                    "smiley": 1,
+                    "date": "2019-09-09T00:00:00Z"
+                },
+                {
+                    "report_id": "Virk1588240",
+                    "smiley": 1,
+                    "date": "2019-03-20T00:00:00Z"
+                }
+            ],
+            "city": "L\u00f8sning",
+            "elite_smiley": "1",
+            "geo_lat": 55.803849,
+            "geo_lng": 9.697719,
+            "franchise_name": null,
+            "niche_industry": "Bagere og bagerafdelinger",
+            "url": "http://www.findsmiley.dk/da-DK/Searching/DetailsView.htm?virk=69908",
+            "address": "Vestergade 34",
+            "name": "Den Lille Bager V/Lars Due Christensen",
+            "name_seq_nr": "69908",
+            "zip_code": "8723",
+            "ad_protection": "0",
+            "company_type": "Detail"
+        },
+        {
+            "cvrnr": "39885158",
+            "pnr": "1023979906",
+            "region": null,
+            "industry_code": "107120",
+            "industry_text": "Fremstilling af friske bageriprodukter",
+            "start_date": "2018-09-22T00:00:00Z",
+            "smiley_reports": [
+                {
+                    "report_id": "Virk1868161",
+                    "smiley": 1,
+                    "date": "2021-03-11T00:00:00Z"
+                },
+                {
+                    "report_id": "Virk1843354",
+                    "smiley": 2,
+                    "date": "2020-12-08T00:00:00Z"
+                },
+                {
+                    "report_id": "Virk1833897",
+                    "smiley": 2,
+                    "date": "2020-11-10T00:00:00Z"
+                },
+                {
+                    "report_id": "Virk1745864",
+                    "smiley": 1,
+                    "date": "2020-03-11T00:00:00Z"
+                }
+            ],
+            "city": "K\u00f8benhavn S",
+            "elite_smiley": "0",
+            "geo_lat": 55.666063,
+            "geo_lng": 12.597365,
+            "franchise_name": null,
+            "niche_industry": "Bagere og bagerafdelinger",
+            "url": "http://www.findsmiley.dk/da-DK/Searching/DetailsView.htm?virk=767832",
+            "address": "Amager Boulevard 127",
+            "name": "SHAMYAT IVS",
+            "name_seq_nr": "767832",
+            "zip_code": "2300",
+            "ad_protection": "0",
+            "company_type": "Detail"
+        },
+        {
+            "cvrnr": "26219590",
+            "pnr": "1008740298",
+            "region": null,
+            "industry_code": "107120",
+            "industry_text": "Fremstilling af friske bageriprodukter",
+            "start_date": "2001-07-01T00:00:00Z",
+            "smiley_reports": [
+                {
+                    "report_id": "Virk1673837",
+                    "smiley": 1,
+                    "date": "2019-09-25T00:00:00Z"
+                },
+                {
+                    "report_id": "Virk1665131",
+                    "smiley": 1,
+                    "date": "2018-06-21T00:00:00Z"
+                },
+                {
+                    "report_id": "Virk1665128",
+                    "smiley": 1,
+                    "date": "2018-04-04T00:00:00Z"
+                },
+                {
+                    "report_id": "Virk1665125",
+                    "smiley": 1,
+                    "date": "2017-11-24T00:00:00Z"
+                }
+            ],
+            "city": "Hadsten",
+            "elite_smiley": "1",
+            "geo_lat": 56.328359,
+            "geo_lng": 10.047242,
+            "franchise_name": null,
+            "niche_industry": "Bagere og bagerafdelinger",
+            "url": "http://www.findsmiley.dk/da-DK/Searching/DetailsView.htm?virk=912890",
+            "address": "N\u00f8rregade 4",
+            "name": "Mester Jacob v/Jacob Overgaard",
+            "name_seq_nr": "912890",
+            "zip_code": "8370",
+            "ad_protection": "0",
+            "company_type": "Detail"
+        },
+        {
+            "cvrnr": "38290789",
+            "pnr": "1022046981",
+            "region": null,
+            "industry_code": "562100",
+            "industry_text": "Event catering",
+            "start_date": "2017-01-01T00:00:00Z",
+            "smiley_reports": [
+                {
+                    "report_id": "Virk1724799",
+                    "smiley": 1,
+                    "date": "2020-02-04T00:00:00Z"
+                },
+                {
+                    "report_id": "Virk1613193",
+                    "smiley": 1,
+                    "date": "2019-07-08T00:00:00Z"
+                },
+                {
+                    "report_id": "Virk1486401",
+                    "smiley": 1,
+                    "date": "2018-06-18T00:00:00Z"
+                },
+                {
+                    "report_id": "Virk1369662",
+                    "smiley": 1,
+                    "date": "2017-07-05T00:00:00Z"
+                }
+            ],
+            "city": "Vejle",
+            "elite_smiley": "1",
+            "geo_lat": 55.722964,
+            "geo_lng": 9.521294,
+            "franchise_name": null,
+            "niche_industry": "Bagere og bagerafdelinger",
+            "url": "http://www.findsmiley.dk/da-DK/Searching/DetailsView.htm?virk=710347",
+            "address": "Jellingvej 106, st",
+            "name": "La Nouvelle",
+            "name_seq_nr": "710347",
+            "zip_code": "7100",
+            "ad_protection": "0",
+            "company_type": "Detail"
+        }
+    ]
+}
