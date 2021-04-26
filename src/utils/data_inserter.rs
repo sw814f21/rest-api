@@ -1,5 +1,5 @@
 use crate::database::models::{Restaurant, SmileyReport, Version};
-use crate::database::schema::{restaurant, smiley_report};
+use crate::database::schema::{removed_restaurant, restaurant, smiley_report};
 use crate::utils::json_parser::{JsonRestaurant, JsonSmileyReport};
 use diesel::prelude::*;
 
@@ -25,6 +25,13 @@ pub struct InsertSmileyReport {
     pub smiley: i32,
     pub restaurant_id: i32,
     pub report_id: String,
+}
+
+#[derive(Insertable)]
+#[table_name = "removed_restaurant"]
+pub struct InsertRemovedRestaurant {
+    pub restaurant_id: i32,
+    pub version_number: i32,
 }
 
 no_arg_sql_function!(
@@ -66,21 +73,22 @@ pub fn insert_smileys(
         .expect("Error saving new smiley data")
 }
 
-pub fn remove_restaurant(conn: &SqliteConnection, restaurant_id_1: i32, version_1: &Version) {
-    use crate::database::schema::removed_restaurant::dsl::*;
+pub fn remove_restaurant(conn: &SqliteConnection, restaurant_ids: Vec<i32>, version: &Version) {
+    let removed_restaurant_entry: Vec<InsertRemovedRestaurant> = restaurant_ids
+        .iter()
+        .map(|id| InsertRemovedRestaurant {
+            restaurant_id: *id,
+            version_number: version.id,
+        })
+        .collect();
 
-    let entry = (
-        restaurant_id.eq(&restaurant_id_1),
-        version_number.eq(version_1.id),
-    );
-
-    diesel::insert_into(removed_restaurant)
-        .values(&entry)
+    diesel::insert_into(removed_restaurant::table)
+        .values(&removed_restaurant_entry)
         .execute(conn)
         .expect("Failed to add removed restaurant entry");
 
     diesel::delete(restaurant::table)
-        .filter(restaurant::id.eq(restaurant_id_1))
+        .filter(restaurant::id.eq_any(&restaurant_ids))
         .execute(conn)
         .expect("Failed to delete restaurant entry");
 }

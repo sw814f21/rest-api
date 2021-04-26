@@ -15,7 +15,8 @@ mod tests {
         let id = data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, version.id);
 
         let version2 = Version::get_from_token(&db_pool.get().unwrap(), "2");
-        data_inserter::remove_restaurant(&db_pool.get().unwrap(), id, &version2);
+        let remove_ids = vec![id];
+        data_inserter::remove_restaurant(&db_pool.get().unwrap(), remove_ids, &version2);
 
         let res_vec = Restaurant::get_all_resturants(&db_pool.get().unwrap());
         let removals = RemovedRestaurant::get_removals_since(&db_pool.get().unwrap(), version.id);

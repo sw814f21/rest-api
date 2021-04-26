@@ -1,8 +1,11 @@
+use super::json_parser::DeleteData;
 use crate::database::models::Version;
 use crate::utils::json_parser::RichData;
 use crate::{
     database::schema,
-    utils::data_inserter::{insert_restaurant, insert_smileys, update_restaurant, update_smileys},
+    utils::data_inserter::{
+        insert_restaurant, insert_smileys, remove_restaurant, update_restaurant, update_smileys,
+    },
 };
 use diesel::{JoinOnDsl, QueryDsl, SqliteConnection};
 
@@ -70,4 +73,9 @@ pub fn get_data(conn: &SqliteConnection) -> Vec<(Restaurant, SmileyReport)> {
 
     // Return the joined result
     joined_smiley_report_restaurnt
+}
+pub fn delete_smiley_records(json: &String, connection: &SqliteConnection) {
+    let data_to_delete: DeleteData = serde_json::from_str(json).expect("Can't parse json");
+    let ver = Version::get_from_token(connection, &data_to_delete.token);
+    remove_restaurant(&connection, data_to_delete.data, &ver);
 }
