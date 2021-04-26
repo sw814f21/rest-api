@@ -131,7 +131,10 @@ mod tests {
         //Tests the load endpoint with a wrong IP address.
         TestRequest::get()
             .uri("/admin/load")
-            .peer_addr(SocketAddr::new(IpAddr::V4(Ipv4Addr::new(54, 231, 65, 23)), 8080))
+            .peer_addr(SocketAddr::new(
+                IpAddr::V4(Ipv4Addr::new(54, 231, 65, 23)),
+                8080,
+            ))
             .method(Method::POST)
             .set_payload("body data".as_bytes())
             .send_request(&mut app)
