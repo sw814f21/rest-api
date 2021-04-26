@@ -1,6 +1,6 @@
 use super::json_parser::{DeleteData, JsonRestaurant, JsonSmileyReport};
-use crate::{database::models::Version, services::restaurant};
 use crate::utils::json_parser::RichData;
+use crate::{database::models::Version, services::restaurant};
 use crate::{
     database::schema,
     utils::data_inserter::{
@@ -48,7 +48,7 @@ pub fn update_smiley_data(json: &String, connection: &SqliteConnection) {
     }
 }
 
-pub fn get_data(conn: &SqliteConnection) -> Vec<&mut JsonRestaurant> {
+pub fn get_data(conn: &SqliteConnection) -> Vec<JsonRestaurant> {
     use schema::*;
 
     // We join on the restaurant ID on the restaurant table and smiley_report table
@@ -57,42 +57,55 @@ pub fn get_data(conn: &SqliteConnection) -> Vec<&mut JsonRestaurant> {
         .load::<(Restaurant, SmileyReport)>(conn)
         .unwrap();
 
-    // (LONG COMMENTS, TO BE DELETED) We iterate for the sake of the example.
-    // We can already at this point simply return the vector from the function
+    // Create a variable
+    let mut result = Vec::new();
+    let mut smiley_id = 0;
 
-    // Iterate over the vector. Note that we have two objects, the smiley report and restaurants.
-    // The reason behind the two objects is that the two tables are joined, hence
-    // we can access both values.
-    let mut result: Vec<&mut JsonRestaurant> = Vec::new();
-    
+    // if the joined smiley report tuple is not empty, we add the first restaurant
     if !joined_smiley_report_restaurnt.is_empty() {
-        let first_ele = &joined_smiley_report_restaurnt[0].0;
+        // grab the restaurant part of the joined smiley report
+        let joined_smiley_report_tuple = joined_smiley_report_restaurnt.get(0).unwrap();
 
-        let mut current_json_res: &mut JsonRestaurant;
-        let mut first = restaurant_to_jsonrestaurant(first_ele);
-        result.push(&mut first);
-        current_json_res = result[0];
-        let mut old_restaurant: &Restaurant = first_ele;
-    
+        // set smiley id
+        smiley_id = joined_smiley_report_tuple.0.smiley_restaurant_id;
 
-        for row in &joined_smiley_report_restaurnt {
-            let current_restaurant = &row.0;
-            let current_smiley_report = &row.1;
+        // convert the first restaurant  to a JSON restaurant
+        let mut first_json_restaurant = restaurant_to_jsonrestaurant(&joined_smiley_report_tuple.0);
 
-            if current_restaurant.smiley_restaurant_id != old_restaurant.smiley_restaurant_id {
-                result.push(&mut restaurant_to_jsonrestaurant(current_restaurant));
-                let abba = result.len();
-                current_json_res = result[abba];
-                //Create new restaurant & add to result
-                old_restaurant = &current_restaurant;
-            }
-            (*current_json_res).smiley_reports.push(smileyreport_to_jsonsmileyreport(current_smiley_report));
-            //append smiley to current restaurant.    
+        // push the smiley reports to the JSON restaurant
+        first_json_restaurant
+            .smiley_reports
+            .push(smileyreport_to_jsonsmileyreport(
+                &joined_smiley_report_tuple.1,
+            ));
 
-        }
+        // push the first restaurant
+        result.push(first_json_restaurant);
     }
 
-    // Return the joined result
+    // iterate over joined smiley reports
+    for i in 1..joined_smiley_report_restaurnt.len() {
+        // grab a joined smiley report tuple
+        let joined_smiley_report_restaurant = joined_smiley_report_restaurnt.get(i).unwrap();
+
+        // put the restaurant and smiley reports into variables
+        let current_restaurant = &joined_smiley_report_restaurant.0;
+        let current_smiley_report = &joined_smiley_report_restaurant.1;
+
+        // if the smiley id does not match the current restaurant, we got a new restaurant
+        if smiley_id != current_restaurant.smiley_restaurant_id {
+            smiley_id = current_restaurant.smiley_restaurant_id;
+            result.push(restaurant_to_jsonrestaurant(current_restaurant));
+        }
+
+        // push the new smiley report to the restaurant
+        result
+            .last_mut()
+            .unwrap()
+            .smiley_reports
+            .push(smileyreport_to_jsonsmileyreport(current_smiley_report));
+    }
+
     result
 }
 
