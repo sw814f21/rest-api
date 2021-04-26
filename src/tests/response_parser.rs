@@ -92,7 +92,7 @@ pub struct Restaurantandsmiley {
     #[serde(alias = "longitude")]
     pub longitude: f32,
 
-    #[serde(alias = "smiley_reports")]
+    #[serde(alias = "smileyreports")]
     pub smiley_reports: Vec<SmileyReport>,
 }
 

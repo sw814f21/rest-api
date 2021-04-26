@@ -6,7 +6,9 @@ mod tests {
     use crate::utils::json_parser;
     use crate::{database::*, services, utils::data_loader::load_data_from_file};
     use actix_web::{test, web, App};
+    use append_smiley::RestaurantWithSmileyReport;
     use diesel::prelude::*;
+    use models::{Restaurant, SmileyReport};
 
     use crate::database::models::Version;
     use crate::database::new_pool;
@@ -145,7 +147,7 @@ mod tests {
         let req = test::TestRequest::get().uri("/restaurant/5").to_request();
         let resp = test::call_service(&mut app, req).await;
         assert!(resp.status().is_success());
-        let resp: response_parser::Restaurant = test::read_body_json(resp).await;
+        let resp: response_parser::Restaurantandsmiley = test::read_body_json(resp).await;
         assert_eq!(resp.id, 5);
         assert_eq!(resp.smiley_restaurant_id, 758030);
         assert_eq!(resp.cvr, "25431944");
@@ -168,12 +170,13 @@ mod tests {
             .to_request();
         let resp = test::call_service(&mut app, req).await;
         assert!(resp.status().is_success());
-        let mut resp: Vec<response_parser::Restaurant> = test::read_body_json(resp).await;
+        let mut resp: Vec<response_parser::Restaurantandsmiley> = test::read_body_json(resp).await;
         resp.sort_by(|a, b| {
             a.smiley_restaurant_id
                 .partial_cmp(&b.smiley_restaurant_id)
                 .unwrap()
         });
+
         assert_eq!(resp.iter().count(), 3);
         let first = resp.pop().unwrap();
         let second = resp.pop().unwrap();
@@ -281,5 +284,183 @@ mod tests {
             .get_results::<models::Subscription>(&pool.get().unwrap())
             .expect("error looking for test subscription");
         assert_eq!(lookup.iter().count(), 0);
+    }
+
+    #[actix_rt::test]
+    async fn test_get_smiley_reports_by_restaurant_id() {
+        let pool = new_pool().get().unwrap();
+        load_test_data(&pool);
+        let res = models::SmileyReport::get_smiley_reports_for_id(2, &pool);
+        assert_eq!(res.iter().count(), 4);
+        let mut expected: Vec<SmileyReport> = vec![
+            SmileyReport {
+                id: 8,
+                res_id: 2,
+                rating: 1,
+                report_id: String::from("Virk1597065"),
+                date: String::from("2019-03-27T00:00:00Z"),
+            },
+            SmileyReport {
+                id: 7,
+                res_id: 2,
+                rating: 1,
+                report_id: String::from("Virk1629508"),
+                date: String::from("2019-06-27T00:00:00Z"),
+            },
+            SmileyReport {
+                id: 6,
+                res_id: 2,
+                rating: 1,
+                report_id: String::from("Virk1774060"),
+                date: String::from("2020-06-17T00:00:00Z"),
+            },
+            SmileyReport {
+                id: 5,
+                res_id: 2,
+                rating: 1,
+                report_id: String::from("Virk1827526"),
+                date: String::from("2020-10-28T00:00:00Z"),
+            },
+        ];
+        for r in res {
+            let vals = expected.pop().unwrap();
+            assert_eq!(r.id, vals.id);
+            assert_eq!(r.res_id, vals.res_id);
+            assert_eq!(r.rating, vals.rating);
+            assert_eq!(r.report_id, vals.report_id);
+            assert_eq!(r.date, vals.date);
+        }
+    }
+
+    #[actix_rt::test]
+    async fn test_append_smiley() {
+        let test_data: Vec<(Restaurant, SmileyReport)> = vec![
+            (
+                Restaurant {
+                    id: 1,
+                    smiley_restaurant_id: 1,
+                    name: String::from(""),
+                    address: String::from(""),
+                    zipcode: String::from(""),
+                    city: String::from(""),
+                    cvr: String::from(""),
+                    pnr: String::from(""),
+                    latitude: 0.0,
+                    longitude: 0.0,
+                    version_number: 1,
+                },
+                SmileyReport {
+                    id: 1,
+                    res_id: 1,
+                    rating: 1,
+                    report_id: String::from(""),
+                    date: String::from("1"),
+                },
+            ),
+            (
+                Restaurant {
+                    id: 1,
+                    smiley_restaurant_id: 1,
+                    name: String::from(""),
+                    address: String::from(""),
+                    zipcode: String::from(""),
+                    city: String::from(""),
+                    cvr: String::from(""),
+                    pnr: String::from(""),
+                    latitude: 0.0,
+                    longitude: 0.0,
+                    version_number: 1,
+                },
+                SmileyReport {
+                    id: 2,
+                    res_id: 1,
+                    rating: 1,
+                    report_id: String::from(""),
+                    date: String::from("2"),
+                },
+            ),
+            (
+                Restaurant {
+                    id: 2,
+                    smiley_restaurant_id: 2,
+                    name: String::from(""),
+                    address: String::from(""),
+                    zipcode: String::from(""),
+                    city: String::from(""),
+                    cvr: String::from(""),
+                    pnr: String::from(""),
+                    latitude: 0.0,
+                    longitude: 0.0,
+                    version_number: 1,
+                },
+                SmileyReport {
+                    id: 3,
+                    res_id: 2,
+                    rating: 1,
+                    report_id: String::from(""),
+                    date: String::from("1"),
+                },
+            ),
+        ];
+        let expected: Vec<RestaurantWithSmileyReport> = vec![
+            RestaurantWithSmileyReport {
+                id: 1,
+                smiley_restaurant_id: 1,
+                name: String::from(""),
+                address: String::from(""),
+                zipcode: String::from(""),
+                city: String::from(""),
+                cvr: String::from(""),
+                pnr: String::from(""),
+                latitude: 0.0,
+                longitude: 0.0,
+                version_number: 1,
+                smileyreports: vec![
+                    SmileyReport {
+                        id: 1,
+                        res_id: 1,
+                        rating: 1,
+                        report_id: String::from(""),
+                        date: String::from("1"),
+                    },
+                    SmileyReport {
+                        id: 2,
+                        res_id: 1,
+                        rating: 1,
+                        report_id: String::from(""),
+                        date: String::from("2"),
+                    },
+                ],
+            },
+            RestaurantWithSmileyReport {
+                id: 2,
+                smiley_restaurant_id: 2,
+                name: String::from(""),
+                address: String::from(""),
+                zipcode: String::from(""),
+                city: String::from(""),
+                cvr: String::from(""),
+                pnr: String::from(""),
+                latitude: 0.0,
+                longitude: 0.0,
+                version_number: 1,
+                smileyreports: vec![SmileyReport {
+                    id: 3,
+                    res_id: 2,
+                    rating: 1,
+                    report_id: String::from(""),
+                    date: String::from("1"),
+                }],
+            },
+        ];
+        let res = append_smiley::convert_res_smiley_pairs(test_data);
+        assert_eq!(res, expected);
+    }
+
+    #[actix_rt::test]
+    async fn test_append_smiley_empty() {
+        let test_data: Vec<(Restaurant, SmileyReport)> = Vec::new();
+        let res = append_smiley::convert_res_smiley_pairs(test_data);
+        assert_eq!(res.len(), 0);
     }
 }

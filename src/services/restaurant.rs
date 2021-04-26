@@ -1,5 +1,6 @@
 use std::borrow::Borrow;
 
+use crate::database::append_smiley::RestaurantWithSmileyReport;
 use crate::database::models::Restaurant;
 use actix_web::{get, web, HttpResponse, Responder};
 use array_tool;
@@ -42,12 +43,12 @@ pub async fn search_restaurants(
     input: web::Query<Restaurantsearchinput>,
 ) -> impl Responder {
     let conn = pool.get().unwrap();
-    let mut idsearch: Vec<Restaurant> = Vec::new();
-    let mut namesearch: Vec<Restaurant> = Vec::new();
-    let mut citysearch: Vec<Restaurant> = Vec::new();
-    let mut zipsearch: Vec<Restaurant> = Vec::new();
-    let mut locationsearch: Vec<Restaurant> = Vec::new();
-    let mut queryoutput: Vec<Restaurant> = Vec::new();
+    let mut idsearch: Vec<RestaurantWithSmileyReport> = Vec::new();
+    let mut namesearch: Vec<RestaurantWithSmileyReport> = Vec::new();
+    let mut citysearch: Vec<RestaurantWithSmileyReport> = Vec::new();
+    let mut zipsearch: Vec<RestaurantWithSmileyReport> = Vec::new();
+    let mut locationsearch: Vec<RestaurantWithSmileyReport> = Vec::new();
+    let mut queryoutput: Vec<RestaurantWithSmileyReport> = Vec::new();
 
     match input.id {
         None => {}
