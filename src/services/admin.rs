@@ -23,7 +23,6 @@ pub async fn insert_smiley_data(
     req_body: String,
     pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>,
 ) -> impl Responder {
-    println!("fuck fuck fuck");
     if is_localhost(req) {
         data_loader::insert_smiley_data(&req_body, &pool.get().unwrap());
 

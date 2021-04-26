@@ -1,5 +1,5 @@
-use super::json_parser::DeleteData;
-use crate::database::models::Version;
+use super::json_parser::{DeleteData, JsonRestaurant, JsonSmileyReport};
+use crate::{database::models::Version, services::restaurant};
 use crate::utils::json_parser::RichData;
 use crate::{
     database::schema,
@@ -48,7 +48,7 @@ pub fn update_smiley_data(json: &String, connection: &SqliteConnection) {
     }
 }
 
-pub fn get_data(conn: &SqliteConnection) -> Vec<(Restaurant, SmileyReport)> {
+pub fn get_data(conn: &SqliteConnection) -> Vec<&mut JsonRestaurant> {
     use schema::*;
 
     // We join on the restaurant ID on the restaurant table and smiley_report table
@@ -63,17 +63,62 @@ pub fn get_data(conn: &SqliteConnection) -> Vec<(Restaurant, SmileyReport)> {
     // Iterate over the vector. Note that we have two objects, the smiley report and restaurants.
     // The reason behind the two objects is that the two tables are joined, hence
     // we can access both values.
-    for joined in &joined_smiley_report_restaurnt {
-        let joined_restaurant = &joined.0;
-        let joined_smiley_report = &joined.1;
+    let mut result: Vec<&mut JsonRestaurant> = Vec::new();
+    
+    if !joined_smiley_report_restaurnt.is_empty() {
+        let first_ele = &joined_smiley_report_restaurnt[0].0;
 
-        println!("Name of joined restaurant: {}", joined_restaurant.name);
-        println!("Smiley rating: {}", joined_smiley_report.rating)
+        let mut current_json_res: &mut JsonRestaurant;
+        let mut first = restaurant_to_jsonrestaurant(first_ele);
+        result.push(&mut first);
+        current_json_res = result[0];
+        let mut old_restaurant: &Restaurant = first_ele;
+    
+
+        for row in &joined_smiley_report_restaurnt {
+            let current_restaurant = &row.0;
+            let current_smiley_report = &row.1;
+
+            if current_restaurant.smiley_restaurant_id != old_restaurant.smiley_restaurant_id {
+                result.push(&mut restaurant_to_jsonrestaurant(current_restaurant));
+                let abba = result.len();
+                current_json_res = result[abba];
+                //Create new restaurant & add to result
+                old_restaurant = &current_restaurant;
+            }
+            (*current_json_res).smiley_reports.push(smileyreport_to_jsonsmileyreport(current_smiley_report));
+            //append smiley to current restaurant.    
+
+        }
     }
 
     // Return the joined result
-    joined_smiley_report_restaurnt
+    result
 }
+
+fn restaurant_to_jsonrestaurant(restaurant: &Restaurant) -> JsonRestaurant {
+    JsonRestaurant {
+        address: (*restaurant.address).to_string(),
+        city: (*restaurant.city).to_string(),
+        cvr: (*restaurant.cvr).to_string(),
+        latitude: restaurant.latitude,
+        longitude: restaurant.longitude,
+        name: (*restaurant.name).to_string(),
+        pnr: (*restaurant.pnr).to_string(),
+        smiley_reports: Vec::new(),
+        smiley_restaurant_id: restaurant.smiley_restaurant_id.to_string(),
+        zipcode: (*restaurant.zipcode).to_string(),
+    }
+}
+
+fn smileyreport_to_jsonsmileyreport(report: &SmileyReport) -> JsonSmileyReport {
+    JsonSmileyReport {
+        date: (*report.date).to_string(),
+        report_id: (*report.report_id).to_string(),
+        smiley: report.rating,
+    }
+}
+
 pub fn delete_smiley_records(json: &String, connection: &SqliteConnection) {
     let data_to_delete: DeleteData = serde_json::from_str(json).expect("Can't parse json");
     let ver = Version::get_from_token(connection, &data_to_delete.token);
