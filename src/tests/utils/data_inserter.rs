@@ -11,7 +11,7 @@ mod tests {
 
         let restaurant = test_restaurant();
 
-        let version = Version::get_from_token(&db_pool.get().unwrap(),"1");
+        let version = Version::get_from_token(&db_pool.get().unwrap(), "1");
         let id = data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, version.id);
 
         let version2 = Version::get_from_token(&db_pool.get().unwrap(), "2");
@@ -30,7 +30,7 @@ mod tests {
 
         let restaurant = test_restaurant();
 
-        let version_1 = Version::get_from_token(&db_pool.get().unwrap(),"1");
+        let version_1 = Version::get_from_token(&db_pool.get().unwrap(), "1");
         data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, version_1.id);
 
         let version_2 = Version::get_from_token(&db_pool.get().unwrap(), "2");
@@ -51,7 +51,7 @@ mod tests {
 
         let mut restaurant = test_restaurant();
 
-        let version_1 = Version::get_from_token(&db_pool.get().unwrap(),"1");
+        let version_1 = Version::get_from_token(&db_pool.get().unwrap(), "1");
         data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, version_1.id);
 
         restaurant.name = String::from("some other name");
