@@ -47,7 +47,7 @@ pub struct JsonSmileyReport {
 
 #[derive(Deserialize)]
 pub struct RichData {
-    #[serde(alias = "token")]
+    #[serde(alias = "timestamp")]
     pub token: String,
     #[serde(alias = "data")]
     pub data: Vec<JsonRestaurant>,
