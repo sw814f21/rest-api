@@ -10,7 +10,7 @@ pub async fn get_ids(
     pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>,
 ) -> impl Responder {
     if is_localhost(req) {
-        HttpResponse::Ok().json(data_loader::get_data(&pool.get().unwrap()))
+        HttpResponse::Ok().json(data_loader::get_data_from_database(&pool.get().unwrap()))
     } else {
         HttpResponse::build(StatusCode::from_u16(404).expect("Failed to create status code"))
             .finish()

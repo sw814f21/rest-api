@@ -48,7 +48,7 @@ pub fn update_smiley_data(json: &String, connection: &SqliteConnection) {
     }
 }
 
-pub fn get_data(conn: &SqliteConnection) -> Vec<JsonRestaurant> {
+pub fn get_data_from_database(conn: &SqliteConnection) -> Vec<JsonRestaurant> {
     use schema::*;
 
     // We join on the restaurant ID on the restaurant table and smiley_report table
@@ -57,14 +57,18 @@ pub fn get_data(conn: &SqliteConnection) -> Vec<JsonRestaurant> {
         .load::<(Restaurant, SmileyReport)>(conn)
         .unwrap();
 
+    conv_res_smiley_to_jsonres(joined_smiley_report_restaurnt)
+}
+
+pub fn conv_res_smiley_to_jsonres(data: Vec<(Restaurant, SmileyReport)>) -> Vec<JsonRestaurant> {
     // Create a variable
     let mut result = Vec::new();
     let mut smiley_id = 0;
 
     // if the joined smiley report tuple is not empty, we add the first restaurant
-    if !joined_smiley_report_restaurnt.is_empty() {
+    if !data.is_empty() {
         // grab the restaurant part of the joined smiley report
-        let joined_smiley_report_tuple = joined_smiley_report_restaurnt.get(0).unwrap();
+        let joined_smiley_report_tuple = data.get(0).unwrap();
 
         // set smiley id
         smiley_id = joined_smiley_report_tuple.0.smiley_restaurant_id;
@@ -84,9 +88,9 @@ pub fn get_data(conn: &SqliteConnection) -> Vec<JsonRestaurant> {
     }
 
     // iterate over joined smiley reports
-    for i in 1..joined_smiley_report_restaurnt.len() {
+    for i in 1..data.len() {
         // grab a joined smiley report tuple
-        let joined_smiley_report_restaurant = joined_smiley_report_restaurnt.get(i).unwrap();
+        let joined_smiley_report_restaurant = data.get(i).unwrap();
 
         // put the restaurant and smiley reports into variables
         let current_restaurant = &joined_smiley_report_restaurant.0;
