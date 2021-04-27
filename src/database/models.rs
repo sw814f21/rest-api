@@ -260,7 +260,7 @@ impl Version {
                 insert_into(version_history::table)
                     .values(version_history::token.eq(token_val))
                     .execute(conn)
-                    .expect("Erro");
+                    .expect("Error inserting a token into the database");
             }
             Err(_) => {}
         }

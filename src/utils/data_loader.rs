@@ -22,7 +22,7 @@ pub fn load_data_from_file(path: &String, conn: &SqliteConnection) {
 }
 
 pub fn insert_smiley_data(json: &String, connection: &SqliteConnection) {
-    let read_json: RichData = serde_json::from_str(json).expect("wut");
+    let read_json: RichData = serde_json::from_str(json).expect("Unable to parse insert json");
 
     let ver = Version::get_from_token(connection, &read_json.token);
 
@@ -34,7 +34,7 @@ pub fn insert_smiley_data(json: &String, connection: &SqliteConnection) {
 }
 
 pub fn update_smiley_data(json: &String, connection: &SqliteConnection) {
-    let read_json: RichData = serde_json::from_str(json).expect("Can't parse json");
+    let read_json: RichData = serde_json::from_str(json).expect("Unable to parse update json");
 
     let ver = Version::get_from_token(connection, &read_json.token);
 
