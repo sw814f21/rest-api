@@ -22,6 +22,7 @@ pub fn load_data_from_file(path: &String, conn: &SqliteConnection) {
 }
 
 pub fn insert_smiley_data(json: &String, connection: &SqliteConnection) {
+    println!("Importing new data...");
     let read_json: RichData = serde_json::from_str(json).expect("Unable to parse insert json");
 
     let ver = Version::get_from_token(connection, &read_json.token);
@@ -34,6 +35,7 @@ pub fn insert_smiley_data(json: &String, connection: &SqliteConnection) {
 }
 
 pub fn update_smiley_data(json: &String, connection: &SqliteConnection) {
+    println!("Importing updated data...");
     let read_json: RichData = serde_json::from_str(json).expect("Unable to parse update json");
 
     let ver = Version::get_from_token(connection, &read_json.token);
@@ -50,6 +52,7 @@ pub fn update_smiley_data(json: &String, connection: &SqliteConnection) {
 
 pub fn get_data_from_database(conn: &SqliteConnection) -> Vec<JsonRestaurant> {
     use schema::*;
+    println!("Dumping data from database..");
 
     // We join on the restaurant ID on the restaurant table and smiley_report table
     let joined_smiley_report_restaurnt = restaurant::table
@@ -118,13 +121,24 @@ fn restaurant_to_jsonrestaurant(restaurant: &Restaurant) -> JsonRestaurant {
         address: (*restaurant.address).to_string(),
         city: (*restaurant.city).to_string(),
         cvr: (*restaurant.cvr).to_string(),
-        latitude: restaurant.latitude,
-        longitude: restaurant.longitude,
+        latitude: (*restaurant.latitude).to_string(),
+        longitude: (*restaurant.longitude).to_string(),
         name: (*restaurant.name).to_string(),
         pnr: (*restaurant.pnr).to_string(),
         smiley_reports: Vec::new(),
         smiley_restaurant_id: restaurant.smiley_restaurant_id.to_string(),
         zipcode: (*restaurant.zipcode).to_string(),
+        region: restaurant.region.clone(),
+        industry_code: (*restaurant.industry_code).to_string(),
+        industry_text: (*restaurant.industry_text).to_string(),
+        start_date: (*restaurant.start_date).to_string(),
+        elite_smiley: (*restaurant.elite_smiley).to_string(),
+        niche_industry: (*restaurant.niche_industry).to_string(),
+        url: (*restaurant.url).to_string(),
+        ad_protection: (*restaurant.ad_protection).to_string(),
+        company_type: (*restaurant.company_type).to_string(),
+        franchise_name: restaurant.franchise_name.clone(),
+
     }
 }
 

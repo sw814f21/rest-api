@@ -13,9 +13,19 @@ pub struct InsertRestaurant {
     pub city: String,
     pub cvr: String,
     pub pnr: String,
-    pub latitude: f32,
-    pub longitude: f32,
+    pub latitude: String,
+    pub longitude: String,
     pub version_number: i32,
+    pub region: Option<String>,
+    pub industry_code: String,
+    pub industry_text: String,
+    pub start_date: String,
+    pub elite_smiley: String,
+    pub niche_industry: String,
+    pub url: String,
+    pub ad_protection: String,
+    pub company_type: String,
+    pub franchise_name: Option<String>,
 }
 
 #[derive(Insertable, AsChangeset)]
@@ -139,9 +149,19 @@ fn map_restaurant_json2insert(input: &JsonRestaurant, version_number: i32) -> In
         city: (*input.city).to_string(),
         cvr: (*input.cvr).to_string(),
         pnr: (*input.pnr).to_string(),
-        latitude: input.latitude,
-        longitude: input.longitude,
+        latitude: (*input.latitude).to_string(),
+        longitude: (*input.longitude).to_string(),
         version_number: version_number,
+        region: input.region.clone(),
+        industry_code: (*input.industry_code).to_string(),
+        industry_text: (*input.industry_text).to_string(),
+        start_date: (*input.start_date).to_string(),
+        elite_smiley: (*input.elite_smiley).to_string(),
+        niche_industry: (*input.niche_industry).to_string(),
+        url: (*input.url).to_string(),
+        ad_protection: (*input.ad_protection).to_string(),
+        company_type: (*input.company_type).to_string(),
+        franchise_name: input.franchise_name.clone(),
     }
 }
 

@@ -26,9 +26,19 @@ table! {
         city -> Text,
         cvr -> Text,
         pnr -> Text,
-        latitude -> Float,
-        longitude -> Float,
+        latitude -> Text,
+        longitude -> Text,
         version_number -> Integer,
+        region -> Nullable<Text>,
+        industry_code -> Text,
+        industry_text -> Text,
+        start_date -> Text,
+        elite_smiley -> Text,
+        niche_industry -> Text,
+        url -> Text,
+        ad_protection -> Text,
+        company_type -> Text,
+        franchise_name -> Nullable<Text>,
     }
 }
 

@@ -49,6 +49,7 @@ async fn main() -> std::io::Result<()> {
             .service(services::admin::get_ids)
             .service(services::admin::insert_smiley_data)
             .service(services::admin::update_smiley_data)
+            .service(services::admin::delete_smiley_data)
     })
     .bind(bind_addr)?
     .run()

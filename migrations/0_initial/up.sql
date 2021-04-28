@@ -15,9 +15,19 @@ CREATE TABLE IF NOT EXISTS restaurant (
   city VARCHAR NOT NULL,
   cvr VARCHAR NOT NULL,
   pnr VARCHAR NOT NULL,
-  latitude REAL NOT NULL,
-  longitude REAL NOT NULL,
+  latitude VARCHAR NOT NULL,
+  longitude VARCHAR NOT NULL,
   version_number INTEGER NOT NULL,
+  region VARCHAR NULL,
+  industry_code VARCHAR NOT NULL,
+  industry_text VARCHAR NOT NULL,
+  start_date VARCHAR NOT NULL,
+  elite_smiley VARCHAR NOT NULL,
+  niche_industry VARCHAR NOT NULL,
+  url VARCHAR NOT NULL,
+  ad_protection VARCHAR NOT NULL,
+  company_type VARCHAR NOT NULL,
+  franchise_name VARCHAR NULL,
 
   FOREIGN KEY (version_number) REFERENCES version_history(id)
 );

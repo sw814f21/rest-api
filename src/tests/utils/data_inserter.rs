@@ -92,14 +92,25 @@ mod tests {
         json_parser::JsonRestaurant {
             city: String::from("test"),
             cvr: String::from("15454331"),
-            latitude: 32.0,
-            longitude: 13.0,
+            latitude: String::from("32.0"),
+            longitude: String::from("13.0"),
             pnr: String::from("64848234"),
             address: String::from("someting vej 3"),
             zipcode: String::from("3145"),
             name: String::from("Fishing fish grill"),
             smiley_restaurant_id: String::from("42545"),
             smiley_reports: Vec::new(),
+            region: Some(String::from("abba")),
+            industry_code: String::from("abba"),
+            industry_text: String::from("abba"),
+            start_date: String::from("abba"),
+            elite_smiley: String::from("abba"),
+            niche_industry: String::from("abba"),
+            url: String::from("abba"),
+            ad_protection: String::from("abba"),
+            company_type: String::from("abba"),
+            franchise_name: Some(String::from("abba")),
+            
         }
     }
 }

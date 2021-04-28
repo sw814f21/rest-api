@@ -17,16 +17,26 @@ pub struct Restaurant {
     pub city: String,
     pub cvr: String,
     pub pnr: String,
-    pub latitude: f32,
-    pub longitude: f32,
+    pub latitude: String,
+    pub longitude: String,
     pub version_number: i32,
+    pub region: Option<String>,
+    pub industry_code: String,
+    pub industry_text: String,
+    pub start_date: String,
+    pub elite_smiley: String,
+    pub niche_industry: String,
+    pub url: String,
+    pub ad_protection: String,
+    pub company_type: String,
+    pub franchise_name: Option<String>,
 }
 
 #[derive(Queryable, Deserialize, Serialize)]
 pub struct Simplerestaurant {
     id: i32,
-    lat: f32,
-    lng: f32,
+    lat: String,
+    lng: String,
 }
 
 use super::schema::restaurant::dsl::restaurant as res_dsl;
@@ -67,7 +77,7 @@ impl Restaurant {
             .filter(restaurant::smiley_restaurant_id.eq(smiley_restaurant_id))
             .select(restaurant::id)
             .first::<i32>(conn)
-            .expect("Failed to get restaurant")
+            .expect(format!("Failed to get restaurant with smiley id = {0}", smiley_restaurant_id).as_str())
     }
 
     pub fn search_by_lat_lng(
@@ -81,10 +91,6 @@ impl Restaurant {
         use super::schema::restaurant::dsl::longitude;
         let query = res_dsl
             .inner_join(schema::smiley_report::table)
-            .filter(latitude.lt(nwlat))
-            .filter(latitude.gt(selat))
-            .filter(longitude.gt(nwlng))
-            .filter(longitude.lt(selng))
             .order((
                 schema::restaurant::id.asc(),
                 schema::smiley_report::date.asc(),
