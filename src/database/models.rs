@@ -265,7 +265,16 @@ impl Version {
         ))
         .get_result::<bool>(conn);
         match exists {
-            Ok(true) => {}
+            Ok(true) => {
+                let latest_token = version_history::table
+                .order(version_history::id.desc())
+                .select(version_history::token)
+                .first::<String>(conn)
+                .expect("Error fething the latest token version from the database");
+                if latest_token != token_val {
+                    panic!("Reuse of old version token!!");
+                }
+            }
             Ok(false) => {
                 insert_into(version_history::table)
                     .values(version_history::token.eq(token_val))
