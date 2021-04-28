@@ -77,7 +77,13 @@ impl Restaurant {
             .filter(restaurant::smiley_restaurant_id.eq(smiley_restaurant_id))
             .select(restaurant::id)
             .first::<i32>(conn)
-            .expect(format!("Failed to get restaurant with smiley id = {0}", smiley_restaurant_id).as_str())
+            .expect(
+                format!(
+                    "Failed to get restaurant with smiley id = {0}",
+                    smiley_restaurant_id
+                )
+                .as_str(),
+            )
     }
 
     pub fn search_by_lat_lng(
@@ -267,10 +273,10 @@ impl Version {
         match exists {
             Ok(true) => {
                 let latest_token = version_history::table
-                .order(version_history::id.desc())
-                .select(version_history::token)
-                .first::<String>(conn)
-                .expect("Error fething the latest token version from the database");
+                    .order(version_history::id.desc())
+                    .select(version_history::token)
+                    .first::<String>(conn)
+                    .expect("Error fething the latest token version from the database");
                 if latest_token != token_val {
                     panic!("Reuse of old version token!!");
                 }

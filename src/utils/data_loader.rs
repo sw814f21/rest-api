@@ -138,7 +138,6 @@ fn restaurant_to_jsonrestaurant(restaurant: &Restaurant) -> JsonRestaurant {
         ad_protection: (*restaurant.ad_protection).to_string(),
         company_type: (*restaurant.company_type).to_string(),
         franchise_name: restaurant.franchise_name.clone(),
-
     }
 }
 

@@ -110,7 +110,6 @@ mod tests {
             ad_protection: String::from("abba"),
             company_type: String::from("abba"),
             franchise_name: Some(String::from("abba")),
-            
         }
     }
 }
