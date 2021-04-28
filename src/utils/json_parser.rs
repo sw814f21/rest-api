@@ -9,10 +9,10 @@ pub struct JsonRestaurant {
     pub cvr: String,
 
     #[serde(rename(serialize = "geo_lat", deserialize = "geo_lat"))]
-    pub latitude: String,
+    pub latitude: f64,
 
     #[serde(rename(serialize = "geo_lng", deserialize = "geo_lng"))]
-    pub longitude: String,
+    pub longitude: f64,
 
     #[serde(rename(serialize = "pnr", deserialize = "pnr"))]
     pub pnr: String,

@@ -17,8 +17,8 @@ pub struct Restaurant {
     pub city: String,
     pub cvr: String,
     pub pnr: String,
-    pub latitude: String,
-    pub longitude: String,
+    pub latitude: f64,
+    pub longitude: f64,
     pub version_number: i32,
     pub region: Option<String>,
     pub industry_code: String,
@@ -35,8 +35,8 @@ pub struct Restaurant {
 #[derive(Queryable, Deserialize, Serialize)]
 pub struct Simplerestaurant {
     id: i32,
-    lat: String,
-    lng: String,
+    lat: f64,
+    lng: f64,
 }
 
 use super::schema::restaurant::dsl::restaurant as res_dsl;
@@ -81,16 +81,20 @@ impl Restaurant {
     }
 
     pub fn search_by_lat_lng(
-        nwlat: f32,
-        nwlng: f32,
-        selat: f32,
-        selng: f32,
+        nwlat: f64,
+        nwlng: f64,
+        selat: f64,
+        selng: f64,
         conn: &SqliteConnection,
     ) -> Vec<RestaurantWithSmileyReport> {
         use super::schema::restaurant::dsl::latitude;
         use super::schema::restaurant::dsl::longitude;
         let query = res_dsl
             .inner_join(schema::smiley_report::table)
+            .filter(latitude.lt(nwlat))
+            .filter(latitude.gt(selat))
+            .filter(longitude.gt(nwlng))
+            .filter(longitude.lt(selng))
             .order((
                 schema::restaurant::id.asc(),
                 schema::smiley_report::date.asc(),

@@ -92,8 +92,8 @@ mod tests {
         json_parser::JsonRestaurant {
             city: String::from("test"),
             cvr: String::from("15454331"),
-            latitude: String::from("32.0"),
-            longitude: String::from("13.0"),
+            latitude: 32.0,
+            longitude: 13.0,
             pnr: String::from("64848234"),
             address: String::from("someting vej 3"),
             zipcode: String::from("3145"),

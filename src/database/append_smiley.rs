@@ -11,8 +11,8 @@ pub struct RestaurantWithSmileyReport {
     pub city: String,
     pub cvr: String,
     pub pnr: String,
-    pub latitude: String,
-    pub longitude: String,
+    pub latitude: f64,
+    pub longitude: f64,
     pub version_number: i32,
     pub smileyreports: Vec<SmileyReport>,
 }
