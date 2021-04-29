@@ -1,4 +1,4 @@
-use crate::database::models::{Restaurant, Version};
+use crate::database::models::{Restaurant, SmileyReport, Version};
 use crate::database::schema::{removed_restaurant, restaurant, smiley_report};
 use crate::utils::json_parser::{JsonRestaurant, JsonSmileyReport};
 use diesel::prelude::*;
@@ -13,9 +13,19 @@ pub struct InsertRestaurant {
     pub city: String,
     pub cvr: String,
     pub pnr: String,
-    pub latitude: f32,
-    pub longitude: f32,
+    pub latitude: f64,
+    pub longitude: f64,
     pub version_number: i32,
+    pub region: Option<String>,
+    pub industry_code: String,
+    pub industry_text: String,
+    pub start_date: String,
+    pub elite_smiley: String,
+    pub niche_industry: String,
+    pub url: String,
+    pub ad_protection: String,
+    pub company_type: String,
+    pub franchise_name: Option<String>,
 }
 
 #[derive(Insertable, AsChangeset)]
@@ -43,9 +53,9 @@ no_arg_sql_function!(
 pub fn insert_restaurant(
     conn: &SqliteConnection,
     restaurants_data: &JsonRestaurant,
-    version: &Version,
+    version: i32,
 ) -> i32 {
-    let insertable = map_restaurant_json2insert(restaurants_data, version.id);
+    let insertable = map_restaurant_json2insert(restaurants_data, version);
 
     diesel::insert_into(restaurant::table)
         .values(&insertable)
@@ -93,24 +103,41 @@ pub fn remove_restaurant(conn: &SqliteConnection, restaurant_ids: Vec<i32>, vers
         .expect("Failed to delete restaurant entry");
 }
 
-pub fn update_restaurant(conn: &SqliteConnection, restaurant: &JsonRestaurant, version: &Version) {
-    let insertable_restaurant = map_restaurant_json2insert(restaurant, version.id);
-
-    let db_ref =
-        Restaurant::get_restaurant_by_smiley_id(insertable_restaurant.smiley_restaurant_id, conn);
+pub fn update_restaurant(
+    conn: &SqliteConnection,
+    restaurant: &JsonRestaurant,
+    version: i32,
+) -> i32 {
+    let insertable_restaurant = map_restaurant_json2insert(restaurant, version);
 
     diesel::update(restaurant::table)
-        .filter(restaurant::id.eq(db_ref.id))
+        .filter(restaurant::smiley_restaurant_id.eq(insertable_restaurant.smiley_restaurant_id))
         .set(&insertable_restaurant)
         .execute(conn)
         .expect("Failed to update restaurant");
+    Restaurant::get_restaurant_by_smiley_id(insertable_restaurant.smiley_restaurant_id, conn)
+}
 
-    diesel::delete(smiley_report::table)
-        .filter(smiley_report::restaurant_id.eq(db_ref.id))
-        .execute(conn)
-        .expect("Failed to delete smiley report entries");
+pub fn update_smileys(conn: &SqliteConnection, smiley_data: &JsonSmileyReport, restaurant_id: i32) {
+    let exists = SmileyReport::smiley_report_exists(restaurant_id, &smiley_data.report_id, conn);
 
-    insert_smileys(conn, &restaurant.smiley_reports, db_ref.id);
+    if exists {
+        diesel::update(smiley_report::table)
+            .filter(smiley_report::report_id.eq(&smiley_data.report_id))
+            .set((
+                smiley_report::smiley.eq(smiley_data.smiley),
+                smiley_report::date.eq(&smiley_data.date),
+            ))
+            .execute(conn)
+            .expect("Failed to update smiley report");
+    } else {
+        let insert_data = map_smileyreport_json2insert(smiley_data, restaurant_id);
+
+        diesel::insert_into(smiley_report::table)
+            .values(insert_data)
+            .execute(conn)
+            .expect("Error saving new smiley data");
+    }
 }
 
 fn map_restaurant_json2insert(input: &JsonRestaurant, version_number: i32) -> InsertRestaurant {
@@ -125,6 +152,16 @@ fn map_restaurant_json2insert(input: &JsonRestaurant, version_number: i32) -> In
         latitude: input.latitude,
         longitude: input.longitude,
         version_number: version_number,
+        region: input.region.clone(),
+        industry_code: (*input.industry_code).to_string(),
+        industry_text: (*input.industry_text).to_string(),
+        start_date: (*input.start_date).to_string(),
+        elite_smiley: (*input.elite_smiley).to_string(),
+        niche_industry: (*input.niche_industry).to_string(),
+        url: (*input.url).to_string(),
+        ad_protection: (*input.ad_protection).to_string(),
+        company_type: (*input.company_type).to_string(),
+        franchise_name: input.franchise_name.clone(),
     }
 }
 

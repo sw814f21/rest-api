@@ -78,10 +78,10 @@ pub async fn search_restaurants(
         None => {}
         Some(x) => {
             let mut strcords = x.split(",");
-            let nwlat = strcords.next().unwrap().parse::<f32>();
-            let nwlng = strcords.next().unwrap().parse::<f32>();
-            let selat = strcords.next().unwrap().parse::<f32>();
-            let selng = strcords.next().unwrap().parse::<f32>();
+            let nwlat = strcords.next().unwrap().parse::<f64>();
+            let nwlng = strcords.next().unwrap().parse::<f64>();
+            let selat = strcords.next().unwrap().parse::<f64>();
+            let selng = strcords.next().unwrap().parse::<f64>();
             if nwlat.is_ok() && nwlng.is_ok() && selat.is_ok() && selng.is_ok() {
                 locationsearch.append(
                     Restaurant::search_by_lat_lng(

@@ -11,10 +11,10 @@ mod tests {
 
         let restaurant = test_restaurant();
 
-        let version = Version::create_new_version(&db_pool.get().unwrap());
-        let id = data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, &version);
+        let version = Version::get_from_token(&db_pool.get().unwrap(), "1");
+        let id = data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, version.id);
 
-        let version2 = Version::create_new_version(&db_pool.get().unwrap());
+        let version2 = Version::get_from_token(&db_pool.get().unwrap(), "2");
         let remove_ids = vec![id];
         data_inserter::remove_restaurant(&db_pool.get().unwrap(), remove_ids, &version2);
 
@@ -31,11 +31,11 @@ mod tests {
 
         let restaurant = test_restaurant();
 
-        let version_1 = Version::create_new_version(&db_pool.get().unwrap());
-        data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, &version_1);
+        let version_1 = Version::get_from_token(&db_pool.get().unwrap(), "1");
+        data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, version_1.id);
 
-        let version_2 = Version::create_new_version(&db_pool.get().unwrap());
-        data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, &version_2);
+        let version_2 = Version::get_from_token(&db_pool.get().unwrap(), "2");
+        data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, version_2.id);
 
         let res_total = Restaurant::get_all_resturants(&db_pool.get().unwrap());
         let res_v1 = Restaurant::get_since_version(&db_pool.get().unwrap(), version_1.id);
@@ -52,12 +52,12 @@ mod tests {
 
         let mut restaurant = test_restaurant();
 
-        let version_1 = Version::create_new_version(&db_pool.get().unwrap());
-        data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, &version_1);
+        let version_1 = Version::get_from_token(&db_pool.get().unwrap(), "1");
+        data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, version_1.id);
 
         restaurant.name = String::from("some other name");
-        let version_2 = Version::create_new_version(&db_pool.get().unwrap());
-        data_inserter::update_restaurant(&db_pool.get().unwrap(), &restaurant, &version_2);
+        let version_2 = Version::get_from_token(&db_pool.get().unwrap(), "2");
+        data_inserter::update_restaurant(&db_pool.get().unwrap(), &restaurant, version_2.id);
 
         let changed_restaurant =
             Restaurant::get_since_version(&db_pool.get().unwrap(), version_1.id).remove(0);
@@ -71,15 +71,15 @@ mod tests {
 
         let mut restaurant = test_restaurant();
 
-        let version_1 = Version::create_new_version(&db_pool.get().unwrap());
-        data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, &version_1);
+        let version_1 = Version::get_from_token(&db_pool.get().unwrap(), "1");
+        data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, version_1.id);
 
         restaurant.smiley_restaurant_id = String::from("5435345"); // Change id for other restaurant
-        data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, &version_1);
+        data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, version_1.id);
 
         restaurant.name = String::from("some other name");
-        let version_2 = Version::create_new_version(&db_pool.get().unwrap());
-        data_inserter::update_restaurant(&db_pool.get().unwrap(), &restaurant, &version_2);
+        let version_2 = Version::get_from_token(&db_pool.get().unwrap(), "2");
+        data_inserter::update_restaurant(&db_pool.get().unwrap(), &restaurant, version_2.id);
 
         let res_v1 = Restaurant::get_since_version(&db_pool.get().unwrap(), version_1.id);
         let res_total = Restaurant::get_all_resturants(&db_pool.get().unwrap());
@@ -100,6 +100,16 @@ mod tests {
             name: String::from("Fishing fish grill"),
             smiley_restaurant_id: String::from("42545"),
             smiley_reports: Vec::new(),
+            region: Some(String::from("abba")),
+            industry_code: String::from("abba"),
+            industry_text: String::from("abba"),
+            start_date: String::from("abba"),
+            elite_smiley: String::from("abba"),
+            niche_industry: String::from("abba"),
+            url: String::from("abba"),
+            ad_protection: String::from("abba"),
+            company_type: String::from("abba"),
+            franchise_name: Some(String::from("abba")),
         }
     }
 }

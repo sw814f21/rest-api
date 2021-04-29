@@ -22,7 +22,7 @@ mod tests {
     async fn test_insert_restaurant() {
         let conn = new_pool().get().unwrap();
 
-        let version = Version::create_new_version(&conn);
+        let version = Version::get_from_token(&conn, "1");
 
         let testres = json_parser::JsonRestaurant {
             city: String::from("test"),
@@ -35,9 +35,19 @@ mod tests {
             name: String::from("Fishing fish grill"),
             smiley_restaurant_id: String::from("42545"),
             smiley_reports: Vec::new(),
+            region: Some(String::from("abba")),
+            industry_code: String::from("abba"),
+            industry_text: String::from("abba"),
+            start_date: String::from("abba"),
+            elite_smiley: String::from("abba"),
+            niche_industry: String::from("abba"),
+            url: String::from("abba"),
+            ad_protection: String::from("abba"),
+            company_type: String::from("abba"),
+            franchise_name: Some(String::from("abba")),
         };
 
-        let testid = insert_restaurant(&conn, &testres, &version);
+        let testid = insert_restaurant(&conn, &testres, version.id);
         match schema::restaurant::dsl::restaurant
             .filter(schema::restaurant::smiley_restaurant_id.eq(42545))
             .filter(schema::restaurant::name.eq_all(testres.name))
@@ -348,6 +358,16 @@ mod tests {
                     latitude: 0.0,
                     longitude: 0.0,
                     version_number: 1,
+                    region: Some(String::from("abba")),
+                    industry_code: String::from("abba"),
+                    industry_text: String::from("abba"),
+                    start_date: String::from("abba"),
+                    elite_smiley: String::from("abba"),
+                    niche_industry: String::from("abba"),
+                    url: String::from("abba"),
+                    ad_protection: String::from("abba"),
+                    company_type: String::from("abba"),
+                    franchise_name: Some(String::from("abba")),
                 },
                 SmileyReport {
                     id: 1,
@@ -370,6 +390,16 @@ mod tests {
                     latitude: 0.0,
                     longitude: 0.0,
                     version_number: 1,
+                    region: Some(String::from("abba")),
+                    industry_code: String::from("abba"),
+                    industry_text: String::from("abba"),
+                    start_date: String::from("abba"),
+                    elite_smiley: String::from("abba"),
+                    niche_industry: String::from("abba"),
+                    url: String::from("abba"),
+                    ad_protection: String::from("abba"),
+                    company_type: String::from("abba"),
+                    franchise_name: Some(String::from("abba")),
                 },
                 SmileyReport {
                     id: 2,
@@ -392,6 +422,16 @@ mod tests {
                     latitude: 0.0,
                     longitude: 0.0,
                     version_number: 1,
+                    region: Some(String::from("abba")),
+                    industry_code: String::from("abba"),
+                    industry_text: String::from("abba"),
+                    start_date: String::from("abba"),
+                    elite_smiley: String::from("abba"),
+                    niche_industry: String::from("abba"),
+                    url: String::from("abba"),
+                    ad_protection: String::from("abba"),
+                    company_type: String::from("abba"),
+                    franchise_name: Some(String::from("abba")),
                 },
                 SmileyReport {
                     id: 3,

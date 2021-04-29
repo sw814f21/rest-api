@@ -1,6 +1,7 @@
 use super::append_smiley::{convert_res_smiley_pairs, RestaurantWithSmileyReport};
 use super::schema;
 use super::schema::*;
+use crate::services::subscription::SubscriptionRequest;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -16,16 +17,26 @@ pub struct Restaurant {
     pub city: String,
     pub cvr: String,
     pub pnr: String,
-    pub latitude: f32,
-    pub longitude: f32,
+    pub latitude: f64,
+    pub longitude: f64,
     pub version_number: i32,
+    pub region: Option<String>,
+    pub industry_code: String,
+    pub industry_text: String,
+    pub start_date: String,
+    pub elite_smiley: String,
+    pub niche_industry: String,
+    pub url: String,
+    pub ad_protection: String,
+    pub company_type: String,
+    pub franchise_name: Option<String>,
 }
 
 #[derive(Queryable, Deserialize, Serialize)]
 pub struct Simplerestaurant {
     id: i32,
-    lat: f32,
-    lng: f32,
+    lat: f64,
+    lng: f64,
 }
 
 use super::schema::restaurant::dsl::restaurant as res_dsl;
@@ -61,22 +72,25 @@ impl Restaurant {
         convert_res_smiley_pairs(query).get(0).unwrap().to_owned()
     }
 
-    pub fn get_restaurant_by_smiley_id(
-        smiley_restaurant_id: i32,
-        conn: &SqliteConnection,
-    ) -> Restaurant {
+    pub fn get_restaurant_by_smiley_id(smiley_restaurant_id: i32, conn: &SqliteConnection) -> i32 {
         restaurant::table
             .filter(restaurant::smiley_restaurant_id.eq(smiley_restaurant_id))
-            .load(conn)
-            .expect("Failed to get restaurant")
-            .remove(0)
+            .select(restaurant::id)
+            .first::<i32>(conn)
+            .expect(
+                format!(
+                    "Failed to get restaurant with smiley id = {0}",
+                    smiley_restaurant_id
+                )
+                .as_str(),
+            )
     }
 
     pub fn search_by_lat_lng(
-        nwlat: f32,
-        nwlng: f32,
-        selat: f32,
-        selng: f32,
+        nwlat: f64,
+        nwlng: f64,
+        selat: f64,
+        selng: f64,
         conn: &SqliteConnection,
     ) -> Vec<RestaurantWithSmileyReport> {
         use super::schema::restaurant::dsl::latitude;
@@ -177,9 +191,25 @@ impl SmileyReport {
         query.sort_by(|a, b| b.date.partial_cmp(&a.date).unwrap());
         query
     }
+
+    pub fn smiley_report_exists(res_id: i32, ireport_id: &str, conn: &SqliteConnection) -> bool {
+        use crate::database::schema::smiley_report::dsl::*;
+
+        let result = select(exists(
+            smiley_report
+                .filter(restaurant_id.eq(res_id))
+                .filter(report_id.eq(ireport_id)),
+        ))
+        .get_result::<bool>(conn);
+
+        match result {
+            Ok(true) => true,
+            Ok(false) => false,
+            _ => panic!("Error testing if smiley report exists"),
+        }
+    }
 }
 
-use crate::services::subscription::SubscriptionRequest;
 #[derive(Clone, PartialEq, Queryable, Serialize)]
 pub struct Subscription {
     pub id: i32,
@@ -224,21 +254,10 @@ impl Subscription {
 pub struct Version {
     pub id: i32,
     pub timestamp: String,
+    pub token: String,
 }
 
 impl Version {
-    pub fn create_new_version(conn: &SqliteConnection) -> Version {
-        insert_into(version_history::table)
-            .default_values()
-            .execute(conn)
-            .expect("New version insertaton failed");
-
-        version_history::table
-            .order(version_history::id.desc())
-            .first::<Version>(conn)
-            .expect("Failed to get new version")
-    }
-
     pub fn current_version(conn: &SqliteConnection) -> Version {
         version_history::table
             .order(version_history::id.desc())
@@ -246,11 +265,35 @@ impl Version {
             .expect("Failed to get latest version")
     }
 
-    pub fn version_from_str(conn: &SqliteConnection, str: &String) -> Version {
+    pub fn get_from_token(conn: &SqliteConnection, token_val: &str) -> Version {
+        let exists = select(exists(
+            version_history::table.filter(version_history::token.eq(token_val)),
+        ))
+        .get_result::<bool>(conn);
+        match exists {
+            Ok(true) => {
+                let latest_token = version_history::table
+                    .order(version_history::id.desc())
+                    .select(version_history::token)
+                    .first::<String>(conn)
+                    .expect("Error fething the latest token version from the database");
+                if latest_token != token_val {
+                    panic!("Reuse of old version token!!");
+                }
+            }
+            Ok(false) => {
+                insert_into(version_history::table)
+                    .values(version_history::token.eq(token_val))
+                    .execute(conn)
+                    .expect("Error inserting a token into the database");
+            }
+            Err(_) => {}
+        }
         version_history::table
-            .filter(version_history::timestamp.eq(str))
+            .order(version_history::id.desc())
+            .filter(version_history::token.eq(token_val))
             .first::<Version>(conn)
-            .expect("Failed to find version history number")
+            .expect("Failed to fetch version from token")
     }
 }
 
