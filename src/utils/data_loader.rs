@@ -43,7 +43,7 @@ pub fn update_smiley_data(json: &String, connection: &SqliteConnection) {
     let restaurants = read_json.data;
 
     for res in restaurants {
-        let resid: i32 = update_restaurant(&connection, &res, ver.id);
+        let resid = update_restaurant(&connection, &res, ver.id);
         for report in &res.smiley_reports {
             update_smileys(&connection, &report, resid);
         }
