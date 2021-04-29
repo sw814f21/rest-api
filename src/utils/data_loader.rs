@@ -50,7 +50,7 @@ pub fn update_smiley_data(json: &String, connection: &SqliteConnection) {
     }
 }
 
-pub fn get_data_from_database(conn: &SqliteConnection) -> Vec<JsonRestaurant> {
+pub fn get_smiley_data(conn: &SqliteConnection) -> Vec<JsonRestaurant> {
     use schema::*;
     println!("Dumping data from database..");
 
@@ -264,7 +264,7 @@ fn smileyreport_to_jsonsmileyreport(report: &SmileyReport) -> JsonSmileyReport {
     }
 }
 
-pub fn delete_smiley_records(json: &String, connection: &SqliteConnection) {
+pub fn delete_smiley_data(json: &String, connection: &SqliteConnection) {
     let data_to_delete: DeleteData = serde_json::from_str(json).expect("Can't parse json");
     let ver = Version::get_from_token(connection, &data_to_delete.token);
     remove_restaurant(&connection, data_to_delete.data, &ver);
