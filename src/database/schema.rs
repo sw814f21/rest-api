@@ -19,7 +19,7 @@ table! {
 table! {
     restaurant (id) {
         id -> Integer,
-        smiley_restaurant_id -> Integer,
+        smiley_restaurant_id -> Text,
         name -> Text,
         address -> Text,
         zipcode -> Text,

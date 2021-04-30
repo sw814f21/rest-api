@@ -4,7 +4,10 @@ extern crate diesel;
 extern crate diesel_migrations;
 
 use crate::utils::data_loader;
-use actix_web::{web::JsonConfig, App, HttpServer};
+use actix_web::{
+    web::{self, JsonConfig},
+    App, HttpServer,
+};
 use dotenv::dotenv;
 use std::env;
 
@@ -40,7 +43,8 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .data(pool.clone())
-            .data(JsonConfig::default().limit(4096))
+            .data(JsonConfig::default().limit(1_000_000 * 250))
+            .data(web::PayloadConfig::new(1_000_000 * 250))
             .service(services::subscription::subscribe)
             .service(services::subscription::unsubscribe)
             .service(services::restaurant::restaurant)

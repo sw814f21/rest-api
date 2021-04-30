@@ -4,6 +4,7 @@ mod tests {
     use crate::database::models::*;
     use crate::utils::data_inserter;
     use crate::utils::json_parser;
+    use data_inserter::map_restaurant_json2insert;
 
     #[actix_rt::test]
     async fn restaurant_removal() {
@@ -12,11 +13,14 @@ mod tests {
         let restaurant = test_restaurant();
 
         let version = Version::get_from_token(&db_pool.get().unwrap(), "1");
-        let id = data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, version.id);
+        let mut insertable = map_restaurant_json2insert(&restaurant, version.id);
+
+        let mut ress = vec![insertable];
+        let id = data_inserter::insert_restaurants(&db_pool.get().unwrap(), &ress);
 
         let version2 = Version::get_from_token(&db_pool.get().unwrap(), "2");
         let remove_ids = vec![id];
-        data_inserter::remove_restaurant(&db_pool.get().unwrap(), remove_ids, &version2);
+        //data_inserter::remove_restaurant(&db_pool.get().unwrap(), remove_ids, &version2);
 
         let res_vec = Restaurant::get_all_resturants(&db_pool.get().unwrap());
         let removals = RemovedRestaurant::get_removals_since(&db_pool.get().unwrap(), version.id);
@@ -32,10 +36,16 @@ mod tests {
         let restaurant = test_restaurant();
 
         let version_1 = Version::get_from_token(&db_pool.get().unwrap(), "1");
-        data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, version_1.id);
+        let mut insertable = map_restaurant_json2insert(&restaurant, version_1.id);
+
+        let mut ress = vec![insertable];
+        data_inserter::insert_restaurants(&db_pool.get().unwrap(), &ress);
 
         let version_2 = Version::get_from_token(&db_pool.get().unwrap(), "2");
-        data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, version_2.id);
+        insertable = map_restaurant_json2insert(&restaurant, version_1.id);
+
+        ress = vec![insertable];
+        data_inserter::insert_restaurants(&db_pool.get().unwrap(), &ress);
 
         let res_total = Restaurant::get_all_resturants(&db_pool.get().unwrap());
         let res_v1 = Restaurant::get_since_version(&db_pool.get().unwrap(), version_1.id);
@@ -53,7 +63,10 @@ mod tests {
         let mut restaurant = test_restaurant();
 
         let version_1 = Version::get_from_token(&db_pool.get().unwrap(), "1");
-        data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, version_1.id);
+        let insertable = map_restaurant_json2insert(&restaurant, version_1.id);
+
+        let ress = vec![insertable];
+        data_inserter::insert_restaurants(&db_pool.get().unwrap(), &ress);
 
         restaurant.name = String::from("some other name");
         let version_2 = Version::get_from_token(&db_pool.get().unwrap(), "2");
@@ -72,10 +85,18 @@ mod tests {
         let mut restaurant = test_restaurant();
 
         let version_1 = Version::get_from_token(&db_pool.get().unwrap(), "1");
-        data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, version_1.id);
+        let mut insertable = map_restaurant_json2insert(&restaurant, version_1.id);
+
+        let mut ress = vec![insertable];
+
+        data_inserter::insert_restaurants(&db_pool.get().unwrap(), &ress);
 
         restaurant.smiley_restaurant_id = String::from("5435345"); // Change id for other restaurant
-        data_inserter::insert_restaurant(&db_pool.get().unwrap(), &restaurant, version_1.id);
+
+        insertable = map_restaurant_json2insert(&restaurant, version_1.id);
+
+        ress = vec![insertable];
+        data_inserter::insert_restaurants(&db_pool.get().unwrap(), &ress);
 
         restaurant.name = String::from("some other name");
         let version_2 = Version::get_from_token(&db_pool.get().unwrap(), "2");

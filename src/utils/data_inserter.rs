@@ -6,7 +6,7 @@ use diesel::prelude::*;
 #[derive(Insertable, AsChangeset)]
 #[table_name = "restaurant"]
 pub struct InsertRestaurant {
-    pub smiley_restaurant_id: i32,
+    pub smiley_restaurant_id: String,
     pub name: String,
     pub address: String,
     pub zipcode: String,
@@ -50,37 +50,26 @@ no_arg_sql_function!(
     "Represents the SQL last_insert_row() function"
 );
 
-pub fn insert_restaurant(
+pub fn insert_restaurants(
     conn: &SqliteConnection,
-    restaurants_data: &JsonRestaurant,
-    version: i32,
-) -> i32 {
-    let insertable = map_restaurant_json2insert(restaurants_data, version);
-
+    restaurants_data: &Vec<InsertRestaurant>,
+) -> Vec<(String, i32)> {
     diesel::insert_into(restaurant::table)
-        .values(&insertable)
+        .values(restaurants_data)
         .execute(conn)
         .expect("Error saving new restaurant");
 
-    diesel::select(last_insert_rowid)
-        .get_result::<i32>(conn)
-        .expect("Error getting result")
+    restaurant::table
+        .select((restaurant::smiley_restaurant_id, restaurant::id))
+        .get_results::<(String, i32)>(conn)
+        .expect("Unable to fetch ids from the")
 }
 
-pub fn insert_smileys(
-    conn: &SqliteConnection,
-    smiley_data: &Vec<JsonSmileyReport>,
-    restaurant_id: i32,
-) -> usize {
-    let mut new_smileyreports = Vec::new();
-    for report in smiley_data {
-        new_smileyreports.push(map_smileyreport_json2insert(&report, restaurant_id));
-    }
-
+pub fn insert_smileys(conn: &SqliteConnection, smiley_data: &Vec<InsertSmileyReport>) {
     diesel::insert_into(smiley_report::table)
-        .values(new_smileyreports)
+        .values(smiley_data)
         .execute(conn)
-        .expect("Error saving new smiley data")
+        .expect("Error saving new smiley data");
 }
 
 pub fn remove_restaurant(conn: &SqliteConnection, restaurant_ids: Vec<i32>, version: &Version) {
@@ -111,11 +100,11 @@ pub fn update_restaurant(
     let insertable_restaurant = map_restaurant_json2insert(restaurant, version);
 
     diesel::update(restaurant::table)
-        .filter(restaurant::smiley_restaurant_id.eq(insertable_restaurant.smiley_restaurant_id))
+        .filter(restaurant::smiley_restaurant_id.eq(&insertable_restaurant.smiley_restaurant_id))
         .set(&insertable_restaurant)
         .execute(conn)
         .expect("Failed to update restaurant");
-    Restaurant::get_restaurant_by_smiley_id(insertable_restaurant.smiley_restaurant_id, conn)
+    Restaurant::get_restaurant_by_smiley_id(&insertable_restaurant.smiley_restaurant_id, conn)
 }
 
 pub fn update_smileys(conn: &SqliteConnection, smiley_data: &JsonSmileyReport, restaurant_id: i32) {
@@ -140,9 +129,12 @@ pub fn update_smileys(conn: &SqliteConnection, smiley_data: &JsonSmileyReport, r
     }
 }
 
-fn map_restaurant_json2insert(input: &JsonRestaurant, version_number: i32) -> InsertRestaurant {
+pub(crate) fn map_restaurant_json2insert(
+    input: &JsonRestaurant,
+    version_number: i32,
+) -> InsertRestaurant {
     InsertRestaurant {
-        smiley_restaurant_id: input.smiley_restaurant_id.parse::<i32>().unwrap(),
+        smiley_restaurant_id: (*input.smiley_restaurant_id).to_string(),
         name: (*input.name).to_string(),
         address: (*input.address).to_string(),
         zipcode: (*input.zipcode).to_string(),
@@ -165,7 +157,7 @@ fn map_restaurant_json2insert(input: &JsonRestaurant, version_number: i32) -> In
     }
 }
 
-fn map_smileyreport_json2insert(input: &JsonSmileyReport, res_id: i32) -> InsertSmileyReport {
+pub fn map_smileyreport_json2insert(input: &JsonSmileyReport, res_id: i32) -> InsertSmileyReport {
     InsertSmileyReport {
         date: (*input.date).to_string(),
         smiley: input.smiley,

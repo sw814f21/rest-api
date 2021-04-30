@@ -10,7 +10,7 @@ use diesel::dsl::{delete, exists, insert_into, select};
 #[derive(Debug, Clone, PartialEq, Queryable, Serialize)]
 pub struct Restaurant {
     pub id: i32,
-    pub smiley_restaurant_id: i32,
+    pub smiley_restaurant_id: String,
     pub name: String,
     pub address: String,
     pub zipcode: String,
@@ -41,11 +41,11 @@ pub struct Simplerestaurant {
 
 use super::schema::restaurant::dsl::restaurant as res_dsl;
 impl Restaurant {
-    pub fn get_restaurant_references(conn: &SqliteConnection) -> Vec<i32> {
+    pub fn get_restaurant_references(conn: &SqliteConnection) -> Vec<String> {
         use super::schema::restaurant::dsl::smiley_restaurant_id;
         res_dsl
             .select(smiley_restaurant_id)
-            .load::<i32>(conn)
+            .load::<String>(conn)
             .expect("Error fetching ids from database")
     }
 
@@ -72,7 +72,7 @@ impl Restaurant {
         convert_res_smiley_pairs(query).get(0).unwrap().to_owned()
     }
 
-    pub fn get_restaurant_by_smiley_id(smiley_restaurant_id: i32, conn: &SqliteConnection) -> i32 {
+    pub fn get_restaurant_by_smiley_id(smiley_restaurant_id: &str, conn: &SqliteConnection) -> i32 {
         restaurant::table
             .filter(restaurant::smiley_restaurant_id.eq(smiley_restaurant_id))
             .select(restaurant::id)

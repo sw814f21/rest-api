@@ -47,9 +47,14 @@ mod tests {
             franchise_name: Some(String::from("abba")),
         };
 
-        let testid = insert_restaurant(&conn, &testres, version.id);
+        let testres2 = map_restaurant_json2insert(&testres, 1);
+
+        let inserts = vec![testres2];
+
+
+        insert_restaurants(&conn, &inserts);
         match schema::restaurant::dsl::restaurant
-            .filter(schema::restaurant::smiley_restaurant_id.eq(42545))
+            .filter(schema::restaurant::smiley_restaurant_id.eq("42545"))
             .filter(schema::restaurant::name.eq_all(testres.name))
             .filter(schema::restaurant::address.eq_all(testres.address))
             .filter(schema::restaurant::zipcode.eq_all(testres.zipcode))
@@ -63,7 +68,6 @@ mod tests {
             Err(_) => panic!("Error in test for insert of test restaurant"),
             Ok(res) => {
                 assert_eq!(res.iter().count(), 1);
-                assert_eq!(res.get(0).unwrap().id, testid)
             }
         }
     }
@@ -94,18 +98,18 @@ mod tests {
         load_test_data(&conn);
         let mut res = models::Restaurant::search_by_lat_lng(55.9, 9.0, 55.2, 10.1, &conn);
         struct Vals {
-            smiley_restaurant_id: i32,
+            smiley_restaurant_id: String,
             cvr: String,
             pnr: String,
         }
-        let excepted = vec![
+        let expected = vec![
             Vals {
-                smiley_restaurant_id: 69908,
+                smiley_restaurant_id: String::from("69908"),
                 cvr: String::from("29367876"),
                 pnr: String::from("1012127266"),
             },
             Vals {
-                smiley_restaurant_id: 710347,
+                smiley_restaurant_id: String::from("710347"),
                 cvr: String::from("38290789"),
                 pnr: String::from("1022046981"),
             },
@@ -117,10 +121,10 @@ mod tests {
         for i in res {
             assert_eq!(
                 i.smiley_restaurant_id,
-                excepted.get(j).unwrap().smiley_restaurant_id
+                expected.get(j).unwrap().smiley_restaurant_id
             );
-            assert_eq!(i.cvr, excepted.get(j).unwrap().cvr);
-            assert_eq!(i.pnr, excepted.get(j).unwrap().pnr);
+            assert_eq!(i.cvr, expected.get(j).unwrap().cvr);
+            assert_eq!(i.pnr, expected.get(j).unwrap().pnr);
             j = j + 1;
         }
     }
@@ -348,7 +352,7 @@ mod tests {
             (
                 Restaurant {
                     id: 1,
-                    smiley_restaurant_id: 1,
+                    smiley_restaurant_id: String::from("1"),
                     name: String::from(""),
                     address: String::from(""),
                     zipcode: String::from(""),
@@ -380,7 +384,7 @@ mod tests {
             (
                 Restaurant {
                     id: 1,
-                    smiley_restaurant_id: 1,
+                    smiley_restaurant_id: String::from("1"),
                     name: String::from(""),
                     address: String::from(""),
                     zipcode: String::from(""),
@@ -412,7 +416,7 @@ mod tests {
             (
                 Restaurant {
                     id: 2,
-                    smiley_restaurant_id: 2,
+                    smiley_restaurant_id: String::from("2"),
                     name: String::from(""),
                     address: String::from(""),
                     zipcode: String::from(""),
@@ -445,7 +449,7 @@ mod tests {
         let expected: Vec<RestaurantWithSmileyReport> = vec![
             RestaurantWithSmileyReport {
                 id: 1,
-                smiley_restaurant_id: 1,
+                smiley_restaurant_id: String::from("1"),
                 name: String::from(""),
                 address: String::from(""),
                 zipcode: String::from(""),
@@ -474,7 +478,7 @@ mod tests {
             },
             RestaurantWithSmileyReport {
                 id: 2,
-                smiley_restaurant_id: 2,
+                smiley_restaurant_id: String::from("2"),
                 name: String::from(""),
                 address: String::from(""),
                 zipcode: String::from(""),
