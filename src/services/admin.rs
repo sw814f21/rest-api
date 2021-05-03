@@ -5,12 +5,12 @@ use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::SqliteConnection;
 
 #[get("/admin/load")]
-pub async fn get_ids(
+pub async fn get_smiley_data(
     req: HttpRequest,
     pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>,
 ) -> impl Responder {
     if is_localhost(req) {
-        HttpResponse::Ok().json(data_loader::get_data_from_database(&pool.get().unwrap()))
+        HttpResponse::Ok().json(data_loader::get_smiley_data(&pool.get().unwrap()))
     } else {
         HttpResponse::build(StatusCode::from_u16(404).expect("Failed to create status code"))
             .finish()
@@ -56,7 +56,7 @@ pub async fn delete_smiley_data(
     pool: web::Data<Pool<ConnectionManager<SqliteConnection>>>,
 ) -> impl Responder {
     if is_localhost(req) {
-        data_loader::delete_smiley_records(&req_body, &pool.get().unwrap());
+        data_loader::delete_smiley_data(&req_body, &pool.get().unwrap());
 
         HttpResponse::Ok().finish()
     } else {
