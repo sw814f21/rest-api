@@ -51,7 +51,6 @@ mod tests {
 
         let inserts = vec![testres2];
 
-
         insert_restaurants(&conn, &inserts);
         match schema::restaurant::dsl::restaurant
             .filter(schema::restaurant::smiley_restaurant_id.eq("42545"))
@@ -199,7 +198,7 @@ mod tests {
 
         for res in resp {
             match res.smiley_restaurant_id.as_str() {
-                "659918"  => {
+                "659918" => {
                     assert_eq!(res.cvr, "36545860");
                     assert_eq!(res.pnr, "1020169008");
                     first_found = true;
