@@ -16,7 +16,7 @@ pub struct Restaurant {
     pub id: i32,
 
     #[serde(alias = "smiley_restaurant_id")]
-    pub smiley_restaurant_id: i32,
+    pub smiley_restaurant_id: String,
 
     #[serde(alias = "name")]
     pub name: String,
@@ -66,7 +66,7 @@ pub struct Restaurantandsmiley {
     pub id: i32,
 
     #[serde(alias = "smiley_restaurant_id")]
-    pub smiley_restaurant_id: i32,
+    pub smiley_restaurant_id: String,
 
     #[serde(alias = "name")]
     pub name: String,

@@ -13,14 +13,14 @@ mod tests {
         let restaurant = test_restaurant();
 
         let version = Version::get_from_token(&db_pool.get().unwrap(), "1");
-        let mut insertable = map_restaurant_json2insert(&restaurant, version.id);
+        let insertable = map_restaurant_json2insert(&restaurant, version.id);
 
-        let mut ress = vec![insertable];
-        let id = data_inserter::insert_restaurants(&db_pool.get().unwrap(), &ress);
+        let ress = vec![insertable];
+        let id = data_inserter::insert_restaurants(&db_pool.get().unwrap(), &ress)[0].1;
 
         let version2 = Version::get_from_token(&db_pool.get().unwrap(), "2");
         let remove_ids = vec![id];
-        //data_inserter::remove_restaurant(&db_pool.get().unwrap(), remove_ids, &version2);
+        data_inserter::remove_restaurant(&db_pool.get().unwrap(), remove_ids, &version2);
 
         let res_vec = Restaurant::get_all_resturants(&db_pool.get().unwrap());
         let removals = RemovedRestaurant::get_removals_since(&db_pool.get().unwrap(), version.id);
@@ -42,7 +42,7 @@ mod tests {
         data_inserter::insert_restaurants(&db_pool.get().unwrap(), &ress);
 
         let version_2 = Version::get_from_token(&db_pool.get().unwrap(), "2");
-        insertable = map_restaurant_json2insert(&restaurant, version_1.id);
+        insertable = map_restaurant_json2insert(&restaurant, version_2.id);
 
         ress = vec![insertable];
         data_inserter::insert_restaurants(&db_pool.get().unwrap(), &ress);

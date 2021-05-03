@@ -47,7 +47,7 @@ mod tests {
             franchise_name: Some(String::from("abba")),
         };
 
-        let testres2 = map_restaurant_json2insert(&testres, 1);
+        let testres2 = map_restaurant_json2insert(&testres, version.id);
 
         let inserts = vec![testres2];
 
@@ -163,7 +163,7 @@ mod tests {
         assert!(resp.status().is_success());
         let resp: response_parser::Restaurantandsmiley = test::read_body_json(resp).await;
         assert_eq!(resp.id, 5);
-        assert_eq!(resp.smiley_restaurant_id, 758030);
+        assert_eq!(resp.smiley_restaurant_id, "758030");
         assert_eq!(resp.cvr, "25431944");
         assert_eq!(resp.pnr, "1008217579");
     }
@@ -191,22 +191,35 @@ mod tests {
                 .unwrap()
         });
 
-        assert_eq!(resp.iter().count(), 3);
-        let first = resp.pop().unwrap();
-        let second = resp.pop().unwrap();
-        let third = resp.pop().unwrap();
+        assert_eq!(resp.len(), 3);
 
-        assert_eq!(first.smiley_restaurant_id, 659918);
-        assert_eq!(first.cvr, "36545860");
-        assert_eq!(first.pnr, "1020169008");
+        let mut first_found: bool = false;
+        let mut second_found: bool = false;
+        let mut third_found: bool = false;
 
-        assert_eq!(second.smiley_restaurant_id, 69908);
-        assert_eq!(second.cvr, "29367876");
-        assert_eq!(second.pnr, "1012127266");
-
-        assert_eq!(third.smiley_restaurant_id, 47738);
-        assert_eq!(third.cvr, "30138929");
-        assert_eq!(third.pnr, "1000765515");
+        for res in resp {
+            match res.smiley_restaurant_id.as_str() {
+                "659918"  => {
+                    assert_eq!(res.cvr, "36545860");
+                    assert_eq!(res.pnr, "1020169008");
+                    first_found = true;
+                }
+                "69908" => {
+                    assert_eq!(res.cvr, "29367876");
+                    assert_eq!(res.pnr, "1012127266");
+                    second_found = true;
+                }
+                "47738" => {
+                    assert_eq!(res.cvr, "30138929");
+                    assert_eq!(res.pnr, "1000765515");
+                    third_found = true;
+                }
+                _ => {} //Ignore the rest
+            }
+        }
+        assert!(first_found);
+        assert!(second_found);
+        assert!(third_found);
     }
     #[actix_rt::test]
     async fn test_restaurant_search_multiple_params() {
@@ -228,7 +241,7 @@ mod tests {
         assert_eq!(resp.iter().count(), 1);
         let resp = resp.get(0).unwrap();
         assert_eq!(resp.id, 4);
-        assert_eq!(resp.smiley_restaurant_id, 717825);
+        assert_eq!(resp.smiley_restaurant_id, "717825");
         assert_eq!(resp.cvr, "31262208");
         assert_eq!(resp.pnr, "1022913332");
     }
