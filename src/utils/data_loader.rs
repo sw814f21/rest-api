@@ -1,10 +1,14 @@
-use super::json_parser::{DeleteData, JsonRestaurant, JsonSmileyReport};
+use super::{
+    data_inserter::{insert_smileys, map_smileyreport_json2insert, InsertSmileyReport},
+    json_parser::{DeleteData, JsonRestaurant, JsonSmileyReport},
+};
 use crate::database::models::Version;
 use crate::utils::json_parser::RichData;
 use crate::{
     database::schema,
     utils::data_inserter::{
-        insert_restaurant, insert_smileys, remove_restaurant, update_restaurant, update_smileys,
+        insert_restaurants, map_restaurant_json2insert, remove_restaurant, update_restaurant,
+        update_smileys, InsertRestaurant,
     },
 };
 use diesel::{JoinOnDsl, QueryDsl, SqliteConnection};
@@ -12,6 +16,7 @@ use diesel::{JoinOnDsl, QueryDsl, SqliteConnection};
 use diesel::prelude::*;
 
 use crate::database::models::*;
+use std::collections::HashMap;
 
 pub fn load_data_from_file(path: &String, conn: &SqliteConnection) {
     let json = std::fs::read_to_string(path).expect("Failed to read file");
@@ -27,11 +32,31 @@ pub fn insert_smiley_data(json: &String, connection: &SqliteConnection) {
 
     let ver = Version::get_from_token(connection, &read_json.token);
 
-    for res in read_json.data {
-        let resid = insert_restaurant(&connection, &res, ver.id);
+    let restaurants: Vec<InsertRestaurant> = read_json
+        .data
+        .iter()
+        .map(|r| map_restaurant_json2insert(r, ver.id))
+        .collect();
 
-        insert_smileys(&connection, &res.smiley_reports, resid);
+    let id_map: HashMap<_, _> = insert_restaurants(&connection, &restaurants)
+        .into_iter()
+        .collect();
+
+    let mut smiley_reports: Vec<InsertSmileyReport> = Vec::new();
+
+    for res in read_json.data {
+        match id_map.get(&res.smiley_restaurant_id) {
+            Some(value) => {
+                for rep in res.smiley_reports {
+                    smiley_reports.push(map_smileyreport_json2insert(&rep, *value));
+                }
+            }
+            None => {
+                panic!("No match on the data which was just inserted!");
+            }
+        }
     }
+    insert_smileys(&connection, &smiley_reports);
 }
 
 pub fn update_smiley_data(json: &String, connection: &SqliteConnection) {
@@ -66,7 +91,7 @@ pub fn get_smiley_data(conn: &SqliteConnection) -> Vec<JsonRestaurant> {
 pub fn conv_res_smiley_to_jsonres(data: Vec<(Restaurant, SmileyReport)>) -> Vec<JsonRestaurant> {
     // Create a variable
     let mut result = Vec::new();
-    let mut smiley_id = 0;
+    let mut smiley_id = "".to_owned();
 
     // if the joined smiley report tuple is not empty, we add the first restaurant
     if !data.is_empty() {
@@ -74,7 +99,7 @@ pub fn conv_res_smiley_to_jsonres(data: Vec<(Restaurant, SmileyReport)>) -> Vec<
         let joined_smiley_report_tuple = data.get(0).unwrap();
 
         // set smiley id
-        smiley_id = joined_smiley_report_tuple.0.smiley_restaurant_id;
+        smiley_id = joined_smiley_report_tuple.0.smiley_restaurant_id.clone();
 
         // convert the first restaurant  to a JSON restaurant
         let mut first_json_restaurant = restaurant_to_jsonrestaurant(&joined_smiley_report_tuple.0);
@@ -101,7 +126,7 @@ pub fn conv_res_smiley_to_jsonres(data: Vec<(Restaurant, SmileyReport)>) -> Vec<
 
         // if the smiley id does not match the current restaurant, we got a new restaurant
         if smiley_id != current_restaurant.smiley_restaurant_id {
-            smiley_id = current_restaurant.smiley_restaurant_id;
+            smiley_id = current_restaurant.smiley_restaurant_id.clone();
             result.push(restaurant_to_jsonrestaurant(current_restaurant));
         }
 
@@ -123,7 +148,7 @@ async fn res_to_jsonres_test() {
     let test_tuple_1 = (
         Restaurant {
             id: 1,
-            smiley_restaurant_id: 1,
+            smiley_restaurant_id: "1".to_string(),
             name: "Sej restaurant".to_string(),
             address: "Sejgade".to_string(),
             zipcode: 1337.to_string(),
@@ -155,7 +180,7 @@ async fn res_to_jsonres_test() {
     let test_tuple_2 = (
         Restaurant {
             id: 1,
-            smiley_restaurant_id: 1,
+            smiley_restaurant_id: "1".to_string(),
             name: "Sej restaurant".to_string(),
             address: "Sejgade".to_string(),
             zipcode: 1337.to_string(),
@@ -188,7 +213,7 @@ async fn res_to_jsonres_test() {
     let test_tuple_3 = (
         Restaurant {
             id: 2,
-            smiley_restaurant_id: 2,
+            smiley_restaurant_id: "2".to_string(),
             name: "Nedern restaurant".to_string(),
             address: "Nejgade".to_string(),
             zipcode: 1337.to_string(),

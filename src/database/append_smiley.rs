@@ -4,7 +4,7 @@ use serde::Serialize;
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct RestaurantWithSmileyReport {
     pub id: i32,
-    pub smiley_restaurant_id: i32,
+    pub smiley_restaurant_id: String,
     pub name: String,
     pub address: String,
     pub zipcode: String,

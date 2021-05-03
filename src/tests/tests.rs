@@ -47,9 +47,13 @@ mod tests {
             franchise_name: Some(String::from("abba")),
         };
 
-        let testid = insert_restaurant(&conn, &testres, version.id);
+        let testres2 = map_restaurant_json2insert(&testres, version.id);
+
+        let inserts = vec![testres2];
+
+        insert_restaurants(&conn, &inserts);
         match schema::restaurant::dsl::restaurant
-            .filter(schema::restaurant::smiley_restaurant_id.eq(42545))
+            .filter(schema::restaurant::smiley_restaurant_id.eq("42545"))
             .filter(schema::restaurant::name.eq_all(testres.name))
             .filter(schema::restaurant::address.eq_all(testres.address))
             .filter(schema::restaurant::zipcode.eq_all(testres.zipcode))
@@ -63,7 +67,6 @@ mod tests {
             Err(_) => panic!("Error in test for insert of test restaurant"),
             Ok(res) => {
                 assert_eq!(res.iter().count(), 1);
-                assert_eq!(res.get(0).unwrap().id, testid)
             }
         }
     }
@@ -94,18 +97,18 @@ mod tests {
         load_test_data(&conn);
         let mut res = models::Restaurant::search_by_lat_lng(55.9, 9.0, 55.2, 10.1, &conn);
         struct Vals {
-            smiley_restaurant_id: i32,
+            smiley_restaurant_id: String,
             cvr: String,
             pnr: String,
         }
-        let excepted = vec![
+        let expected = vec![
             Vals {
-                smiley_restaurant_id: 69908,
+                smiley_restaurant_id: String::from("69908"),
                 cvr: String::from("29367876"),
                 pnr: String::from("1012127266"),
             },
             Vals {
-                smiley_restaurant_id: 710347,
+                smiley_restaurant_id: String::from("710347"),
                 cvr: String::from("38290789"),
                 pnr: String::from("1022046981"),
             },
@@ -117,10 +120,10 @@ mod tests {
         for i in res {
             assert_eq!(
                 i.smiley_restaurant_id,
-                excepted.get(j).unwrap().smiley_restaurant_id
+                expected.get(j).unwrap().smiley_restaurant_id
             );
-            assert_eq!(i.cvr, excepted.get(j).unwrap().cvr);
-            assert_eq!(i.pnr, excepted.get(j).unwrap().pnr);
+            assert_eq!(i.cvr, expected.get(j).unwrap().cvr);
+            assert_eq!(i.pnr, expected.get(j).unwrap().pnr);
             j = j + 1;
         }
     }
@@ -159,7 +162,7 @@ mod tests {
         assert!(resp.status().is_success());
         let resp: response_parser::Restaurantandsmiley = test::read_body_json(resp).await;
         assert_eq!(resp.id, 5);
-        assert_eq!(resp.smiley_restaurant_id, 758030);
+        assert_eq!(resp.smiley_restaurant_id, "758030");
         assert_eq!(resp.cvr, "25431944");
         assert_eq!(resp.pnr, "1008217579");
     }
@@ -187,22 +190,35 @@ mod tests {
                 .unwrap()
         });
 
-        assert_eq!(resp.iter().count(), 3);
-        let first = resp.pop().unwrap();
-        let second = resp.pop().unwrap();
-        let third = resp.pop().unwrap();
+        assert_eq!(resp.len(), 3);
 
-        assert_eq!(first.smiley_restaurant_id, 659918);
-        assert_eq!(first.cvr, "36545860");
-        assert_eq!(first.pnr, "1020169008");
+        let mut first_found: bool = false;
+        let mut second_found: bool = false;
+        let mut third_found: bool = false;
 
-        assert_eq!(second.smiley_restaurant_id, 69908);
-        assert_eq!(second.cvr, "29367876");
-        assert_eq!(second.pnr, "1012127266");
-
-        assert_eq!(third.smiley_restaurant_id, 47738);
-        assert_eq!(third.cvr, "30138929");
-        assert_eq!(third.pnr, "1000765515");
+        for res in resp {
+            match res.smiley_restaurant_id.as_str() {
+                "659918" => {
+                    assert_eq!(res.cvr, "36545860");
+                    assert_eq!(res.pnr, "1020169008");
+                    first_found = true;
+                }
+                "69908" => {
+                    assert_eq!(res.cvr, "29367876");
+                    assert_eq!(res.pnr, "1012127266");
+                    second_found = true;
+                }
+                "47738" => {
+                    assert_eq!(res.cvr, "30138929");
+                    assert_eq!(res.pnr, "1000765515");
+                    third_found = true;
+                }
+                _ => {} //Ignore the rest
+            }
+        }
+        assert!(first_found);
+        assert!(second_found);
+        assert!(third_found);
     }
     #[actix_rt::test]
     async fn test_restaurant_search_multiple_params() {
@@ -224,7 +240,7 @@ mod tests {
         assert_eq!(resp.iter().count(), 1);
         let resp = resp.get(0).unwrap();
         assert_eq!(resp.id, 4);
-        assert_eq!(resp.smiley_restaurant_id, 717825);
+        assert_eq!(resp.smiley_restaurant_id, "717825");
         assert_eq!(resp.cvr, "31262208");
         assert_eq!(resp.pnr, "1022913332");
     }
@@ -348,7 +364,7 @@ mod tests {
             (
                 Restaurant {
                     id: 1,
-                    smiley_restaurant_id: 1,
+                    smiley_restaurant_id: String::from("1"),
                     name: String::from(""),
                     address: String::from(""),
                     zipcode: String::from(""),
@@ -380,7 +396,7 @@ mod tests {
             (
                 Restaurant {
                     id: 1,
-                    smiley_restaurant_id: 1,
+                    smiley_restaurant_id: String::from("1"),
                     name: String::from(""),
                     address: String::from(""),
                     zipcode: String::from(""),
@@ -412,7 +428,7 @@ mod tests {
             (
                 Restaurant {
                     id: 2,
-                    smiley_restaurant_id: 2,
+                    smiley_restaurant_id: String::from("2"),
                     name: String::from(""),
                     address: String::from(""),
                     zipcode: String::from(""),
@@ -445,7 +461,7 @@ mod tests {
         let expected: Vec<RestaurantWithSmileyReport> = vec![
             RestaurantWithSmileyReport {
                 id: 1,
-                smiley_restaurant_id: 1,
+                smiley_restaurant_id: String::from("1"),
                 name: String::from(""),
                 address: String::from(""),
                 zipcode: String::from(""),
@@ -474,7 +490,7 @@ mod tests {
             },
             RestaurantWithSmileyReport {
                 id: 2,
-                smiley_restaurant_id: 2,
+                smiley_restaurant_id: String::from("2"),
                 name: String::from(""),
                 address: String::from(""),
                 zipcode: String::from(""),

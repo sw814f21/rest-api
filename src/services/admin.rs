@@ -26,7 +26,7 @@ pub async fn insert_smiley_data(
     if is_localhost(req) {
         data_loader::insert_smiley_data(&req_body, &pool.get().unwrap());
 
-        HttpResponse::Ok().body(req_body)
+        HttpResponse::Ok().finish()
     } else {
         HttpResponse::build(StatusCode::from_u16(404).expect("Failed to create status code"))
             .finish()
@@ -42,7 +42,7 @@ pub async fn update_smiley_data(
     if is_localhost(req) {
         data_loader::update_smiley_data(&req_body, &pool.get().unwrap());
 
-        HttpResponse::Ok().body(req_body)
+        HttpResponse::Ok().finish()
     } else {
         HttpResponse::build(StatusCode::from_u16(404).expect("Failed to create status code"))
             .finish()

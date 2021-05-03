@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS version_history(
 
 CREATE TABLE IF NOT EXISTS restaurant (
   id INTEGER NOT NULL PRIMARY KEY,
-  smiley_restaurant_id INTEGER NOT NULL,
+  smiley_restaurant_id VARCHAR NOT NULL,
   name VARCHAR NOT NULL,
   address VARCHAR NOT NULL,
   zipcode VARCHAR NOT NULL,
