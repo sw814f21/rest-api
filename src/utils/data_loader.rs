@@ -68,14 +68,14 @@ pub fn update_smiley_data(json: &String, connection: &SqliteConnection) {
     let restaurants = read_json.data;
 
     for res in restaurants {
-        let resid: i32 = update_restaurant(&connection, &res, ver.id);
+        let resid = update_restaurant(&connection, &res, ver.id);
         for report in &res.smiley_reports {
             update_smileys(&connection, &report, resid);
         }
     }
 }
 
-pub fn get_data_from_database(conn: &SqliteConnection) -> Vec<JsonRestaurant> {
+pub fn get_smiley_data(conn: &SqliteConnection) -> Vec<JsonRestaurant> {
     use schema::*;
     println!("Dumping data from database..");
 
@@ -141,6 +141,121 @@ pub fn conv_res_smiley_to_jsonres(data: Vec<(Restaurant, SmileyReport)>) -> Vec<
     result
 }
 
+#[actix_rt::test]
+async fn res_to_jsonres_test() {
+    let mut vec: Vec<(Restaurant, SmileyReport)> = Vec::new();
+
+    let test_tuple_1 = (
+        Restaurant {
+            id: 1,
+            smiley_restaurant_id: "1".to_string(),
+            name: "Sej restaurant".to_string(),
+            address: "Sejgade".to_string(),
+            zipcode: 1337.to_string(),
+            city: "Aalborg".to_string(),
+            cvr: 9001.to_string(),
+            pnr: 1234.to_string(),
+            latitude: 1.0,
+            longitude: 1.0,
+            version_number: 1,
+            region: Some("Nordjylland".to_string()),
+            industry_code: 1.to_string(),
+            industry_text: "This is a cool industry".to_string(),
+            start_date: "1".to_string(),
+            elite_smiley: "Yes".to_string(),
+            niche_industry: "No".to_string(),
+            url: "www.myrestaurant.com".to_string(),
+            ad_protection: "Yes".to_string(),
+            company_type: "Restaurant".to_string(),
+            franchise_name: Some("Best Franchise".to_string()),
+        },
+        SmileyReport {
+            id: 1,
+            res_id: 1,
+            rating: 5,
+            report_id: 1.to_string(),
+            date: 11.to_string(),
+        },
+    );
+    let test_tuple_2 = (
+        Restaurant {
+            id: 1,
+            smiley_restaurant_id: "1".to_string(),
+            name: "Sej restaurant".to_string(),
+            address: "Sejgade".to_string(),
+            zipcode: 1337.to_string(),
+            city: "Aalborg".to_string(),
+            cvr: 9001.to_string(),
+            pnr: 1234.to_string(),
+            latitude: 1.0,
+            longitude: 1.0,
+            version_number: 1,
+            region: Some("Nordjylland".to_string()),
+            industry_code: 1.to_string(),
+            industry_text: "This is a cool industry".to_string(),
+            start_date: "1".to_string(),
+            elite_smiley: "Yes".to_string(),
+            niche_industry: "No".to_string(),
+            url: "www.myrestaurant.com".to_string(),
+            ad_protection: "Yes".to_string(),
+            company_type: "Restaurant".to_string(),
+            franchise_name: Some("Best Franchise".to_string()),
+        },
+        SmileyReport {
+            id: 2,
+            res_id: 1,
+            rating: 4,
+            report_id: 2.to_string(),
+            date: 12.to_string(),
+        },
+    );
+
+    let test_tuple_3 = (
+        Restaurant {
+            id: 2,
+            smiley_restaurant_id: "2".to_string(),
+            name: "Nedern restaurant".to_string(),
+            address: "Nejgade".to_string(),
+            zipcode: 1337.to_string(),
+            city: "Aalborg".to_string(),
+            cvr: 9001.to_string(),
+            pnr: 1234.to_string(),
+            latitude: 1.0,
+            longitude: 1.0,
+            version_number: 1,
+            region: Some("Nordjylland".to_string()),
+            industry_code: 1.to_string(),
+            industry_text: "This is a cool industry".to_string(),
+            start_date: "1".to_string(),
+            elite_smiley: "Yes".to_string(),
+            niche_industry: "No".to_string(),
+            url: "www.myrestaurant.com".to_string(),
+            ad_protection: "Yes".to_string(),
+            company_type: "Restaurant".to_string(),
+            franchise_name: Some("Best Franchise".to_string()),
+        },
+        SmileyReport {
+            id: 3,
+            res_id: 2,
+            rating: 4,
+            report_id: 2.to_string(),
+            date: 12.to_string(),
+        },
+    );
+
+    vec.push(test_tuple_1);
+    vec.push(test_tuple_2);
+    vec.push(test_tuple_3);
+
+    let res = conv_res_smiley_to_jsonres(vec);
+
+    // Check if there exists only 2 json restaurants
+    assert_eq!(res.len(), 2);
+    // Check if first restaurant has 2 smiley reports, and second one has 1 smiley report
+    assert_eq!(res.get(0).unwrap().smiley_reports.len(), 2);
+    assert_eq!(res.get(1).unwrap().smiley_reports.len(), 1);
+}
+
 fn restaurant_to_jsonrestaurant(restaurant: &Restaurant) -> JsonRestaurant {
     JsonRestaurant {
         address: (*restaurant.address).to_string(),
@@ -174,7 +289,7 @@ fn smileyreport_to_jsonsmileyreport(report: &SmileyReport) -> JsonSmileyReport {
     }
 }
 
-pub fn delete_smiley_records(json: &String, connection: &SqliteConnection) {
+pub fn delete_smiley_data(json: &String, connection: &SqliteConnection) {
     let data_to_delete: DeleteData = serde_json::from_str(json).expect("Can't parse json");
     let ver = Version::get_from_token(connection, &data_to_delete.token);
     remove_restaurant(&connection, data_to_delete.data, &ver);
