@@ -519,4 +519,26 @@ mod tests {
         let res = append_smiley::convert_res_smiley_pairs(test_data);
         assert_eq!(res.len(), 0);
     }
+
+    #[actix_rt::test]
+    async fn test_get_nearest_restaurants() {
+        let pool = new_pool().get().unwrap();
+        load_test_data(&pool);
+        let mut expected: Vec<String> = vec![
+            String::from("Mester Jacob v/Jacob Overgaard"),
+            String::from("La Nouvelle"),
+            String::from("Den Lille Bager V/Lars Due Christensen"),
+            String::from("Fru Nielsens Bageri V/ Niels S. Nielsen"),
+            String::from("Patricks Bake Shop - Ordrup ApS"),
+            String::from("SHAMYAT IVS"),
+            String::from("Prinsessens Lækre Bag ApS"),
+            String::from("emmerys ApS"),
+            String::from("Grannys House"),
+            String::from("BAGEREN I SVANESTRÆDE IVS"),
+        ];
+        let test = Restaurant::get_nearest_restaurants(&pool, 1, (55.5, 11.5));
+        for t in test {
+            assert_eq!(t.1.name, expected.pop().unwrap());
+        }
+    }
 }

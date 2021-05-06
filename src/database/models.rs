@@ -3,6 +3,7 @@ use super::schema;
 use super::schema::*;
 use crate::services::subscription::SubscriptionRequest;
 use diesel::prelude::*;
+use geoutils::Location;
 use serde::{Deserialize, Serialize};
 
 use diesel::dsl::{delete, exists, insert_into, select};
@@ -167,6 +168,39 @@ impl Restaurant {
             .filter(restaurant::version_number.gt(version))
             .load::<Restaurant>(conn)
             .expect("Failed to get restaurants based on version")
+    }
+
+    pub fn get_nearest_restaurants(
+        conn: &SqliteConnection,
+        version: i32,
+        location: (f64, f64),
+    ) -> Vec<(f64, RestaurantWithSmileyReport)> {
+        let query: Vec<RestaurantWithSmileyReport> = Restaurant::search_by_lat_lng(
+            &location.0 + 2.00,
+            &location.1 - 2.00,
+            &location.0 - 2.00,
+            &location.1 + 2.00,
+            conn,
+        );
+        let mut vecwithdistance: Vec<(f64, RestaurantWithSmileyReport)> = Vec::new();
+        for res in query {
+            let a = Location::new(location.0, location.1);
+            let b = Location::new(res.latitude, res.longitude);
+            vecwithdistance
+                .append(vec![(a.haversine_distance_to(&b).meters() / 1000.0, res)].as_mut());
+        }
+        vecwithdistance.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
+        let mut results: Vec<(f64, RestaurantWithSmileyReport)> = Vec::new();
+        let mut added = 0;
+        for res in vecwithdistance {
+            if added >= 50 {
+                break;
+            } else {
+                results.append(vec![res].as_mut());
+                added = added + 1;
+            }
+        }
+        results
     }
 }
 
