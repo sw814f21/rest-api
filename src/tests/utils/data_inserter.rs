@@ -125,6 +125,7 @@ mod tests {
             industry_code: String::from("abba"),
             industry_text: String::from("abba"),
             start_date: String::from("abba"),
+            end_date: String::from("abba"),
             elite_smiley: String::from("abba"),
             niche_industry: String::from("abba"),
             url: String::from("abba"),

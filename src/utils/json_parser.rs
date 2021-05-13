@@ -44,6 +44,9 @@ pub struct JsonRestaurant {
     #[serde(rename(serialize = "start_date", deserialize = "start_date"))]
     pub start_date: String,
 
+    #[serde(rename(serialize = "end_date", deserialize = "end_date"))]
+    pub end_date: String,
+
     #[serde(rename(serialize = "elite_smiley", deserialize = "elite_smiley"))]
     pub elite_smiley: String,
 

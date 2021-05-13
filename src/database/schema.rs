@@ -33,6 +33,7 @@ table! {
         industry_code -> Text,
         industry_text -> Text,
         start_date -> Text,
+        end_date -> Text,
         elite_smiley -> Text,
         niche_industry -> Text,
         url -> Text,
