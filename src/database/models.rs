@@ -24,6 +24,7 @@ pub struct Restaurant {
     pub industry_code: String,
     pub industry_text: String,
     pub start_date: String,
+    pub end_date: String,
     pub elite_smiley: String,
     pub niche_industry: String,
     pub url: String,

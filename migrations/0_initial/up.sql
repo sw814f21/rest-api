@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS restaurant (
   industry_code VARCHAR NOT NULL,
   industry_text VARCHAR NOT NULL,
   start_date VARCHAR NOT NULL,
+  end_date VARCHAR NOT NULL,
   elite_smiley VARCHAR NOT NULL,
   niche_industry VARCHAR NOT NULL,
   url VARCHAR NOT NULL,
